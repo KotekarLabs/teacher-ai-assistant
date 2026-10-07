@@ -10,6 +10,8 @@ const quickCreateOptions: QuickCreateOption[] = [
     badgeColor: "bg-blue-50 text-blue-700",
     iconBg: "bg-blue-50",
     iconColor: "text-blue-600",
+    href: "/create/lesson",
+    enabled: true,
     icon: (
       <svg
         className="w-6 h-6"

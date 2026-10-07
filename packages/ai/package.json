@@ -6,6 +6,10 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
+  "dependencies": {
+    "@teacher-ai/contracts": "workspace:*",
+    "zod": "^3.23.0"
+  },
   "devDependencies": {
     "typescript": "^5.5.0"
   }

@@ -8,15 +8,17 @@ generator client {
 }
 
 model User {
-  id            String          @id @default(uuid())
-  email         String          @unique
-  passwordHash  String
-  emailVerified Boolean         @default(false)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  lastLoginAt   DateTime?
-  profile       TeacherProfile?
-  classes       Class[]
+  id                 String              @id @default(uuid())
+  email              String              @unique
+  passwordHash       String
+  emailVerified      Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  lastLoginAt        DateTime?
+  profile            TeacherProfile?
+  classes            Class[]
+  lessons            Lesson[]
+  generationRequests GenerationRequest[]
 }
 
 model TeacherProfile {
@@ -35,19 +37,73 @@ model TeacherProfile {
 }
 
 model Class {
-  id               String    @id @default(uuid())
-  teacherId        String
-  name             String
-  grade            String
-  section          String?
-  curriculumBoard  String?
-  academicYear     String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  archivedAt       DateTime?
+  id              String    @id @default(uuid())
+  teacherId       String
+  name            String
+  grade           String
+  section         String?
+  curriculumBoard String?
+  academicYear    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  archivedAt      DateTime?
 
-  teacher          User      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  teacher         User      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  lessons         Lesson[]
 
   @@index([teacherId])
+  @@index([teacherId, archivedAt])
+}
+
+model GenerationRequest {
+  id             String    @id @default(uuid())
+  teacherId      String
+  contentType    String
+  resourceId     String?
+  provider       String
+  model          String
+  promptVersion  String
+  status         String
+  inputContext   Json
+  outputMetadata Json?
+  errorCode      String?
+  errorMessage   String?
+  latencyMs      Int?
+  inputTokens    Int?
+  outputTokens   Int?
+  estimatedCost  Float?
+  createdAt      DateTime  @default(now())
+  completedAt    DateTime?
+
+  teacher        User      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  lessons        Lesson[]
+
+  @@index([teacherId])
+  @@index([status])
+}
+
+model Lesson {
+  id                  String             @id @default(uuid())
+  teacherId           String
+  classId             String
+  generationRequestId String?
+  title               String
+  subject             String
+  topic               String
+  curriculumBoard     String?
+  difficulty          String             @default("MEDIUM")
+  durationMinutes     Int                @default(40)
+  status              String             @default("DRAFT")
+  content             Json
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  archivedAt          DateTime?
+
+  teacher             User               @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  class               Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
+  generationRequest   GenerationRequest? @relation(fields: [generationRequestId], references: [id], onDelete: SetNull)
+
+  @@index([teacherId])
+  @@index([classId])
   @@index([teacherId, archivedAt])
 }

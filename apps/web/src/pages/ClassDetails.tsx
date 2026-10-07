@@ -116,6 +116,14 @@ export default function ClassDetails() {
           {/* Action Buttons */}
           <div className="flex items-center space-x-3 pt-2 sm:pt-0">
             <Link
+              to={`/create/lesson?classId=${classItem.id}`}
+              data-testid="create-lesson-for-class-btn"
+              className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+            >
+              <span>✨</span>
+              <span className="ml-1.5">Create Lesson</span>
+            </Link>
+            <Link
               to={`/classes/${classItem.id}/edit`}
               className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
             >

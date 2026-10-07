@@ -12,6 +12,9 @@ import Classes from "./pages/Classes";
 import CreateClass from "./pages/CreateClass";
 import ClassDetails from "./pages/ClassDetails";
 import EditClass from "./pages/EditClass";
+import { CreateLesson } from "./pages/CreateLesson";
+import { LessonDetails } from "./pages/LessonDetails";
+import { EditLesson } from "./pages/EditLesson";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +43,9 @@ export default function App() {
               <Route path="/classes/new" element={<CreateClass />} />
               <Route path="/classes/:classId" element={<ClassDetails />} />
               <Route path="/classes/:classId/edit" element={<EditClass />} />
+              <Route path="/create/lesson" element={<CreateLesson />} />
+              <Route path="/lessons/:lessonId" element={<LessonDetails />} />
+              <Route path="/lessons/:lessonId/edit" element={<EditLesson />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

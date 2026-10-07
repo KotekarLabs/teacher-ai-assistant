@@ -58,9 +58,9 @@ test.describe("Dashboard Foundation Flow", () => {
     await expect(page.getByRole("heading", { name: "Lesson Plan" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Worksheet" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Quiz" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Homework" })).toBeVisible();
+    await expect(page.getByText("AI Ready")).toBeVisible();
     const comingSoonBadges = page.getByText("Coming Soon");
-    await expect(comingSoonBadges).toHaveCount(4);
+    await expect(comingSoonBadges).toHaveCount(3);
 
     // 4. Recent Resources Empty State
     await expect(page.getByText("Recent Resources")).toBeVisible();

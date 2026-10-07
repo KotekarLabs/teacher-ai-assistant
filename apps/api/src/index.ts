@@ -4,6 +4,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import teacherRoutes from "./routes/teacher.routes";
 import classRoutes from "./routes/class.routes";
+import { lessonRouter } from "./routes/lesson.routes";
 import { config } from "./utils/config";
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/teacher", teacherRoutes);
 app.use("/api/v1/classes", classRoutes);
+app.use("/api/v1/lessons", lessonRouter);
 
 app.get("/api/v1/health", (req, res) => {
   res.json({ status: "ok" });
