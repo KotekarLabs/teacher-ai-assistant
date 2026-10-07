@@ -1,1 +1,7 @@
-export interface AIProvider { generateLesson(): Promise<void>; generateWorksheet(): Promise<void>; generateQuiz(): Promise<void>; generateHomework(): Promise<void>; generateTeacherScript(): Promise<void>; }
+export interface AIProvider {
+  generateLesson(): Promise<void>;
+  generateWorksheet(): Promise<void>;
+  generateQuiz(): Promise<void>;
+  generateHomework(): Promise<void>;
+  generateTeacherScript(): Promise<void>;
+}

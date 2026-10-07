@@ -1,1 +1,1 @@
-// E2E placeholder\n
+// E2E placeholder

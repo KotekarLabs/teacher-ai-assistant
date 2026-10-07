@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('has title', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.locator('h1')).toContainText('Teacher AI Assistant');
-});\n
+test("redirects unauthenticated user to login", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("h1")).toHaveText("Login");
+});

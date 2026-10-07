@@ -1,1 +1,1 @@
-console.log('Seed placeholder');
+console.log("Seed placeholder");
