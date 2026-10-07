@@ -73,10 +73,10 @@ test.describe("Authentication Flow", () => {
     await page.click('button[type="submit"]');
 
     // 2. Redirected to Dashboard (Protected)
-    await expect(page.locator("h1")).toHaveText("Dashboard Foundation", {
+    await expect(page.locator("h1")).toHaveText("Welcome, Test Teacher", {
       timeout: 10000,
     });
-    await expect(page.getByText("Welcome, Test Teacher")).toBeVisible();
+    await expect(page.getByText("Quick Create")).toBeVisible();
 
     // 3. Logout
     await page.click('button:has-text("Logout")');
@@ -95,7 +95,7 @@ test.describe("Authentication Flow", () => {
     await page.click('button[type="submit"]');
 
     // Redirected to Dashboard
-    await expect(page.locator("h1")).toHaveText("Dashboard Foundation", {
+    await expect(page.locator("h1")).toHaveText("Welcome, Test Teacher", {
       timeout: 10000,
     });
   });

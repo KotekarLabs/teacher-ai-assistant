@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuthStore } from "./store/authStore";
 import { ProtectedRoute, OnboardingRoute } from "./components/ProtectedRoute";
+import { AppShell } from "./components/layout/AppShell";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Onboarding from "./pages/Onboarding";
@@ -29,7 +30,9 @@ export default function App() {
             <Route path="/onboarding" element={<Onboarding />} />
           </Route>
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route element={<AppShell />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

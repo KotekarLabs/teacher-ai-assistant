@@ -116,14 +116,14 @@ test.describe("Teacher Onboarding Flow", () => {
     await page.click('button[type="submit"]');
 
     // 5. Successfully redirected to Dashboard with profile display name
-    await expect(page.locator("h1")).toHaveText("Dashboard Foundation", {
+    await expect(page.locator("h1")).toHaveText("Welcome, Ms. Anita Sharma", {
       timeout: 10000,
     });
-    await expect(page.getByText("Welcome, Ms. Anita Sharma")).toBeVisible();
-    await expect(page.getByText("Board: CBSE")).toBeVisible();
+    await expect(page.getByText("Quick Create")).toBeVisible();
+    await expect(page.getByText("CBSE Board")).toBeVisible();
 
     // 6. Direct navigation to /onboarding redirects to /dashboard now that profile exists
     await page.goto("/onboarding");
-    await expect(page.locator("h1")).toHaveText("Dashboard Foundation");
+    await expect(page.locator("h1")).toHaveText("Welcome, Ms. Anita Sharma");
   });
 });

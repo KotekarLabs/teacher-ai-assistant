@@ -6,11 +6,15 @@ React, Vite, TypeScript, Tailwind, React Router, TanStack Query, Zustand, React 
 
 ## Structure
 
-apps/web/src/{app,pages,features,components,hooks,stores,api,schemas,types,utils,constants,analytics,styles}
+apps/web/src/{api,assets,components/{common,dashboard,layout},pages,store,styles}
+
+## Layout & Navigation
+
+AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, navigation links, accessible disabled "Coming Soon" indicators), MobileNav (slide-over drawer with backdrop & keyboard traps).
 
 ## Routes
 
-/, /login, /signup, /onboarding, /app, /app/dashboard, /app/create, /app/create/lesson, /app/create/worksheet, /app/create/quiz, /app/create/homework, resource routes, /app/library, /app/classes, /app/profile, /app/settings, /app/billing.
+/, /login, /signup, /onboarding, /dashboard (inside ProtectedRoute + AppShell), future generation & resource routes (/create, /library, /classes, /profile, /settings).
 
 ## State
 
