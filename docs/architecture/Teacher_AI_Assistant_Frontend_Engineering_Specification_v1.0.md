@@ -6,15 +6,15 @@ React, Vite, TypeScript, Tailwind, React Router, TanStack Query, Zustand, React 
 
 ## Structure
 
-apps/web/src/{api,assets,components/{common,dashboard,layout},pages,store,styles}
+apps/web/src/{api,assets,components/{classes,common,dashboard,layout,lessons},pages,store,styles}
 
 ## Layout & Navigation
 
-AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, navigation links, accessible disabled "Coming Soon" indicators), MobileNav (slide-over drawer with backdrop & keyboard traps).
+AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, navigation links with active Dashboard and Classes, accessible disabled "Coming Soon" indicators for future modules), Quick Create (active Lesson Plan generator with "AI Ready" badge, disabled Worksheet/Quiz/Homework with "Coming Soon" badges).
 
 ## Routes
 
-/, /login, /signup, /onboarding, /dashboard (inside ProtectedRoute + AppShell), future generation & resource routes (/create, /library, /classes, /profile, /settings).
+/, /login, /signup, /onboarding, /dashboard, /classes, /classes/new, /classes/:classId, /classes/:classId/edit, /create/lesson, /lessons/:lessonId, /lessons/:lessonId/edit (inside ProtectedRoute + AppShell), future generation & resource routes (/create, /library, /profile, /settings).
 
 ## State
 

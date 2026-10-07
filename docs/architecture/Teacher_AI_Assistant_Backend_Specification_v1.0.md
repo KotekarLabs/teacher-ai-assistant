@@ -6,11 +6,11 @@ Route → Middleware → Controller → Application Service → Domain Logic →
 
 ## Modules
 
-auth, teacher, classes, lessons, worksheets, quizzes, homework, library, generation, export, analytics.
+auth, teacher, classes (class.routes.ts, class.controller.ts, class.service.ts, class.repository.ts), lessons (lesson.routes.ts, lesson.controller.ts, lesson.service.ts, lesson.repository.ts, generation-request.repository.ts), worksheets, quizzes, homework, library, generation, export, analytics.
 
 ## Rules
 
-Controllers handle HTTP translation; services contain application behavior; repositories encapsulate persistence.
+Controllers handle HTTP translation; services contain application behavior; repositories encapsulate persistence (e.g. ClassRepository and LessonRepository encapsulate Prisma queries).
 
 ## Auth
 

@@ -21,9 +21,26 @@ GET /teacher/profile -> Retrieves authenticated teacher's profile (404 if not fo
 POST /teacher/profile -> Creates profile (409 if already exists)
 PATCH /teacher/profile -> Updates existing profile (404 if not found)
 
+## Classes
+
+GET /classes -> Retrieves authenticated teacher's active classes (archived excluded)
+POST /classes -> Creates a new class
+GET /classes/:classId -> Retrieves class details by id (404 if not found or cross-user)
+PATCH /classes/:classId -> Updates class details (404 if not found or cross-user)
+POST /classes/:classId/archive -> Soft-archives a class by setting archivedAt (404 if not found or cross-user)
+
+## Lessons
+
+POST /lessons/generate -> Generates structured lesson plan candidate via AI pipeline (status 201)
+GET /lessons -> Retrieves authenticated teacher's active lessons (archived excluded)
+GET /lessons/:lessonId -> Retrieves lesson details by id (404 if not found or cross-user)
+PATCH /lessons/:lessonId -> Updates lesson title/content/status (404 if not found or cross-user)
+POST /lessons/:lessonId/archive -> Soft-archives a lesson (404 if not found or cross-user)
+POST /lessons/:lessonId/regenerate -> Regenerates structured lesson draft candidate (404 if not found or cross-user)
+
 ## Future resource APIs
 
-Classes; lessons; worksheets; quizzes; homework; library; generation; PDF export; analytics; billing foundation.
+Worksheets; quizzes; homework; library; PDF export; analytics; billing foundation.
 
 ## Rules
 

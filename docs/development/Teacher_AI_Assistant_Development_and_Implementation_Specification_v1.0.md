@@ -2,11 +2,11 @@
 
 ## Build order
 
-1. repository foundation
-2. authentication
-3. teacher context/profile
-4. classes
-5. first lesson vertical slice
+1. repository foundation (completed)
+2. authentication (completed)
+3. teacher context/profile (completed)
+4. classes (Class Management Foundation completed)
+5. first lesson vertical slice (Lesson Generation Foundation completed: AI pipeline, prompt architecture, validation, editor, save/reopen, whole-lesson regeneration)
 6. worksheet
 7. quiz
 8. homework
