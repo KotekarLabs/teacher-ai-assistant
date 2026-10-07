@@ -24,7 +24,7 @@ ContentType, ContentStatus, GenerationStatus, Difficulty, QuestionType.
 
 ## Rules
 
-Unique email; foreign keys; ownership; indexes (e.g. Class indexed on teacherId and [teacherId, archivedAt]; Lesson indexed on teacherId, classId, and [teacherId, archivedAt]; GenerationRequest indexed on teacherId and status); archive/soft-delete where appropriate (e.g. Class.archivedAt and Lesson.archivedAt timestamps); JSON for flexible structured content (e.g. Lesson.content, GenerationRequest.inputContext); transactions for atomic operations; safe migrations; minimal student data.
+Unique email; foreign keys; ownership; indexes (e.g. Class indexed on teacherId and [teacherId, archivedAt]; Lesson indexed on teacherId, classId, and [teacherId, archivedAt]; Worksheet indexed on teacherId, classId, and [teacherId, archivedAt]; WorksheetQuestion indexed on worksheetId and [worksheetId, position]; GenerationRequest indexed on teacherId and status); archive/soft-delete where appropriate (e.g. Class.archivedAt, Lesson.archivedAt, and Worksheet.archivedAt timestamps); JSON for flexible structured content (e.g. Lesson.content, GenerationRequest.inputContext); transactions for atomic operations; safe migrations; minimal student data.
 
 ## AI tracking
 

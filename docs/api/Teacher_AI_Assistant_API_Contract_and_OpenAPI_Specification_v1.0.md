@@ -38,9 +38,17 @@ PATCH /lessons/:lessonId -> Updates lesson title/content/status (404 if not foun
 POST /lessons/:lessonId/archive -> Soft-archives a lesson (404 if not found or cross-user)
 POST /lessons/:lessonId/regenerate -> Regenerates structured lesson draft candidate (404 if not found or cross-user)
 
+## Worksheets
+
+POST /worksheets/generate -> Generates structured worksheet candidate via AI pipeline (status 201)
+GET /worksheets -> Retrieves authenticated teacher's active worksheets (archived excluded)
+GET /worksheets/:worksheetId -> Retrieves worksheet details and questions by id (404 if not found or cross-user)
+PATCH /worksheets/:worksheetId -> Updates worksheet title/instructions/questions/status (404 if not found or cross-user)
+POST /worksheets/:worksheetId/archive -> Soft-archives a worksheet (404 if not found or cross-user)
+
 ## Future resource APIs
 
-Worksheets; quizzes; homework; library; PDF export; analytics; billing foundation.
+Quizzes; homework; library; PDF export; analytics; billing foundation.
 
 ## Rules
 

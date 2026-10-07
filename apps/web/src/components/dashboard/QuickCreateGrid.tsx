@@ -36,6 +36,8 @@ const quickCreateOptions: QuickCreateOption[] = [
     badgeColor: "bg-purple-50 text-purple-700",
     iconBg: "bg-purple-50",
     iconColor: "text-purple-600",
+    href: "/create/worksheet",
+    enabled: true,
     icon: (
       <svg
         className="w-6 h-6"

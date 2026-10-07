@@ -1,11 +1,15 @@
-import type { LessonContent } from "@teacher-ai/contracts";
+import type { LessonContent, WorksheetContent } from "@teacher-ai/contracts";
 import type {
   AIProvider,
   LessonGenerationContext,
   LessonGenerationResult,
+  WorksheetGenerationContext,
+  WorksheetGenerationResult,
 } from "../types";
 import { LessonPromptBuilder } from "../prompts/lessonPromptBuilder";
 import { LessonOutputValidator } from "../validation/lessonOutputValidator";
+import { WorksheetPromptBuilder } from "../prompts/worksheetPromptBuilder";
+import { WorksheetOutputValidator } from "../validation/worksheetOutputValidator";
 
 export interface OpenAIProviderOptions {
   apiKey: string;
@@ -108,6 +112,81 @@ export class OpenAIProvider implements AIProvider {
       provider: "OPENAI",
       model: this.model,
       promptVersion: LessonPromptBuilder.PROMPT_VERSION,
+      latencyMs,
+      inputTokens,
+      outputTokens,
+      estimatedCost,
+    };
+  }
+
+  async generateWorksheet(
+    context: WorksheetGenerationContext,
+  ): Promise<WorksheetGenerationResult> {
+    const startTime = Date.now();
+    const systemPrompt = WorksheetPromptBuilder.buildSystemPrompt();
+    const userPrompt = WorksheetPromptBuilder.buildUserPrompt(context);
+
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.7,
+        }),
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Network error";
+      throw new Error(`OpenAI connection failed: ${msg}`, { cause: err });
+    }
+
+    if (!response.ok) {
+      let errorBody = "";
+      try {
+        errorBody = await response.text();
+      } catch {
+        // ignore
+      }
+      throw new Error(
+        `OpenAI API request failed with status ${response.status}: ${errorBody || response.statusText}`,
+      );
+    }
+
+    const data = (await response.json()) as OpenAIChatResponse;
+    const latencyMs = Math.max(1, Date.now() - startTime);
+    const rawOutput = data.choices?.[0]?.message?.content || "{}";
+    const inputTokens = data.usage?.prompt_tokens || 0;
+    const outputTokens = data.usage?.completion_tokens || 0;
+
+    const estimatedCost =
+      (inputTokens / 1_000_000) * 0.15 + (outputTokens / 1_000_000) * 0.6;
+
+    let parsedContent: WorksheetContent | undefined = undefined;
+    try {
+      const parsed = WorksheetOutputValidator.parseJson(rawOutput);
+      const validation = WorksheetOutputValidator.validateSchema(parsed);
+      if (validation.success && validation.data) {
+        parsedContent = validation.data;
+      }
+    } catch {
+      // Handled in validation pipeline
+    }
+
+    return {
+      rawOutput,
+      parsedContent,
+      provider: "OPENAI",
+      model: this.model,
+      promptVersion: WorksheetPromptBuilder.PROMPT_VERSION,
       latencyMs,
       inputTokens,
       outputTokens,

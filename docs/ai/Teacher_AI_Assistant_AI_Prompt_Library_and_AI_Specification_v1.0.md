@@ -6,7 +6,7 @@ Teacher Request → API → Validation → Context Builder → Prompt Builder �
 
 ## Provider
 
-AIProvider interface (`generateLesson`, `MockAIProvider`, provider factory). Application interacts with provider abstraction rather than vendor SDKs.
+AIProvider interface (`generateLesson`, `generateWorksheet`, `MockAIProvider`, `OpenAIProvider`, provider factory). Application interacts with provider abstraction rather than vendor SDKs.
 
 ## Context priority
 
@@ -14,7 +14,7 @@ Explicit request; class/grade; curriculum; subject/topic; product rules; general
 
 ## Prompt repository
 
-prompts/shared (system.v1, safety.v1, educational-quality.v1, formatting.v1), prompts/lesson (generate.v1). Versioned prompt templates assembled dynamically.
+prompts/shared (system.v1, safety.v1, educational-quality.v1, formatting.v1), prompts/lesson (generate.v1), prompts/worksheet (generate.v1). Versioned prompt templates assembled dynamically.
 
 ## Quality
 

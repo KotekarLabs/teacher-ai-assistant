@@ -104,9 +104,92 @@ describe("AIProvider and Adapter Architecture", () => {
     expect(result.parsedContent?.title).toBe("The Water Cycle");
   });
 
+  it("MockAIProvider generates structured Worksheet content with questions", async () => {
+    const provider = new MockAIProvider();
+    const result = await provider.generateWorksheet({
+      classId: "class-1",
+      grade: "5",
+      subject: "Science",
+      topic: "Plant Cells",
+      difficulty: "MEDIUM",
+      questionCount: 4,
+      questionTypes: ["MULTIPLE_CHOICE", "SHORT_ANSWER"],
+    });
+
+    expect(result.provider).toBe("MOCK");
+    expect(result.parsedContent).toBeDefined();
+    expect(result.parsedContent?.questions).toHaveLength(4);
+    expect(result.parsedContent?.title).toContain("Plant Cells");
+  });
+
+  it("OpenAIProvider generates structured Worksheet content", async () => {
+    const mockJsonResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              title: "Plant Cells Worksheet",
+              subject: "Science",
+              topic: "Plant Cells",
+              instructions: "Answer all questions.",
+              estimatedTimeMinutes: 20,
+              questions: [
+                {
+                  position: 1,
+                  type: "MULTIPLE_CHOICE",
+                  question: "What gives plant cells their green color?",
+                  options: ["Chloroplasts", "Mitochondria", "Nucleus", "Vacuole"],
+                  expectedAnswer: "Chloroplasts",
+                  marks: 1,
+                  difficulty: "EASY",
+                },
+              ],
+            }),
+          },
+        },
+      ],
+      usage: {
+        prompt_tokens: 280,
+        completion_tokens: 320,
+      },
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockJsonResponse,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const provider = new OpenAIProvider({
+      apiKey: "sk-test-key",
+      model: "gpt-4o-mini",
+    });
+
+    const result = await provider.generateWorksheet({
+      classId: "class-1",
+      grade: "5",
+      subject: "Science",
+      topic: "Plant Cells",
+      difficulty: "MEDIUM",
+      questionCount: 1,
+      questionTypes: ["MULTIPLE_CHOICE"],
+    });
+
+    expect(fetchMock).toHaveBeenCalled();
+    expect(result.provider).toBe("OPENAI");
+    expect(result.parsedContent?.questions).toHaveLength(1);
+    expect(result.parsedContent?.questions[0].expectedAnswer).toBe(
+      "Chloroplasts",
+    );
+  });
+
   it("allows seamless swapping of provider via setAIProvider without changing services", () => {
     const customMock: any = {
       generateLesson: vi.fn().mockResolvedValue({
+        rawOutput: "{}",
+        provider: "CUSTOM_ADAPTER",
+      }),
+      generateWorksheet: vi.fn().mockResolvedValue({
         rawOutput: "{}",
         provider: "CUSTOM_ADAPTER",
       }),
@@ -117,3 +200,4 @@ describe("AIProvider and Adapter Architecture", () => {
     expect(resolved).toBe(customMock);
   });
 });
+

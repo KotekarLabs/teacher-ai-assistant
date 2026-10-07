@@ -1,10 +1,13 @@
-import type { LessonContent } from "@teacher-ai/contracts";
+import type { LessonContent, WorksheetContent } from "@teacher-ai/contracts";
 import type {
   AIProvider,
   LessonGenerationContext,
   LessonGenerationResult,
+  WorksheetGenerationContext,
+  WorksheetGenerationResult,
 } from "../types";
 import { LessonPromptBuilder } from "../prompts/lessonPromptBuilder";
+import { WorksheetPromptBuilder } from "../prompts/worksheetPromptBuilder";
 
 export class MockAIProvider implements AIProvider {
   async generateLesson(
@@ -59,6 +62,105 @@ export class MockAIProvider implements AIProvider {
       inputTokens: 450,
       outputTokens: 620,
       estimatedCost: 0.002,
+    };
+  }
+
+  async generateWorksheet(
+    context: WorksheetGenerationContext,
+  ): Promise<WorksheetGenerationResult> {
+    const startTime = Date.now();
+
+    const questions: WorksheetContent["questions"] = [];
+    const count = context.questionCount || 5;
+    const types = context.questionTypes.length > 0
+      ? context.questionTypes
+      : ["MULTIPLE_CHOICE", "SHORT_ANSWER"];
+
+    for (let i = 1; i <= count; i++) {
+      const type = types[(i - 1) % types.length];
+      if (type === "MULTIPLE_CHOICE") {
+        questions.push({
+          position: i,
+          type: "MULTIPLE_CHOICE",
+          question: `Which of the following best describes a key principle of ${context.topic} in Grade ${context.grade} ${context.subject}?`,
+          options: [
+            `Option A: The primary mechanism of ${context.topic}`,
+            `Option B: An unrelated secondary phenomenon`,
+            `Option C: A misconception regarding ${context.topic}`,
+            `Option D: None of the above`,
+          ],
+          expectedAnswer: `Option A: The primary mechanism of ${context.topic}`,
+          marks: 1,
+          difficulty: "MEDIUM",
+        });
+      } else if (type === "TRUE_FALSE") {
+        questions.push({
+          position: i,
+          type: "TRUE_FALSE",
+          question: `True or False: ${context.topic} plays an essential role in Grade ${context.grade} ${context.subject}.`,
+          options: ["True", "False"],
+          expectedAnswer: "True",
+          marks: 1,
+          difficulty: "EASY",
+        });
+      } else if (type === "FILL_IN_THE_BLANK") {
+        questions.push({
+          position: i,
+          type: "FILL_IN_THE_BLANK",
+          question: `The core process in ${context.topic} is known as ___ in modern scientific studies.`,
+          options: [],
+          expectedAnswer: `${context.topic} Principle`,
+          marks: 1,
+          difficulty: "MEDIUM",
+        });
+      } else if (type === "MATCH_THE_FOLLOWING") {
+        questions.push({
+          position: i,
+          type: "MATCH_THE_FOLLOWING",
+          question: `Match each concept of ${context.topic} (1. Definition, 2. Example) with its corresponding definition (A. Core idea, B. Practical demonstration).`,
+          options: ["1-A, 2-B", "1-B, 2-A"],
+          expectedAnswer: "1-A, 2-B",
+          marks: 2,
+          difficulty: "MEDIUM",
+        });
+      } else {
+        // SHORT_ANSWER
+        questions.push({
+          position: i,
+          type: "SHORT_ANSWER",
+          question: `In 1-2 sentences, explain how ${context.topic} applies to real-world scenarios.`,
+          options: [],
+          expectedAnswer: `${context.topic} allows us to understand fundamental patterns in ${context.subject} and apply them to solve practical problems.`,
+          marks: 2,
+          difficulty: "HARD",
+        });
+      }
+    }
+
+    const structuredContent: WorksheetContent = {
+      title: `${context.topic} Practice Worksheet — Grade ${context.grade}`,
+      subject: context.subject,
+      topic: context.topic,
+      instructions:
+        context.teacherInstructions ||
+        "Answer all questions thoroughly. Show your work where required.",
+      estimatedTimeMinutes: context.estimatedTimeMinutes || 30,
+      questions,
+    };
+
+    const rawOutput = JSON.stringify(structuredContent, null, 2);
+    const latencyMs = Math.max(15, Date.now() - startTime);
+
+    return {
+      rawOutput,
+      parsedContent: structuredContent,
+      provider: "MOCK",
+      model: "mock-pedagogy-v1",
+      promptVersion: WorksheetPromptBuilder.PROMPT_VERSION,
+      latencyMs,
+      inputTokens: 380,
+      outputTokens: 540,
+      estimatedCost: 0.0018,
     };
   }
 }

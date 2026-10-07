@@ -114,7 +114,7 @@ export default function ClassDetails() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center space-x-3 pt-2 sm:pt-0">
+          <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
             <Link
               to={`/create/lesson?classId=${classItem.id}`}
               data-testid="create-lesson-for-class-btn"
@@ -122,6 +122,14 @@ export default function ClassDetails() {
             >
               <span>✨</span>
               <span className="ml-1.5">Create Lesson</span>
+            </Link>
+            <Link
+              to={`/create/worksheet?classId=${classItem.id}`}
+              data-testid="create-worksheet-for-class-btn"
+              className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+            >
+              <span>📝</span>
+              <span className="ml-1.5">Create Worksheet</span>
             </Link>
             <Link
               to={`/classes/${classItem.id}/edit`}

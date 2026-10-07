@@ -6,15 +6,15 @@ React, Vite, TypeScript, Tailwind, React Router, TanStack Query, Zustand, React 
 
 ## Structure
 
-apps/web/src/{api,assets,components/{classes,common,dashboard,layout,lessons},pages,store,styles}
+apps/web/src/{api,assets,components/{classes,common,dashboard,layout,lessons,worksheets},pages,store,styles}
 
 ## Layout & Navigation
 
-AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, navigation links with active Dashboard and Classes, accessible disabled "Coming Soon" indicators for future modules), Quick Create (active Lesson Plan generator with "AI Ready" badge, disabled Worksheet/Quiz/Homework with "Coming Soon" badges).
+AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, navigation links with active Dashboard and Classes, accessible disabled "Coming Soon" indicators for future modules), Quick Create (active Lesson Plan & Worksheet generators with "AI Ready" badge, disabled Quiz/Homework with "Coming Soon" badges).
 
 ## Routes
 
-/, /login, /signup, /onboarding, /dashboard, /classes, /classes/new, /classes/:classId, /classes/:classId/edit, /create/lesson, /lessons/:lessonId, /lessons/:lessonId/edit (inside ProtectedRoute + AppShell), future generation & resource routes (/create, /library, /profile, /settings).
+/, /login, /signup, /onboarding, /dashboard, /classes, /classes/new, /classes/:classId, /classes/:classId/edit, /create/lesson, /lessons/:lessonId, /lessons/:lessonId/edit, /create/worksheet, /worksheets/:worksheetId, /worksheets/:worksheetId/edit (inside ProtectedRoute + AppShell), future generation & resource routes (/create, /library, /profile, /settings).
 
 ## State
 

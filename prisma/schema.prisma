@@ -18,6 +18,7 @@ model User {
   profile            TeacherProfile?
   classes            Class[]
   lessons            Lesson[]
+  worksheets         Worksheet[]
   generationRequests GenerationRequest[]
 }
 
@@ -37,26 +38,27 @@ model TeacherProfile {
 }
 
 model Class {
-  id              String    @id @default(uuid())
+  id              String      @id @default(uuid())
   teacherId       String
   name            String
   grade           String
   section         String?
   curriculumBoard String?
   academicYear    String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   archivedAt      DateTime?
 
-  teacher         User      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  teacher         User        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   lessons         Lesson[]
+  worksheets      Worksheet[]
 
   @@index([teacherId])
   @@index([teacherId, archivedAt])
 }
 
 model GenerationRequest {
-  id             String    @id @default(uuid())
+  id             String      @id @default(uuid())
   teacherId      String
   contentType    String
   resourceId     String?
@@ -72,11 +74,12 @@ model GenerationRequest {
   inputTokens    Int?
   outputTokens   Int?
   estimatedCost  Float?
-  createdAt      DateTime  @default(now())
+  createdAt      DateTime    @default(now())
   completedAt    DateTime?
 
-  teacher        User      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  teacher        User        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   lessons        Lesson[]
+  worksheets     Worksheet[]
 
   @@index([teacherId])
   @@index([status])
@@ -106,4 +109,50 @@ model Lesson {
   @@index([teacherId])
   @@index([classId])
   @@index([teacherId, archivedAt])
+}
+
+model Worksheet {
+  id                  String              @id @default(uuid())
+  teacherId           String
+  classId             String
+  generationRequestId String?
+  title               String
+  subject             String
+  topic               String
+  curriculumBoard     String?
+  difficulty          String              @default("MEDIUM")
+  estimatedTimeMinutes Int                @default(30)
+  instructions        String?
+  status              String              @default("DRAFT")
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  archivedAt          DateTime?
+
+  teacher             User                @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  class               Class               @relation(fields: [classId], references: [id], onDelete: Cascade)
+  generationRequest   GenerationRequest?  @relation(fields: [generationRequestId], references: [id], onDelete: SetNull)
+  questions           WorksheetQuestion[]
+
+  @@index([teacherId])
+  @@index([classId])
+  @@index([teacherId, archivedAt])
+}
+
+model WorksheetQuestion {
+  id             String    @id @default(uuid())
+  worksheetId    String
+  position       Int
+  type           String
+  question       String
+  options        String[]  @default([])
+  expectedAnswer String
+  marks          Int       @default(1)
+  difficulty     String    @default("MEDIUM")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  worksheet      Worksheet @relation(fields: [worksheetId], references: [id], onDelete: Cascade)
+
+  @@index([worksheetId])
+  @@index([worksheetId, position])
 }

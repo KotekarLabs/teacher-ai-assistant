@@ -7,7 +7,7 @@
 3. teacher context/profile (completed)
 4. classes (Class Management Foundation completed)
 5. first lesson vertical slice (Lesson Generation Foundation completed: AI pipeline, prompt architecture, validation, editor, save/reopen, whole-lesson regeneration)
-6. worksheet
+6. worksheet (Worksheet Generation Foundation completed: AI pipeline, prompt architecture, validation, questions editor, save/reopen, archive)
 7. quiz
 8. homework
 9. library
