@@ -135,6 +135,8 @@ describe("Authentication Foundation", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.user.email).toBe(testUser.email);
+    expect(res.body).toHaveProperty("hasCompletedOnboarding", false);
+    expect(res.body.profile).toBeNull();
   });
 
   it("should logout and clear cookie", async () => {

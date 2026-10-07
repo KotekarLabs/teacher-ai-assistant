@@ -25,3 +25,10 @@ export interface AuthUser {
 export interface AuthResponse {
   user: AuthUser;
 }
+
+export interface AuthMeResponse {
+  user: AuthUser;
+  profile: import("./teacher").TeacherProfileDTO | null;
+  hasCompletedOnboarding: boolean;
+}
+

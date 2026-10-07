@@ -30,6 +30,9 @@ export class AuthService {
   }
 
   static async findUserById(id: string) {
-    return prisma.user.findUnique({ where: { id } });
+    return prisma.user.findUnique({
+      where: { id },
+      include: { profile: true },
+    });
   }
 }

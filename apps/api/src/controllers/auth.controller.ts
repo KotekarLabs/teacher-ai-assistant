@@ -91,10 +91,23 @@ export const logout: RequestHandler = (req, res) => {
   res.json({ success: true });
 };
 
-export const me: RequestHandler = (req, res) => {
-  if (!req.user) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
+export const me: RequestHandler = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    const user = await AuthService.findUserById(req.user.id);
+    if (!user) {
+      res.status(401).json({ error: "Unauthorized: User not found" });
+      return;
+    }
+    res.json({
+      user: { id: user.id, email: user.email },
+      profile: user.profile || null,
+      hasCompletedOnboarding: !!user.profile,
+    });
+  } catch (error) {
+    next(error);
   }
-  res.json({ user: { id: req.user.id, email: req.user.email } });
 };

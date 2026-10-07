@@ -13,11 +13,17 @@ Consistent success envelope and safe structured error envelope.
 POST /auth/signup
 POST /auth/login
 POST /auth/logout
-GET /auth/me
+GET /auth/me -> Returns { user, profile, hasCompletedOnboarding }
+
+## Teacher Profile
+
+GET /teacher/profile -> Retrieves authenticated teacher's profile (404 if not found)
+POST /teacher/profile -> Creates profile (409 if already exists)
+PATCH /teacher/profile -> Updates existing profile (404 if not found)
 
 ## Future resource APIs
 
-Teacher profile; classes; lessons; worksheets; quizzes; homework; library; generation; PDF export; analytics; billing foundation.
+Classes; lessons; worksheets; quizzes; homework; library; generation; PDF export; analytics; billing foundation.
 
 ## Rules
 
