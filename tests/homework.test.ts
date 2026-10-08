@@ -6,10 +6,18 @@ const profiles = new Map<string, any>();
 const classes = new Map<string, any>();
 const homeworks = new Map<string, any>();
 const genRequests = new Map<string, any>();
+const contents = new Map<string, any>();
 
 vi.mock("@prisma/client", () => {
   return {
     PrismaClient: class {
+      $transaction = vi.fn().mockImplementation(async (callback: any) => {
+        if (typeof callback === "function") {
+          return callback(this);
+        }
+        return callback;
+      });
+
       user = {
         deleteMany: vi.fn().mockImplementation(async () => {
           users.clear();
@@ -17,8 +25,10 @@ vi.mock("@prisma/client", () => {
           classes.clear();
           homeworks.clear();
           genRequests.clear();
+          contents.clear();
           return { count: 0 };
         }),
+
         findUnique: vi
           .fn()
           .mockImplementation(
@@ -235,7 +245,31 @@ vi.mock("@prisma/client", () => {
             },
           ),
       };
+
+      content = {
+        upsert: vi
+          .fn()
+          .mockImplementation(async ({ where, create, update }: any) => {
+            const key = `${where.type_resourceId.type}_${where.type_resourceId.resourceId}`;
+            let existing = contents.get(key);
+            if (existing) {
+              Object.assign(existing, update, { updatedAt: new Date() });
+              return { ...existing };
+            }
+            const id = randomUUID();
+            const item = {
+              id,
+              ...create,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              archivedAt: create.archivedAt || null,
+            };
+            contents.set(key, item);
+            return { ...item };
+          }),
+      };
     },
+
     Prisma: {
       InputJsonValue: {},
     },

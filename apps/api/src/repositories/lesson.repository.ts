@@ -24,8 +24,12 @@ export interface UpdateLessonData {
 }
 
 export class LessonRepository {
-  static async findManyByTeacherId(teacherId: string, includeArchived = false) {
-    return prisma.lesson.findMany({
+  static async findManyByTeacherId(
+    teacherId: string,
+    includeArchived = false,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.lesson.findMany({
       where: {
         teacherId,
         archivedAt: includeArchived ? undefined : null,
@@ -36,8 +40,12 @@ export class LessonRepository {
     });
   }
 
-  static async findByIdAndTeacherId(lessonId: string, teacherId: string) {
-    return prisma.lesson.findFirst({
+  static async findByIdAndTeacherId(
+    lessonId: string,
+    teacherId: string,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.lesson.findFirst({
       where: {
         id: lessonId,
         teacherId,
@@ -45,8 +53,11 @@ export class LessonRepository {
     });
   }
 
-  static async create(data: CreateLessonData) {
-    return prisma.lesson.create({
+  static async create(
+    data: CreateLessonData,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.lesson.create({
       data: {
         teacherId: data.teacherId,
         classId: data.classId,
@@ -63,15 +74,22 @@ export class LessonRepository {
     });
   }
 
-  static async update(lessonId: string, data: UpdateLessonData) {
-    return prisma.lesson.update({
+  static async update(
+    lessonId: string,
+    data: UpdateLessonData,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.lesson.update({
       where: { id: lessonId },
       data,
     });
   }
 
-  static async archive(lessonId: string) {
-    return prisma.lesson.update({
+  static async archive(
+    lessonId: string,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.lesson.update({
       where: { id: lessonId },
       data: {
         archivedAt: new Date(),
@@ -80,3 +98,4 @@ export class LessonRepository {
     });
   }
 }
+

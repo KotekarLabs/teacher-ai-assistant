@@ -7,6 +7,7 @@ const classes = new Map<string, any>();
 const quizzes = new Map<string, any>();
 const quizQuestions = new Map<string, any>();
 const genRequests = new Map<string, any>();
+const contents = new Map<string, any>();
 
 vi.mock("@prisma/client", () => {
   return {
@@ -19,8 +20,10 @@ vi.mock("@prisma/client", () => {
           quizzes.clear();
           quizQuestions.clear();
           genRequests.clear();
+          contents.clear();
           return { count: 0 };
         }),
+
         findUnique: vi
           .fn()
           .mockImplementation(
@@ -237,68 +240,30 @@ vi.mock("@prisma/client", () => {
             async ({ where, data }: { where: { id: string }; data: any }) => {
               const qz = quizzes.get(where.id);
               if (!qz) return null;
-              Object.assign(qz, data);
-              qz.updatedAt = new Date();
-              const questions = Array.from(
-                quizQuestions.values(),
-              ).filter((q) => q.quizId === qz.id);
-              return { ...qz, questions };
-            },
-          ),
-      };
-
-      quizQuestion = {
-        deleteMany: vi
-          .fn()
-          .mockImplementation(
-            async ({ where }: { where: { quizId: string } }) => {
-              for (const [key, q] of quizQuestions.entries()) {
-                if (q.quizId === where.quizId) {
-                  quizQuestions.delete(key);
-                }
-              }
-              return { count: 0 };
-            },
-          ),
-      };
-
-      $transaction = vi.fn().mockImplementation(async (callback: any) => {
-        return callback({
-          quizQuestion: {
-            deleteMany: async ({
-              where,
-            }: {
-              where: { quizId: string };
-            }) => {
-              for (const [key, q] of quizQuestions.entries()) {
-                if (q.quizId === where.quizId) {
-                  quizQuestions.delete(key);
-                }
-              }
-              return { count: 0 };
-            },
-          },
-          quiz: {
-            update: async ({
-              where,
-              data,
-            }: {
-              where: { id: string };
-              data: any;
-            }) => {
-              const qz = quizzes.get(where.id);
-              if (!qz) return null;
               Object.assign(qz, {
-                title: data.title,
-                instructions: data.instructions,
-                durationMinutes: data.durationMinutes,
-                totalMarks: data.totalMarks,
-                status: data.status,
+                title: data.title !== undefined ? data.title : qz.title,
+                instructions:
+                  data.instructions !== undefined
+                    ? data.instructions
+                    : qz.instructions,
+                durationMinutes:
+                  data.durationMinutes !== undefined
+                    ? data.durationMinutes
+                    : qz.durationMinutes,
+                totalMarks:
+                  data.totalMarks !== undefined ? data.totalMarks : qz.totalMarks,
+                status: data.status !== undefined ? data.status : qz.status,
+                archivedAt:
+                  data.archivedAt !== undefined ? data.archivedAt : qz.archivedAt,
               });
               qz.updatedAt = new Date();
 
-              const createdQuestions: any[] = [];
               if (data.questions?.create) {
+                for (const [key, q] of quizQuestions.entries()) {
+                  if (q.quizId === qz.id) {
+                    quizQuestions.delete(key);
+                  }
+                }
                 data.questions.create.forEach((q: any) => {
                   const qId = randomUUID();
                   const qObj = {
@@ -316,15 +281,63 @@ vi.mock("@prisma/client", () => {
                     updatedAt: new Date(),
                   };
                   quizQuestions.set(qId, qObj);
-                  createdQuestions.push(qObj);
                 });
               }
 
-              return { ...qz, questions: createdQuestions };
+              const questions = Array.from(
+                quizQuestions.values(),
+              ).filter((q) => q.quizId === qz.id);
+              return { ...qz, questions };
             },
-          },
-        });
+          ),
+      };
+
+
+      quizQuestion = {
+        deleteMany: vi
+          .fn()
+          .mockImplementation(
+            async ({ where }: { where: { quizId: string } }) => {
+              for (const [key, q] of quizQuestions.entries()) {
+                if (q.quizId === where.quizId) {
+                  quizQuestions.delete(key);
+                }
+              }
+              return { count: 0 };
+            },
+          ),
+      };
+
+      $transaction = vi.fn().mockImplementation(async (callback: any) => {
+        if (typeof callback === "function") {
+          return callback(this);
+        }
+        return callback;
       });
+
+      content = {
+        upsert: vi
+          .fn()
+          .mockImplementation(async ({ where, create, update }: any) => {
+            const key = `${where.type_resourceId.type}_${where.type_resourceId.resourceId}`;
+            let existing = contents.get(key);
+            if (existing) {
+              Object.assign(existing, update, { updatedAt: new Date() });
+              return { ...existing };
+            }
+            const id = randomUUID();
+            const item = {
+              id,
+              ...create,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              archivedAt: create.archivedAt || null,
+            };
+            contents.set(key, item);
+            return { ...item };
+          }),
+      };
+
 
       generationRequest = {
         create: vi.fn().mockImplementation(async ({ data }: { data: any }) => {

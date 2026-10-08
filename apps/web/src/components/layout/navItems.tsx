@@ -41,7 +41,7 @@ export const navItems: NavItem[] = [
   {
     name: "Library",
     href: "/library",
-    enabled: false,
+    enabled: true,
     icon: (props) => (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
         <path

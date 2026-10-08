@@ -21,6 +21,7 @@ model User {
   worksheets         Worksheet[]
   quizzes            Quiz[]
   homeworks          Homework[]
+  contents           Content[]
   generationRequests GenerationRequest[]
 }
 
@@ -56,6 +57,7 @@ model Class {
   worksheets      Worksheet[]
   quizzes         Quiz[]
   homeworks       Homework[]
+  contents        Content[]
 
   @@index([teacherId])
   @@index([teacherId, archivedAt])
@@ -236,4 +238,31 @@ model Homework {
   @@index([teacherId])
   @@index([classId])
   @@index([teacherId, archivedAt])
+}
+
+model Content {
+  id           String    @id @default(uuid())
+  teacherId    String
+  type         String    // "LESSON" | "WORKSHEET" | "QUIZ" | "HOMEWORK"
+  resourceId   String
+  title        String
+  subject      String
+  topic        String
+  classId      String?
+  status       String    @default("DRAFT")
+  difficulty   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  archivedAt   DateTime?
+
+  teacher      User      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  class        Class?    @relation(fields: [classId], references: [id], onDelete: SetNull)
+
+  @@unique([type, resourceId])
+  @@index([teacherId])
+  @@index([classId])
+  @@index([teacherId, type])
+  @@index([teacherId, archivedAt])
+  @@index([teacherId, status])
+  @@index([teacherId, subject])
 }

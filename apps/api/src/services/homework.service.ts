@@ -11,11 +11,15 @@ import {
 import { ClassRepository } from "../repositories/class.repository";
 import { HomeworkRepository } from "../repositories/homework.repository";
 import { GenerationRequestRepository } from "../repositories/generation-request.repository";
-import { Prisma } from "@prisma/client";
+import { ContentSyncService } from "./content-sync.service";
+import { Prisma, PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export interface ServiceError extends Error {
   statusCode?: number;
 }
+
 
 export class HomeworkService {
   static async getHomeworks(teacherId: string, includeArchived = false) {
@@ -180,19 +184,42 @@ export class HomeworkService {
       completedAt: new Date(),
     });
 
-    const homework = await HomeworkRepository.create({
-      teacherId,
-      classId: targetClass.id,
-      generationRequestId: genRequest.id,
-      title: validContent.title,
-      subject: validContent.subject,
-      topic: validContent.topic,
-      difficulty: validContent.difficulty || data.difficulty || "MEDIUM",
-      estimatedTimeMinutes:
-        validContent.estimatedTimeMinutes || data.estimatedTimeMinutes || 30,
-      instructions: validContent.instructions,
-      status: "DRAFT",
-      tasks: validContent.tasks,
+    const homework = await prisma.$transaction(async (tx) => {
+      const created = await HomeworkRepository.create(
+        {
+          teacherId,
+          classId: targetClass.id,
+          generationRequestId: genRequest.id,
+          title: validContent.title,
+          subject: validContent.subject,
+          topic: validContent.topic,
+          difficulty: validContent.difficulty || data.difficulty || "MEDIUM",
+          estimatedTimeMinutes:
+            validContent.estimatedTimeMinutes || data.estimatedTimeMinutes || 30,
+          instructions: validContent.instructions,
+          status: "DRAFT",
+          tasks: validContent.tasks,
+        },
+        tx,
+      );
+
+      await ContentSyncService.syncResource(
+        {
+          teacherId,
+          type: "HOMEWORK",
+          resourceId: created.id,
+          title: created.title,
+          subject: created.subject,
+          topic: created.topic,
+          difficulty: created.difficulty,
+          classId: created.classId,
+          status: created.status,
+          archivedAt: created.archivedAt,
+        },
+        tx,
+      );
+
+      return created;
     });
 
     await GenerationRequestRepository.update(genRequest.id, {
@@ -219,12 +246,36 @@ export class HomeworkService {
       throw error;
     }
 
-    return HomeworkRepository.update(homeworkId, {
-      title: data.title,
-      instructions: data.instructions,
-      estimatedTimeMinutes: data.estimatedTimeMinutes,
-      status: data.status,
-      tasks: data.tasks,
+    return prisma.$transaction(async (tx) => {
+      const updated = await HomeworkRepository.update(
+        homeworkId,
+        {
+          title: data.title,
+          instructions: data.instructions,
+          estimatedTimeMinutes: data.estimatedTimeMinutes,
+          status: data.status,
+          tasks: data.tasks,
+        },
+        tx,
+      );
+
+      await ContentSyncService.syncResource(
+        {
+          teacherId,
+          type: "HOMEWORK",
+          resourceId: updated.id,
+          title: updated.title,
+          subject: updated.subject,
+          topic: updated.topic,
+          difficulty: updated.difficulty,
+          classId: updated.classId,
+          status: updated.status,
+          archivedAt: updated.archivedAt,
+        },
+        tx,
+      );
+
+      return updated;
     });
   }
 
@@ -241,8 +292,29 @@ export class HomeworkService {
       throw error;
     }
 
-    return HomeworkRepository.archive(homeworkId);
+    return prisma.$transaction(async (tx) => {
+      const archived = await HomeworkRepository.archive(homeworkId, tx);
+
+      await ContentSyncService.syncResource(
+        {
+          teacherId,
+          type: "HOMEWORK",
+          resourceId: archived.id,
+          title: archived.title,
+          subject: archived.subject,
+          topic: archived.topic,
+          difficulty: archived.difficulty,
+          classId: archived.classId,
+          status: archived.status,
+          archivedAt: archived.archivedAt,
+        },
+        tx,
+      );
+
+      return archived;
+    });
   }
+
 
   static formatHomeworkDTO(raw: {
     id: string;

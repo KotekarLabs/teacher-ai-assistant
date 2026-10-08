@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import type { QuestionType, QuizDifficulty } from "@teacher-ai/contracts";
 
 const prisma = new PrismaClient();
@@ -40,8 +40,12 @@ export interface UpdateQuizData {
 }
 
 export class QuizRepository {
-  static async findManyByTeacherId(teacherId: string, includeArchived = false) {
-    return prisma.quiz.findMany({
+  static async findManyByTeacherId(
+    teacherId: string,
+    includeArchived = false,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.quiz.findMany({
       where: {
         teacherId,
         archivedAt: includeArchived ? undefined : null,
@@ -57,8 +61,12 @@ export class QuizRepository {
     });
   }
 
-  static async findByIdAndTeacherId(quizId: string, teacherId: string) {
-    return prisma.quiz.findFirst({
+  static async findByIdAndTeacherId(
+    quizId: string,
+    teacherId: string,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.quiz.findFirst({
       where: {
         id: quizId,
         teacherId,
@@ -71,13 +79,16 @@ export class QuizRepository {
     });
   }
 
-  static async create(data: CreateQuizData) {
+  static async create(
+    data: CreateQuizData,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
     const calculatedMarks =
       data.totalMarks !== undefined
         ? data.totalMarks
         : data.questions.reduce((sum, q) => sum + (q.marks || 1), 0);
 
-    return prisma.quiz.create({
+    return db.quiz.create({
       data: {
         teacherId: data.teacherId,
         classId: data.classId,
@@ -112,49 +123,51 @@ export class QuizRepository {
     });
   }
 
-  static async update(quizId: string, data: UpdateQuizData) {
+  static async update(
+    quizId: string,
+    data: UpdateQuizData,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
     if (data.questions) {
       const calculatedMarks =
         data.totalMarks !== undefined
           ? data.totalMarks
           : data.questions.reduce((sum, q) => sum + (q.marks || 1), 0);
 
-      return prisma.$transaction(async (tx) => {
-        await tx.quizQuestion.deleteMany({
-          where: { quizId },
-        });
+      await db.quizQuestion.deleteMany({
+        where: { quizId },
+      });
 
-        return tx.quiz.update({
-          where: { id: quizId },
-          data: {
-            title: data.title,
-            instructions: data.instructions,
-            durationMinutes: data.durationMinutes,
-            totalMarks: calculatedMarks,
-            status: data.status,
-            questions: {
-              create: data.questions!.map((q) => ({
-                position: q.position,
-                type: q.type,
-                question: q.question,
-                options: q.options || [],
-                correctAnswer: q.correctAnswer,
-                explanation: q.explanation || null,
-                marks: q.marks || 1,
-                difficulty: q.difficulty || "MEDIUM",
-              })),
-            },
+      return db.quiz.update({
+        where: { id: quizId },
+        data: {
+          title: data.title,
+          instructions: data.instructions,
+          durationMinutes: data.durationMinutes,
+          totalMarks: calculatedMarks,
+          status: data.status,
+          questions: {
+            create: data.questions!.map((q) => ({
+              position: q.position,
+              type: q.type,
+              question: q.question,
+              options: q.options || [],
+              correctAnswer: q.correctAnswer,
+              explanation: q.explanation || null,
+              marks: q.marks || 1,
+              difficulty: q.difficulty || "MEDIUM",
+            })),
           },
-          include: {
-            questions: {
-              orderBy: { position: "asc" },
-            },
+        },
+        include: {
+          questions: {
+            orderBy: { position: "asc" },
           },
-        });
+        },
       });
     }
 
-    return prisma.quiz.update({
+    return db.quiz.update({
       where: { id: quizId },
       data: {
         title: data.title,
@@ -171,8 +184,11 @@ export class QuizRepository {
     });
   }
 
-  static async archive(quizId: string) {
-    return prisma.quiz.update({
+  static async archive(
+    quizId: string,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.quiz.update({
       where: { id: quizId },
       data: {
         archivedAt: new Date(),
@@ -186,3 +202,4 @@ export class QuizRepository {
     });
   }
 }
+

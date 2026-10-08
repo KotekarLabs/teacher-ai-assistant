@@ -10,7 +10,7 @@
 6. worksheet (Worksheet Generation Foundation completed: AI pipeline, prompt architecture, validation, questions editor, save/reopen, archive)
 7. quiz (Quiz Generation Foundation completed: AI pipeline, prompt architecture, validation, answer consistency, server-authoritative scoring, editor, save/reopen, archive)
 8. homework (Homework Generation Foundation completed: AI pipeline, prompt architecture, validation, structured tasks, workload checks, editor, save/reopen, archive)
-9. library
+9. library (Content Library Foundation completed: Content catalog model, transactional synchronization across all 4 resource types, duplication, archive cascade, operational `pnpm backfill:content` script, debounced search, class/type/status filtering, URL state persistence)
 10. export
 11. analytics
 12. billing foundation

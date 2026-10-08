@@ -31,8 +31,12 @@ export interface UpdateHomeworkData {
 }
 
 export class HomeworkRepository {
-  static async findManyByTeacherId(teacherId: string, includeArchived = false) {
-    return prisma.homework.findMany({
+  static async findManyByTeacherId(
+    teacherId: string,
+    includeArchived = false,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.homework.findMany({
       where: {
         teacherId,
         archivedAt: includeArchived ? undefined : null,
@@ -43,8 +47,12 @@ export class HomeworkRepository {
     });
   }
 
-  static async findByIdAndTeacherId(homeworkId: string, teacherId: string) {
-    return prisma.homework.findFirst({
+  static async findByIdAndTeacherId(
+    homeworkId: string,
+    teacherId: string,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.homework.findFirst({
       where: {
         id: homeworkId,
         teacherId,
@@ -52,8 +60,11 @@ export class HomeworkRepository {
     });
   }
 
-  static async create(data: CreateHomeworkData) {
-    return prisma.homework.create({
+  static async create(
+    data: CreateHomeworkData,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.homework.create({
       data: {
         teacherId: data.teacherId,
         classId: data.classId,
@@ -70,8 +81,12 @@ export class HomeworkRepository {
     });
   }
 
-  static async update(homeworkId: string, data: UpdateHomeworkData) {
-    return prisma.homework.update({
+  static async update(
+    homeworkId: string,
+    data: UpdateHomeworkData,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.homework.update({
       where: { id: homeworkId },
       data: {
         ...(data.title !== undefined && { title: data.title }),
@@ -87,8 +102,11 @@ export class HomeworkRepository {
     });
   }
 
-  static async archive(homeworkId: string) {
-    return prisma.homework.update({
+  static async archive(
+    homeworkId: string,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.homework.update({
       where: { id: homeworkId },
       data: {
         archivedAt: new Date(),
@@ -97,3 +115,4 @@ export class HomeworkRepository {
     });
   }
 }
+

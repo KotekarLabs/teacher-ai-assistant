@@ -1,10 +1,18 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Dashboard from "../apps/web/src/pages/Dashboard";
 import { AppShell } from "../apps/web/src/components/layout/AppShell";
 import { useAuthStore } from "../apps/web/src/store/authStore";
+
+vi.mock("../apps/web/src/hooks/useContent", () => ({
+  useContentList: vi.fn(() => ({
+    data: { items: [] },
+    isLoading: false,
+    isError: false,
+  })),
+}));
 
 describe("Dashboard & AppShell Components", () => {
   afterEach(() => {

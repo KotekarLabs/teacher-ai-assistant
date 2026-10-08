@@ -24,6 +24,7 @@ import { EditQuiz } from "./pages/EditQuiz";
 import { CreateHomework } from "./pages/CreateHomework";
 import { HomeworkDetails } from "./pages/HomeworkDetails";
 import { EditHomework } from "./pages/EditHomework";
+import Library from "./pages/Library";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +49,9 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppShell />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/library" element={<Library />} />
               <Route path="/classes" element={<Classes />} />
+
               <Route path="/classes/new" element={<CreateClass />} />
               <Route path="/classes/:classId" element={<ClassDetails />} />
               <Route path="/classes/:classId/edit" element={<EditClass />} />

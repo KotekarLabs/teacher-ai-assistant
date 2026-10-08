@@ -6,23 +6,23 @@ React, Vite, TypeScript, Tailwind, React Router, TanStack Query, Zustand, React 
 
 ## Structure
 
-apps/web/src/{api,assets,components/{classes,common,dashboard,layout,lessons,worksheets,quizzes,homeworks},pages,store,styles}
+apps/web/src/{api,assets,components/{classes,common,dashboard,layout,lessons,worksheets,quizzes,homeworks,library},hooks,pages,store,styles,utils}
 
 ## Layout & Navigation
 
-AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, navigation links with active Dashboard and Classes, accessible disabled "Coming Soon" indicators for future modules), Quick Create (active Lesson Plan, Worksheet, Quiz, and Homework generators with "AI Ready" badge).
+AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, active navigation links for Dashboard, Classes, and Library with accessible disabled "Coming Soon" indicators for future modules), Quick Create (active Lesson Plan, Worksheet, Quiz, and Homework generators with "AI Ready" badge).
 
 ## Routes
 
-/, /login, /signup, /onboarding, /dashboard, /classes, /classes/new, /classes/:classId, /classes/:classId/edit, /create/lesson, /lessons/:lessonId, /lessons/:lessonId/edit, /create/worksheet, /worksheets/:worksheetId, /worksheets/:worksheetId/edit, /create/quiz, /quizzes/:quizId, /quizzes/:quizId/edit, /create/homework, /homeworks/:homeworkId, /homeworks/:homeworkId/edit (inside ProtectedRoute + AppShell), future generation & resource routes (/create, /library, /profile, /settings).
+/, /login, /signup, /onboarding, /dashboard, /library, /classes, /classes/new, /classes/:classId, /classes/:classId/edit, /create/lesson, /lessons/:lessonId, /lessons/:lessonId/edit, /create/worksheet, /worksheets/:worksheetId, /worksheets/:worksheetId/edit, /create/quiz, /quizzes/:quizId, /quizzes/:quizId/edit, /create/homework, /homeworks/:homeworkId, /homeworks/:homeworkId/edit (inside ProtectedRoute + AppShell), future generation & resource routes (/create, /profile, /settings).
 
 ## State
 
-TanStack Query for server state; local state/Zustand only where justified.
+TanStack Query for server state (e.g. useContentList, useClasses); URL search params for library search/filter/sort/pagination state; local state/Zustand only where justified.
 
 ## API modules
 
-auth.api.ts, teacher.api.ts, classes.api.ts, lessons.api.ts, worksheets.api.ts, quizzes.api.ts, homeworks.api.ts, library.api.ts, analytics.api.ts.
+auth.api.ts, teacher.api.ts, classes.api.ts, lessons.api.ts, worksheets.api.ts, quizzes.api.ts, homeworks.api.ts, content.api.ts, analytics.api.ts.
 
 ## Forms
 

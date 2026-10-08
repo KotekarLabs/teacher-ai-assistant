@@ -11,11 +11,15 @@ import {
 import { ClassRepository } from "../repositories/class.repository";
 import { QuizRepository } from "../repositories/quiz.repository";
 import { GenerationRequestRepository } from "../repositories/generation-request.repository";
-import { Prisma } from "@prisma/client";
+import { ContentSyncService } from "./content-sync.service";
+import { Prisma, PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export interface ServiceError extends Error {
   statusCode?: number;
 }
+
 
 export class QuizService {
   static async getQuizzes(teacherId: string, includeArchived = false) {
@@ -168,20 +172,43 @@ export class QuizService {
       completedAt: new Date(),
     });
 
-    const quiz = await QuizRepository.create({
-      teacherId,
-      classId: targetClass.id,
-      generationRequestId: genRequest.id,
-      title: validContent.title,
-      subject: validContent.subject,
-      topic: validContent.topic,
-      curriculumBoard: targetClass.curriculumBoard,
-      difficulty: data.difficulty || "MEDIUM",
-      durationMinutes: validContent.durationMinutes || data.durationMinutes || 20,
-      totalMarks: authoritativeTotalMarks,
-      instructions: validContent.instructions || null,
-      status: "DRAFT",
-      questions: validContent.questions,
+    const quiz = await prisma.$transaction(async (tx) => {
+      const created = await QuizRepository.create(
+        {
+          teacherId,
+          classId: targetClass.id,
+          generationRequestId: genRequest.id,
+          title: validContent.title,
+          subject: validContent.subject,
+          topic: validContent.topic,
+          curriculumBoard: targetClass.curriculumBoard,
+          difficulty: data.difficulty || "MEDIUM",
+          durationMinutes: validContent.durationMinutes || data.durationMinutes || 20,
+          totalMarks: authoritativeTotalMarks,
+          instructions: validContent.instructions || null,
+          status: "DRAFT",
+          questions: validContent.questions,
+        },
+        tx,
+      );
+
+      await ContentSyncService.syncResource(
+        {
+          teacherId,
+          type: "QUIZ",
+          resourceId: created.id,
+          title: created.title,
+          subject: created.subject,
+          topic: created.topic,
+          difficulty: created.difficulty,
+          classId: created.classId,
+          status: created.status,
+          archivedAt: created.archivedAt,
+        },
+        tx,
+      );
+
+      return created;
     });
 
     await GenerationRequestRepository.update(genRequest.id, {
@@ -216,13 +243,37 @@ export class QuizService {
       );
     }
 
-    return QuizRepository.update(quizId, {
-      title: data.title,
-      instructions: data.instructions,
-      durationMinutes: data.durationMinutes,
-      totalMarks: calculatedTotalMarks,
-      status: data.status,
-      questions: data.questions,
+    return prisma.$transaction(async (tx) => {
+      const updated = await QuizRepository.update(
+        quizId,
+        {
+          title: data.title,
+          instructions: data.instructions,
+          durationMinutes: data.durationMinutes,
+          totalMarks: calculatedTotalMarks,
+          status: data.status,
+          questions: data.questions,
+        },
+        tx,
+      );
+
+      await ContentSyncService.syncResource(
+        {
+          teacherId,
+          type: "QUIZ",
+          resourceId: updated.id,
+          title: updated.title,
+          subject: updated.subject,
+          topic: updated.topic,
+          difficulty: updated.difficulty,
+          classId: updated.classId,
+          status: updated.status,
+          archivedAt: updated.archivedAt,
+        },
+        tx,
+      );
+
+      return updated;
     });
   }
 
@@ -239,8 +290,29 @@ export class QuizService {
       throw error;
     }
 
-    return QuizRepository.archive(quizId);
+    return prisma.$transaction(async (tx) => {
+      const archived = await QuizRepository.archive(quizId, tx);
+
+      await ContentSyncService.syncResource(
+        {
+          teacherId,
+          type: "QUIZ",
+          resourceId: archived.id,
+          title: archived.title,
+          subject: archived.subject,
+          topic: archived.topic,
+          difficulty: archived.difficulty,
+          classId: archived.classId,
+          status: archived.status,
+          archivedAt: archived.archivedAt,
+        },
+        tx,
+      );
+
+      return archived;
+    });
   }
+
 
   static formatQuizDTO(raw: {
     id: string;

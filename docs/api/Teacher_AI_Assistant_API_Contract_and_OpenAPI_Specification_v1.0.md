@@ -62,9 +62,16 @@ GET /homeworks/:homeworkId -> Retrieves homework details and structured tasks by
 PATCH /homeworks/:homeworkId -> Updates homework title/instructions/estimatedTimeMinutes/tasks/status (404 if not found or cross-user)
 POST /homeworks/:homeworkId/archive -> Soft-archives a homework assignment (404 if not found or cross-user)
 
+## Content Library
+
+GET /content -> Lists and filters authenticated teacher's catalog (query params: search, type, classId, subject, topic, status, sort, page, pageSize)
+GET /content/:contentId -> Retrieves specific catalog record and class details (404 if not found or cross-user)
+POST /content/:contentId/duplicate -> Duplicates resource domain entity and catalog record transactionally (no AI invocation)
+POST /content/:contentId/archive -> Cascades archive operation to domain resource and catalog record transactionally
+
 ## Future resource APIs
 
-Library; PDF export; analytics; billing foundation.
+PDF export; analytics; billing foundation.
 
 ## Rules
 

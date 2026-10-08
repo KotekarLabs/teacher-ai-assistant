@@ -34,6 +34,22 @@ test.describe("Dashboard Foundation Flow", () => {
         body: JSON.stringify({ success: true }),
       });
     });
+
+    await page.route(/\/api\/v1\/content(\?.*)?$/, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          items: [],
+          pagination: {
+            page: 1,
+            pageSize: 5,
+            total: 0,
+            totalPages: 0,
+          },
+        }),
+      });
+    });
   });
 
   test("Authenticated teacher sees full Dashboard Foundation with Quick Create and AppShell", async ({

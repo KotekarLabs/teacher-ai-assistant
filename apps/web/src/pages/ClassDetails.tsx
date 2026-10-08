@@ -4,8 +4,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getClassById, archiveClass } from "../api/classes.api";
 import { ArchiveClassDialog } from "../components/classes/ArchiveClassDialog";
 import { Badge } from "../components/common/Badge";
+import { ClassResourcesList } from "../components/library/ClassResourcesList";
 
 export default function ClassDetails() {
+
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -231,6 +233,9 @@ export default function ClassDetails() {
         </div>
       </div>
 
+      {/* Class Resources List */}
+      <ClassResourcesList classId={classItem.id} />
+
       {/* Archive Modal */}
       <ArchiveClassDialog
         isOpen={isArchiveDialogOpen}
@@ -242,3 +247,4 @@ export default function ClassDetails() {
     </div>
   );
 }
+

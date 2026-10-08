@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import type {
   QuestionType,
   WorksheetDifficulty,
@@ -40,8 +40,12 @@ export interface UpdateWorksheetData {
 }
 
 export class WorksheetRepository {
-  static async findManyByTeacherId(teacherId: string, includeArchived = false) {
-    return prisma.worksheet.findMany({
+  static async findManyByTeacherId(
+    teacherId: string,
+    includeArchived = false,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.worksheet.findMany({
       where: {
         teacherId,
         archivedAt: includeArchived ? undefined : null,
@@ -57,8 +61,12 @@ export class WorksheetRepository {
     });
   }
 
-  static async findByIdAndTeacherId(worksheetId: string, teacherId: string) {
-    return prisma.worksheet.findFirst({
+  static async findByIdAndTeacherId(
+    worksheetId: string,
+    teacherId: string,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.worksheet.findFirst({
       where: {
         id: worksheetId,
         teacherId,
@@ -71,8 +79,11 @@ export class WorksheetRepository {
     });
   }
 
-  static async create(data: CreateWorksheetData) {
-    return prisma.worksheet.create({
+  static async create(
+    data: CreateWorksheetData,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.worksheet.create({
       data: {
         teacherId: data.teacherId,
         classId: data.classId,
@@ -105,42 +116,44 @@ export class WorksheetRepository {
     });
   }
 
-  static async update(worksheetId: string, data: UpdateWorksheetData) {
+  static async update(
+    worksheetId: string,
+    data: UpdateWorksheetData,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
     if (data.questions) {
-      return prisma.$transaction(async (tx) => {
-        await tx.worksheetQuestion.deleteMany({
-          where: { worksheetId },
-        });
+      await db.worksheetQuestion.deleteMany({
+        where: { worksheetId },
+      });
 
-        return tx.worksheet.update({
-          where: { id: worksheetId },
-          data: {
-            title: data.title,
-            instructions: data.instructions,
-            estimatedTimeMinutes: data.estimatedTimeMinutes,
-            status: data.status,
-            questions: {
-              create: data.questions!.map((q) => ({
-                position: q.position,
-                type: q.type,
-                question: q.question,
-                options: q.options || [],
-                expectedAnswer: q.expectedAnswer,
-                marks: q.marks || 1,
-                difficulty: q.difficulty || "MEDIUM",
-              })),
-            },
+      return db.worksheet.update({
+        where: { id: worksheetId },
+        data: {
+          title: data.title,
+          instructions: data.instructions,
+          estimatedTimeMinutes: data.estimatedTimeMinutes,
+          status: data.status,
+          questions: {
+            create: data.questions!.map((q) => ({
+              position: q.position,
+              type: q.type,
+              question: q.question,
+              options: q.options || [],
+              expectedAnswer: q.expectedAnswer,
+              marks: q.marks || 1,
+              difficulty: q.difficulty || "MEDIUM",
+            })),
           },
-          include: {
-            questions: {
-              orderBy: { position: "asc" },
-            },
+        },
+        include: {
+          questions: {
+            orderBy: { position: "asc" },
           },
-        });
+        },
       });
     }
 
-    return prisma.worksheet.update({
+    return db.worksheet.update({
       where: { id: worksheetId },
       data: {
         title: data.title,
@@ -156,8 +169,11 @@ export class WorksheetRepository {
     });
   }
 
-  static async archive(worksheetId: string) {
-    return prisma.worksheet.update({
+  static async archive(
+    worksheetId: string,
+    db: Prisma.TransactionClient | PrismaClient = prisma,
+  ) {
+    return db.worksheet.update({
       where: { id: worksheetId },
       data: {
         archivedAt: new Date(),
@@ -171,3 +187,4 @@ export class WorksheetRepository {
     });
   }
 }
+
