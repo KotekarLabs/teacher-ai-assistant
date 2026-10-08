@@ -118,7 +118,7 @@ export default function ClassDetails() {
             <Link
               to={`/create/lesson?classId=${classItem.id}`}
               data-testid="create-lesson-for-class-btn"
-              className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
             >
               <span>✨</span>
               <span className="ml-1.5">Create Lesson</span>
@@ -126,17 +126,25 @@ export default function ClassDetails() {
             <Link
               to={`/create/worksheet?classId=${classItem.id}`}
               data-testid="create-worksheet-for-class-btn"
-              className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
             >
               <span>📝</span>
               <span className="ml-1.5">Create Worksheet</span>
             </Link>
             <Link
+              to={`/create/quiz?classId=${classItem.id}`}
+              data-testid="create-quiz-for-class-btn"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-colors"
+            >
+              <span>❓</span>
+              <span className="ml-1.5">Create Quiz</span>
+            </Link>
+            <Link
               to={`/classes/${classItem.id}/edit`}
-              className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
             >
               <svg
-                className="w-4 h-4 mr-1.5 text-slate-500"
+                className="w-4 h-4 mr-1 text-slate-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -154,10 +162,10 @@ export default function ClassDetails() {
             <button
               type="button"
               onClick={() => setIsArchiveDialogOpen(true)}
-              className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
             >
               <svg
-                className="w-4 h-4 mr-1.5 text-red-500"
+                className="w-4 h-4 mr-1 text-red-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

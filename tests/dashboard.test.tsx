@@ -50,7 +50,7 @@ describe("Dashboard & AppShell Components", () => {
     expect(screen.getByText(/3-5 years exp/i)).toBeDefined();
   });
 
-  it("renders Quick Create section with active Lesson Plan, active Worksheet, and 2 Coming Soon badges", () => {
+  it("renders Quick Create section with active Lesson Plan, Worksheet, Quiz, and 1 Coming Soon badge", () => {
     render(
       <BrowserRouter>
         <Dashboard />
@@ -66,10 +66,10 @@ describe("Dashboard & AppShell Components", () => {
     expect(screen.getByText("Homework")).toBeDefined();
 
     const aiReadyBadges = screen.getAllByText(/AI Ready/i);
-    expect(aiReadyBadges.length).toBe(2);
+    expect(aiReadyBadges.length).toBe(3);
 
     const comingSoonBadges = screen.getAllByText(/Coming Soon/i);
-    expect(comingSoonBadges.length).toBe(2);
+    expect(comingSoonBadges.length).toBe(1);
   });
 
   it("renders Recent Resources section with accessible empty state", () => {

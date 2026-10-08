@@ -1,6 +1,7 @@
 import type {
   LessonContent,
   WorksheetContent,
+  QuizContent,
   QuestionType,
 } from "@teacher-ai/contracts";
 
@@ -53,6 +54,32 @@ export interface WorksheetGenerationResult {
   estimatedCost: number;
 }
 
+export interface QuizGenerationContext {
+  classId: string;
+  grade: string;
+  section?: string | null;
+  curriculumBoard?: string | null;
+  subject: string;
+  topic: string;
+  difficulty: string;
+  questionCount: number;
+  questionTypes: QuestionType[];
+  durationMinutes?: number;
+  teacherInstructions?: string;
+}
+
+export interface QuizGenerationResult {
+  rawOutput: string;
+  parsedContent?: QuizContent;
+  provider: string;
+  model: string;
+  promptVersion: string;
+  latencyMs: number;
+  inputTokens: number;
+  outputTokens: number;
+  estimatedCost: number;
+}
+
 export interface SafetyCheckResult {
   isSafe: boolean;
   reason?: string;
@@ -71,4 +98,7 @@ export interface AIProvider {
   generateWorksheet(
     context: WorksheetGenerationContext,
   ): Promise<WorksheetGenerationResult>;
+  generateQuiz(
+    context: QuizGenerationContext,
+  ): Promise<QuizGenerationResult>;
 }

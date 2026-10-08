@@ -46,9 +46,17 @@ GET /worksheets/:worksheetId -> Retrieves worksheet details and questions by id 
 PATCH /worksheets/:worksheetId -> Updates worksheet title/instructions/questions/status (404 if not found or cross-user)
 POST /worksheets/:worksheetId/archive -> Soft-archives a worksheet (404 if not found or cross-user)
 
+## Quizzes
+
+POST /quizzes/generate -> Generates structured quiz candidate with server-authoritative totalMarks (status 201)
+GET /quizzes -> Retrieves authenticated teacher's active quizzes (archived excluded)
+GET /quizzes/:quizId -> Retrieves quiz details, questions, answers, and explanations by id (404 if not found or cross-user)
+PATCH /quizzes/:quizId -> Updates quiz title/instructions/duration/questions/status with server totalMarks recalculation (404 if not found or cross-user)
+POST /quizzes/:quizId/archive -> Soft-archives a quiz (404 if not found or cross-user)
+
 ## Future resource APIs
 
-Quizzes; homework; library; PDF export; analytics; billing foundation.
+Homework; library; PDF export; analytics; billing foundation.
 
 ## Rules
 

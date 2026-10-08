@@ -62,6 +62,8 @@ const quickCreateOptions: QuickCreateOption[] = [
     badgeColor: "bg-amber-50 text-amber-700",
     iconBg: "bg-amber-50",
     iconColor: "text-amber-600",
+    href: "/create/quiz",
+    enabled: true,
     icon: (
       <svg
         className="w-6 h-6"

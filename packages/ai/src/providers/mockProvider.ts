@@ -1,13 +1,16 @@
-import type { LessonContent, WorksheetContent } from "@teacher-ai/contracts";
+import type { LessonContent, WorksheetContent, QuizContent } from "@teacher-ai/contracts";
 import type {
   AIProvider,
   LessonGenerationContext,
   LessonGenerationResult,
   WorksheetGenerationContext,
   WorksheetGenerationResult,
+  QuizGenerationContext,
+  QuizGenerationResult,
 } from "../types";
 import { LessonPromptBuilder } from "../prompts/lessonPromptBuilder";
 import { WorksheetPromptBuilder } from "../prompts/worksheetPromptBuilder";
+import { QuizPromptBuilder } from "../prompts/quizPromptBuilder";
 
 export class MockAIProvider implements AIProvider {
   async generateLesson(
@@ -161,6 +164,102 @@ export class MockAIProvider implements AIProvider {
       inputTokens: 380,
       outputTokens: 540,
       estimatedCost: 0.0018,
+    };
+  }
+
+  async generateQuiz(
+    context: QuizGenerationContext,
+  ): Promise<QuizGenerationResult> {
+    const startTime = Date.now();
+
+    const questions: QuizContent["questions"] = [];
+    const count = context.questionCount || 5;
+    const types = context.questionTypes.length > 0
+      ? context.questionTypes
+      : ["MULTIPLE_CHOICE", "TRUE_FALSE"];
+
+    for (let i = 1; i <= count; i++) {
+      const type = types[(i - 1) % types.length];
+      if (type === "MULTIPLE_CHOICE") {
+        const optionA = `Core mechanism of ${context.topic}`;
+        const optionB = `Secondary effect of ${context.topic}`;
+        const optionC = `Historical observation in ${context.subject}`;
+        const optionD = `Common misconception in ${context.topic}`;
+        questions.push({
+          position: i,
+          type: "MULTIPLE_CHOICE",
+          question: `Which statement accurately describes the main characteristic of ${context.topic} in Grade ${context.grade} ${context.subject}?`,
+          options: [optionA, optionB, optionC, optionD],
+          correctAnswer: optionA,
+          explanation: `${optionA} correctly identifies the fundamental principle of ${context.topic} as taught in Grade ${context.grade}.`,
+          marks: 1,
+          difficulty: "MEDIUM",
+        });
+      } else if (type === "TRUE_FALSE") {
+        questions.push({
+          position: i,
+          type: "TRUE_FALSE",
+          question: `True or False: ${context.topic} is a foundational concept in Grade ${context.grade} ${context.subject}.`,
+          options: ["True", "False"],
+          correctAnswer: "True",
+          explanation: `In Grade ${context.grade} ${context.subject}, ${context.topic} serves as a central foundational principle.`,
+          marks: 1,
+          difficulty: "EASY",
+        });
+      } else if (type === "FILL_IN_THE_BLANK") {
+        questions.push({
+          position: i,
+          type: "FILL_IN_THE_BLANK",
+          question: `In ${context.subject}, the study of ${context.topic} is primarily centered on the concept of ___.`,
+          options: [],
+          correctAnswer: `${context.topic} Fundamentals`,
+          explanation: `${context.topic} Fundamentals represents the core terminology for this concept.`,
+          marks: 1,
+          difficulty: "MEDIUM",
+        });
+      } else {
+        // SHORT_ANSWER
+        questions.push({
+          position: i,
+          type: "SHORT_ANSWER",
+          question: `Briefly define ${context.topic} and state one key application in ${context.subject}.`,
+          options: [],
+          correctAnswer: `${context.topic} is a core principle in ${context.subject} used to solve analytical problems.`,
+          explanation: `Students should identify the core definition and mention at least one direct application in ${context.subject}.`,
+          marks: 2,
+          difficulty: "HARD",
+        });
+      }
+    }
+
+    const totalMarks = questions.reduce((acc, q) => acc + q.marks, 0);
+
+    const structuredContent: QuizContent = {
+      title: `${context.topic} Assessment Quiz — Grade ${context.grade}`,
+      subject: context.subject,
+      topic: context.topic,
+      difficulty: (context.difficulty as "EASY" | "MEDIUM" | "HARD") || "MEDIUM",
+      durationMinutes: context.durationMinutes || 20,
+      instructions:
+        context.teacherInstructions ||
+        "Read each question carefully and select or write the best answer.",
+      totalMarks,
+      questions,
+    };
+
+    const rawOutput = JSON.stringify(structuredContent, null, 2);
+    const latencyMs = Math.max(15, Date.now() - startTime);
+
+    return {
+      rawOutput,
+      parsedContent: structuredContent,
+      provider: "MOCK",
+      model: "mock-pedagogy-v1",
+      promptVersion: QuizPromptBuilder.PROMPT_VERSION,
+      latencyMs,
+      inputTokens: 410,
+      outputTokens: 580,
+      estimatedCost: 0.0019,
     };
   }
 }

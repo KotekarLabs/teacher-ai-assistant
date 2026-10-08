@@ -2,11 +2,11 @@
 
 ## Pipeline
 
-Teacher Request → API → Validation → Context Builder → Prompt Builder → AIProvider → Provider Adapter → LLM → Structured JSON → Parser → Schema Validation → Quality → Safety → Persistence → UI.
+Teacher Request → API → Validation → Context Builder → Prompt Builder → AIProvider → Provider Adapter → LLM → Structured JSON → Parser → Schema Validation → Quality → Safety → Answer Consistency → Server-Authoritative Scoring → Persistence → UI.
 
 ## Provider
 
-AIProvider interface (`generateLesson`, `generateWorksheet`, `MockAIProvider`, `OpenAIProvider`, provider factory). Application interacts with provider abstraction rather than vendor SDKs.
+AIProvider interface (`generateLesson`, `generateWorksheet`, `generateQuiz`, `MockAIProvider`, `OpenAIProvider`, provider factory). Application interacts with provider abstraction rather than vendor SDKs.
 
 ## Context priority
 
@@ -14,15 +14,15 @@ Explicit request; class/grade; curriculum; subject/topic; product rules; general
 
 ## Prompt repository
 
-prompts/shared (system.v1, safety.v1, educational-quality.v1, formatting.v1), prompts/lesson (generate.v1), prompts/worksheet (generate.v1). Versioned prompt templates assembled dynamically.
+prompts/shared (system.v1, safety.v1, educational-quality.v1, formatting.v1), prompts/lesson (generate.v1), prompts/worksheet (generate.v1), prompts/quiz (generate.v1). Versioned prompt templates assembled dynamically.
 
 ## Quality
 
-Relevance, accuracy, age fit, structure, practicality, clarity, assessment alignment, safety.
+Relevance, accuracy, age fit, structure, practicality, clarity, answer consistency, assessment alignment, safety.
 
 ## Validation
 
-Structural, semantic and safety validation.
+Structural, semantic, answer consistency, and safety validation.
 
 ## Safety
 

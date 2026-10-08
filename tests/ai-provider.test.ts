@@ -183,6 +183,100 @@ describe("AIProvider and Adapter Architecture", () => {
     );
   });
 
+  it("MockAIProvider generates structured Quiz content with questions and marks", async () => {
+    const provider = new MockAIProvider();
+    const result = await provider.generateQuiz({
+      classId: "class-1",
+      grade: "8",
+      subject: "Science",
+      topic: "Chemical Reactions",
+      difficulty: "MEDIUM",
+      questionCount: 4,
+      questionTypes: ["MULTIPLE_CHOICE", "TRUE_FALSE"],
+      durationMinutes: 25,
+    });
+
+    expect(result.provider).toBe("MOCK");
+    expect(result.parsedContent).toBeDefined();
+    expect(result.parsedContent?.questions).toHaveLength(4);
+    expect(result.parsedContent?.title).toContain("Chemical Reactions");
+    expect(result.parsedContent?.durationMinutes).toBe(25);
+    expect(result.parsedContent?.totalMarks).toBeGreaterThanOrEqual(4);
+  });
+
+  it("OpenAIProvider generates structured Quiz content", async () => {
+    const mockJsonResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              title: "Chemical Reactions Quiz",
+              subject: "Science",
+              topic: "Chemical Reactions",
+              difficulty: "MEDIUM",
+              durationMinutes: 20,
+              instructions: "Answer all questions.",
+              totalMarks: 2,
+              questions: [
+                {
+                  position: 1,
+                  type: "MULTIPLE_CHOICE",
+                  question: "What is an exothermic reaction?",
+                  options: ["Releases heat", "Absorbs heat", "No temperature change", "Creates mass"],
+                  correctAnswer: "Releases heat",
+                  explanation: "Exothermic reactions release thermal energy.",
+                  marks: 1,
+                  difficulty: "MEDIUM",
+                },
+                {
+                  position: 2,
+                  type: "TRUE_FALSE",
+                  question: "Combustion is an example of an exothermic reaction.",
+                  options: ["True", "False"],
+                  correctAnswer: "True",
+                  explanation: "Burning generates heat and light.",
+                  marks: 1,
+                  difficulty: "EASY",
+                },
+              ],
+            }),
+          },
+        },
+      ],
+      usage: {
+        prompt_tokens: 310,
+        completion_tokens: 360,
+      },
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockJsonResponse,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const provider = new OpenAIProvider({
+      apiKey: "sk-test-key",
+      model: "gpt-4o-mini",
+    });
+
+    const result = await provider.generateQuiz({
+      classId: "class-1",
+      grade: "8",
+      subject: "Science",
+      topic: "Chemical Reactions",
+      difficulty: "MEDIUM",
+      questionCount: 2,
+      questionTypes: ["MULTIPLE_CHOICE", "TRUE_FALSE"],
+    });
+
+    expect(fetchMock).toHaveBeenCalled();
+    expect(result.provider).toBe("OPENAI");
+    expect(result.parsedContent?.questions).toHaveLength(2);
+    expect(result.parsedContent?.questions[0].correctAnswer).toBe("Releases heat");
+    expect(result.parsedContent?.questions[0].explanation).toBe("Exothermic reactions release thermal energy.");
+  });
+
   it("allows seamless swapping of provider via setAIProvider without changing services", () => {
     const customMock: any = {
       generateLesson: vi.fn().mockResolvedValue({
@@ -193,6 +287,10 @@ describe("AIProvider and Adapter Architecture", () => {
         rawOutput: "{}",
         provider: "CUSTOM_ADAPTER",
       }),
+      generateQuiz: vi.fn().mockResolvedValue({
+        rawOutput: "{}",
+        provider: "CUSTOM_ADAPTER",
+      }),
     };
 
     setAIProvider(customMock);
@@ -200,4 +298,3 @@ describe("AIProvider and Adapter Architecture", () => {
     expect(resolved).toBe(customMock);
   });
 });
-
