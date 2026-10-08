@@ -21,6 +21,9 @@ import { EditWorksheet } from "./pages/EditWorksheet";
 import { CreateQuiz } from "./pages/CreateQuiz";
 import { QuizDetails } from "./pages/QuizDetails";
 import { EditQuiz } from "./pages/EditQuiz";
+import { CreateHomework } from "./pages/CreateHomework";
+import { HomeworkDetails } from "./pages/HomeworkDetails";
+import { EditHomework } from "./pages/EditHomework";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +67,15 @@ export default function App() {
               <Route path="/create/quiz" element={<CreateQuiz />} />
               <Route path="/quizzes/:quizId" element={<QuizDetails />} />
               <Route path="/quizzes/:quizId/edit" element={<EditQuiz />} />
+              <Route path="/create/homework" element={<CreateHomework />} />
+              <Route
+                path="/homeworks/:homeworkId"
+                element={<HomeworkDetails />}
+              />
+              <Route
+                path="/homeworks/:homeworkId/edit"
+                element={<EditHomework />}
+              />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

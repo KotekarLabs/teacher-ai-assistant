@@ -7,6 +7,7 @@ import classRoutes from "./routes/class.routes";
 import { lessonRouter } from "./routes/lesson.routes";
 import { worksheetRouter } from "./routes/worksheet.routes";
 import { quizRouter } from "./routes/quiz.routes";
+import { homeworkRouter } from "./routes/homework.routes";
 import { config } from "./utils/config";
 
 const app = express();
@@ -26,6 +27,7 @@ app.use("/api/v1/classes", classRoutes);
 app.use("/api/v1/lessons", lessonRouter);
 app.use("/api/v1/worksheets", worksheetRouter);
 app.use("/api/v1/quizzes", quizRouter);
+app.use("/api/v1/homeworks", homeworkRouter);
 
 app.get("/api/v1/health", (req, res) => {
   res.json({ status: "ok" });

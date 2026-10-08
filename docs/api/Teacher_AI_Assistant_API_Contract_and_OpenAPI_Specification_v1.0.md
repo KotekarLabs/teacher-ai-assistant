@@ -54,9 +54,17 @@ GET /quizzes/:quizId -> Retrieves quiz details, questions, answers, and explanat
 PATCH /quizzes/:quizId -> Updates quiz title/instructions/duration/questions/status with server totalMarks recalculation (404 if not found or cross-user)
 POST /quizzes/:quizId/archive -> Soft-archives a quiz (404 if not found or cross-user)
 
+## Homeworks
+
+POST /homeworks/generate -> Generates structured homework assignment candidate with workload validation (status 201)
+GET /homeworks -> Retrieves authenticated teacher's active homeworks (archived excluded)
+GET /homeworks/:homeworkId -> Retrieves homework details and structured tasks by id (404 if not found or cross-user)
+PATCH /homeworks/:homeworkId -> Updates homework title/instructions/estimatedTimeMinutes/tasks/status (404 if not found or cross-user)
+POST /homeworks/:homeworkId/archive -> Soft-archives a homework assignment (404 if not found or cross-user)
+
 ## Future resource APIs
 
-Homework; library; PDF export; analytics; billing foundation.
+Library; PDF export; analytics; billing foundation.
 
 ## Rules
 

@@ -277,6 +277,90 @@ describe("AIProvider and Adapter Architecture", () => {
     expect(result.parsedContent?.questions[0].explanation).toBe("Exothermic reactions release thermal energy.");
   });
 
+  it("MockAIProvider generates structured Homework content with tasks", async () => {
+    const provider = new MockAIProvider();
+    const result = await provider.generateHomework({
+      classId: "class-1",
+      grade: "7",
+      subject: "Science",
+      topic: "Ecosystems",
+      difficulty: "MEDIUM",
+      taskCount: 3,
+      taskPreferences: ["PRACTICE", "ACTIVITY", "SHORT_ANSWER"],
+      estimatedTimeMinutes: 30,
+    });
+
+    expect(result.provider).toBe("MOCK");
+    expect(result.parsedContent).toBeDefined();
+    expect(result.parsedContent?.tasks).toHaveLength(3);
+    expect(result.parsedContent?.title).toContain("Ecosystems");
+    expect(result.parsedContent?.estimatedTimeMinutes).toBe(30);
+  });
+
+  it("OpenAIProvider generates structured Homework content", async () => {
+    const mockJsonResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              title: "Ecosystems Take-Home Assignment",
+              subject: "Science",
+              topic: "Ecosystems",
+              difficulty: "MEDIUM",
+              estimatedTimeMinutes: 30,
+              instructions: "Complete all questions carefully.",
+              tasks: [
+                {
+                  position: 1,
+                  title: "Food Chain Practice",
+                  description: "Draw a terrestrial food chain with producers, primary consumers, and predators.",
+                  type: "CREATIVE",
+                },
+                {
+                  position: 2,
+                  title: "Concept Reflection",
+                  description: "Explain what happens when a top predator is removed from an ecosystem.",
+                  type: "SHORT_ANSWER",
+                },
+              ],
+            }),
+          },
+        },
+      ],
+      usage: {
+        prompt_tokens: 300,
+        completion_tokens: 350,
+      },
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockJsonResponse,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const provider = new OpenAIProvider({
+      apiKey: "sk-test-key",
+      model: "gpt-4o-mini",
+    });
+
+    const result = await provider.generateHomework({
+      classId: "class-1",
+      grade: "7",
+      subject: "Science",
+      topic: "Ecosystems",
+      difficulty: "MEDIUM",
+      taskCount: 2,
+      taskPreferences: ["CREATIVE", "SHORT_ANSWER"],
+      estimatedTimeMinutes: 30,
+    });
+
+    expect(fetchMock).toHaveBeenCalled();
+    expect(result.provider).toBe("OPENAI");
+    expect(result.parsedContent?.tasks).toHaveLength(2);
+    expect(result.parsedContent?.tasks[0].title).toBe("Food Chain Practice");
+  });
+
   it("allows seamless swapping of provider via setAIProvider without changing services", () => {
     const customMock: any = {
       generateLesson: vi.fn().mockResolvedValue({
@@ -288,6 +372,10 @@ describe("AIProvider and Adapter Architecture", () => {
         provider: "CUSTOM_ADAPTER",
       }),
       generateQuiz: vi.fn().mockResolvedValue({
+        rawOutput: "{}",
+        provider: "CUSTOM_ADAPTER",
+      }),
+      generateHomework: vi.fn().mockResolvedValue({
         rawOutput: "{}",
         provider: "CUSTOM_ADAPTER",
       }),

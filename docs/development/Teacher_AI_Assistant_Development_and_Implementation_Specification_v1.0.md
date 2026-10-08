@@ -9,7 +9,7 @@
 5. first lesson vertical slice (Lesson Generation Foundation completed: AI pipeline, prompt architecture, validation, editor, save/reopen, whole-lesson regeneration)
 6. worksheet (Worksheet Generation Foundation completed: AI pipeline, prompt architecture, validation, questions editor, save/reopen, archive)
 7. quiz (Quiz Generation Foundation completed: AI pipeline, prompt architecture, validation, answer consistency, server-authoritative scoring, editor, save/reopen, archive)
-8. homework
+8. homework (Homework Generation Foundation completed: AI pipeline, prompt architecture, validation, structured tasks, workload checks, editor, save/reopen, archive)
 9. library
 10. export
 11. analytics

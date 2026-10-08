@@ -1,4 +1,9 @@
-import type { LessonContent, WorksheetContent, QuizContent } from "@teacher-ai/contracts";
+import type {
+  LessonContent,
+  WorksheetContent,
+  QuizContent,
+  HomeworkContent,
+} from "@teacher-ai/contracts";
 import type {
   AIProvider,
   LessonGenerationContext,
@@ -7,10 +12,13 @@ import type {
   WorksheetGenerationResult,
   QuizGenerationContext,
   QuizGenerationResult,
+  HomeworkGenerationContext,
+  HomeworkGenerationResult,
 } from "../types";
 import { LessonPromptBuilder } from "../prompts/lessonPromptBuilder";
 import { WorksheetPromptBuilder } from "../prompts/worksheetPromptBuilder";
 import { QuizPromptBuilder } from "../prompts/quizPromptBuilder";
+import { HomeworkPromptBuilder } from "../prompts/homeworkPromptBuilder";
 
 export class MockAIProvider implements AIProvider {
   async generateLesson(
@@ -260,6 +268,87 @@ export class MockAIProvider implements AIProvider {
       inputTokens: 410,
       outputTokens: 580,
       estimatedCost: 0.0019,
+    };
+  }
+
+  async generateHomework(
+    context: HomeworkGenerationContext,
+  ): Promise<HomeworkGenerationResult> {
+    const startTime = Date.now();
+
+    const tasks: HomeworkContent["tasks"] = [];
+    const count = context.taskCount || 3;
+    const types =
+      context.taskTypes && context.taskTypes.length > 0
+        ? context.taskTypes
+        : ["PRACTICE", "WRITTEN"];
+
+    for (let i = 1; i <= count; i++) {
+      const type = types[(i - 1) % types.length];
+      if (type === "PRACTICE") {
+        tasks.push({
+          position: i,
+          title: `Practice Application: ${context.topic}`,
+          description: `Solve the assigned 3 numerical/conceptual practice problems on ${context.topic}. Write out all steps clearly.`,
+          type: "PRACTICE",
+        });
+      } else if (type === "WRITTEN") {
+        tasks.push({
+          position: i,
+          title: `Summary Reflection: ${context.topic}`,
+          description: `In 4-5 sentences, summarize the key takeaway of ${context.topic} and how it relates to our previous lessons in Grade ${context.grade} ${context.subject}.`,
+          type: "WRITTEN",
+        });
+      } else if (type === "ACTIVITY") {
+        tasks.push({
+          position: i,
+          title: `Home Observation Activity`,
+          description: `Observe one example of ${context.topic} in your home or daily surroundings. Note down 3 key observations in your science log.`,
+          type: "ACTIVITY",
+        });
+      } else if (type === "CREATIVE") {
+        tasks.push({
+          position: i,
+          title: `Concept Diagram & Mind Map`,
+          description: `Draw and color a neat, labeled mind map illustrating the main parts and mechanisms of ${context.topic}.`,
+          type: "CREATIVE",
+        });
+      } else {
+        // SHORT_ANSWER
+        tasks.push({
+          position: i,
+          title: `Inquiry Questions on ${context.topic}`,
+          description: `Answer 2 short conceptual questions exploring the causes and effects of ${context.topic}.`,
+          type: "SHORT_ANSWER",
+        });
+      }
+    }
+
+    const structuredContent: HomeworkContent = {
+      title: `${context.topic} Homework Assignment — Grade ${context.grade}`,
+      subject: context.subject,
+      topic: context.topic,
+      difficulty: (context.difficulty as "EASY" | "MEDIUM" | "HARD") || "MEDIUM",
+      estimatedTimeMinutes: context.estimatedTimeMinutes || 30,
+      instructions:
+        context.teacherInstructions ||
+        "Complete all tasks neatly in your homework notebook. Review class notes if needed.",
+      tasks,
+    };
+
+    const rawOutput = JSON.stringify(structuredContent, null, 2);
+    const latencyMs = Math.max(15, Date.now() - startTime);
+
+    return {
+      rawOutput,
+      parsedContent: structuredContent,
+      provider: "MOCK",
+      model: "mock-pedagogy-v1",
+      promptVersion: HomeworkPromptBuilder.PROMPT_VERSION,
+      latencyMs,
+      inputTokens: 390,
+      outputTokens: 490,
+      estimatedCost: 0.0016,
     };
   }
 }

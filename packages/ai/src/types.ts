@@ -2,7 +2,9 @@ import type {
   LessonContent,
   WorksheetContent,
   QuizContent,
+  HomeworkContent,
   QuestionType,
+  HomeworkTaskType,
 } from "@teacher-ai/contracts";
 
 export interface LessonGenerationContext {
@@ -80,6 +82,33 @@ export interface QuizGenerationResult {
   estimatedCost: number;
 }
 
+export interface HomeworkGenerationContext {
+  classId: string;
+  grade: string;
+  section?: string | null;
+  curriculumBoard?: string | null;
+  subject: string;
+  topic: string;
+  difficulty: string;
+  taskCount?: number;
+  taskTypes?: HomeworkTaskType[];
+  taskPreferences?: HomeworkTaskType[];
+  estimatedTimeMinutes?: number;
+  teacherInstructions?: string;
+}
+
+export interface HomeworkGenerationResult {
+  rawOutput: string;
+  parsedContent?: HomeworkContent;
+  provider: string;
+  model: string;
+  promptVersion: string;
+  latencyMs: number;
+  inputTokens: number;
+  outputTokens: number;
+  estimatedCost: number;
+}
+
 export interface SafetyCheckResult {
   isSafe: boolean;
   reason?: string;
@@ -101,4 +130,7 @@ export interface AIProvider {
   generateQuiz(
     context: QuizGenerationContext,
   ): Promise<QuizGenerationResult>;
+  generateHomework(
+    context: HomeworkGenerationContext,
+  ): Promise<HomeworkGenerationResult>;
 }

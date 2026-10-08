@@ -88,6 +88,8 @@ const quickCreateOptions: QuickCreateOption[] = [
     badgeColor: "bg-emerald-50 text-emerald-700",
     iconBg: "bg-emerald-50",
     iconColor: "text-emerald-600",
+    href: "/create/homework",
+    enabled: true,
     icon: (
       <svg
         className="w-6 h-6"

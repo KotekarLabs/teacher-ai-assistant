@@ -6,15 +6,15 @@ React, Vite, TypeScript, Tailwind, React Router, TanStack Query, Zustand, React 
 
 ## Structure
 
-apps/web/src/{api,assets,components/{classes,common,dashboard,layout,lessons,worksheets,quizzes},pages,store,styles}
+apps/web/src/{api,assets,components/{classes,common,dashboard,layout,lessons,worksheets,quizzes,homeworks},pages,store,styles}
 
 ## Layout & Navigation
 
-AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, navigation links with active Dashboard and Classes, accessible disabled "Coming Soon" indicators for future modules), Quick Create (active Lesson Plan, Worksheet, and Quiz generators with "AI Ready" badge, disabled Homework with "Coming Soon" badge).
+AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, navigation links with active Dashboard and Classes, accessible disabled "Coming Soon" indicators for future modules), Quick Create (active Lesson Plan, Worksheet, Quiz, and Homework generators with "AI Ready" badge).
 
 ## Routes
 
-/, /login, /signup, /onboarding, /dashboard, /classes, /classes/new, /classes/:classId, /classes/:classId/edit, /create/lesson, /lessons/:lessonId, /lessons/:lessonId/edit, /create/worksheet, /worksheets/:worksheetId, /worksheets/:worksheetId/edit, /create/quiz, /quizzes/:quizId, /quizzes/:quizId/edit (inside ProtectedRoute + AppShell), future generation & resource routes (/create, /library, /profile, /settings).
+/, /login, /signup, /onboarding, /dashboard, /classes, /classes/new, /classes/:classId, /classes/:classId/edit, /create/lesson, /lessons/:lessonId, /lessons/:lessonId/edit, /create/worksheet, /worksheets/:worksheetId, /worksheets/:worksheetId/edit, /create/quiz, /quizzes/:quizId, /quizzes/:quizId/edit, /create/homework, /homeworks/:homeworkId, /homeworks/:homeworkId/edit (inside ProtectedRoute + AppShell), future generation & resource routes (/create, /library, /profile, /settings).
 
 ## State
 
@@ -22,7 +22,7 @@ TanStack Query for server state; local state/Zustand only where justified.
 
 ## API modules
 
-auth.api.ts, teacher.api.ts, classes.api.ts, lessons.api.ts, worksheets.api.ts, quizzes.api.ts, homework.api.ts, library.api.ts, analytics.api.ts.
+auth.api.ts, teacher.api.ts, classes.api.ts, lessons.api.ts, worksheets.api.ts, quizzes.api.ts, homeworks.api.ts, library.api.ts, analytics.api.ts.
 
 ## Forms
 

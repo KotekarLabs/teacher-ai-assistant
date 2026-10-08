@@ -20,6 +20,7 @@ model User {
   lessons            Lesson[]
   worksheets         Worksheet[]
   quizzes            Quiz[]
+  homeworks          Homework[]
   generationRequests GenerationRequest[]
 }
 
@@ -54,6 +55,7 @@ model Class {
   lessons         Lesson[]
   worksheets      Worksheet[]
   quizzes         Quiz[]
+  homeworks       Homework[]
 
   @@index([teacherId])
   @@index([teacherId, archivedAt])
@@ -83,6 +85,7 @@ model GenerationRequest {
   lessons        Lesson[]
   worksheets     Worksheet[]
   quizzes        Quiz[]
+  homeworks      Homework[]
 
   @@index([teacherId])
   @@index([status])
@@ -206,4 +209,31 @@ model QuizQuestion {
 
   @@index([quizId])
   @@index([quizId, position])
+}
+
+model Homework {
+  id                   String             @id @default(uuid())
+  teacherId            String
+  classId              String
+  generationRequestId  String?
+  title                String
+  subject              String
+  topic                String
+  curriculumBoard      String?
+  difficulty           String             @default("MEDIUM")
+  estimatedTimeMinutes Int                @default(30)
+  instructions         String?
+  tasks                Json
+  status               String             @default("DRAFT")
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  archivedAt           DateTime?
+
+  teacher              User               @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  class                Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
+  generationRequest    GenerationRequest? @relation(fields: [generationRequestId], references: [id], onDelete: SetNull)
+
+  @@index([teacherId])
+  @@index([classId])
+  @@index([teacherId, archivedAt])
 }

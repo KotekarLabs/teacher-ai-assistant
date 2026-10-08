@@ -140,6 +140,14 @@ export default function ClassDetails() {
               <span className="ml-1.5">Create Quiz</span>
             </Link>
             <Link
+              to={`/create/homework?classId=${classItem.id}`}
+              data-testid="create-homework-for-class-btn"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
+            >
+              <span>📚</span>
+              <span className="ml-1.5">Create Homework</span>
+            </Link>
+            <Link
               to={`/classes/${classItem.id}/edit`}
               className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
             >
