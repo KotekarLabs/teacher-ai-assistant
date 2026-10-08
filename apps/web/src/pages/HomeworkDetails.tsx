@@ -2,6 +2,12 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getHomeworkById, archiveHomework } from "../api/homeworks.api";
+import { downloadResourcePdf } from "../api/export.api";
+import {
+  ResourceHeader,
+  ResourceActions,
+  ResourceMetadata,
+} from "../components/resources";
 
 export const HomeworkDetails: React.FC = () => {
   const { homeworkId } = useParams<{ homeworkId: string }>();
@@ -9,6 +15,8 @@ export const HomeworkDetails: React.FC = () => {
   const queryClient = useQueryClient();
 
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const {
     data: homeworkData,
@@ -24,9 +32,23 @@ export const HomeworkDetails: React.FC = () => {
     mutationFn: () => archiveHomework(homeworkId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["homeworks"] });
+      queryClient.invalidateQueries({ queryKey: ["content"] });
       navigate("/dashboard");
     },
   });
+
+  const handleExportPdf = async () => {
+    if (!homeworkData?.homework) return;
+    setIsExporting(true);
+    setExportError(null);
+    try {
+      await downloadResourcePdf("homeworks", homeworkData.homework.id);
+    } catch (_err: unknown) {
+      setExportError("We couldn't generate the PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -61,53 +83,47 @@ export const HomeworkDetails: React.FC = () => {
       className="max-w-4xl mx-auto space-y-6 pb-16"
       data-testid="homework-details"
     >
-      {/* Header Bar */}
-      <div className="bg-white p-6 md:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800 uppercase tracking-wider">
-              {homework.subject}
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700">
-              ⏱ {homework.estimatedTimeMinutes} mins
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
-              {homework.difficulty}
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 uppercase">
-              {homework.status}
-            </span>
-          </div>
-          <h1
-            data-testid="homework-details-title"
-            className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight"
+      {/* Export Error Alert */}
+      {exportError && (
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold flex items-center justify-between no-print">
+          <span>{exportError}</span>
+          <button
+            type="button"
+            onClick={() => setExportError(null)}
+            className="text-red-500 hover:text-red-800 ml-4 font-bold"
           >
-            {homework.title}
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">Topic: {homework.topic}</p>
+            ✕
+          </button>
         </div>
+      )}
 
-        <div className="flex items-center space-x-3">
-          <button
-            type="button"
-            data-testid="edit-homework-btn"
-            onClick={() => navigate(`/homeworks/${homework.id}/edit`)}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-1.5"
-          >
-            <span>✏️</span>
-            <span>Edit Homework</span>
-          </button>
-          <button
-            type="button"
-            data-testid="archive-homework-btn"
-            onClick={() => setShowArchiveConfirm(true)}
-            className="px-3.5 py-2.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors border border-transparent hover:border-red-200"
-            title="Archive Homework"
-          >
-            🗑️
-          </button>
-        </div>
-      </div>
+      {/* Header */}
+      <ResourceHeader
+        title={homework.title}
+        type="HOMEWORK"
+        subject={homework.subject}
+        topic={homework.topic}
+        estimatedTimeMinutes={homework.estimatedTimeMinutes}
+        difficulty={homework.difficulty}
+        status={homework.status}
+        titleTestId="homework-details-title"
+        backTo="/library"
+        backLabel="Back to Library"
+        actions={
+          <ResourceActions
+            onEdit={() => navigate(`/homeworks/${homework.id}/edit`)}
+            editLabel="Edit Homework"
+            editTestId="edit-homework-btn"
+            onExportPdf={handleExportPdf}
+            isExporting={isExporting}
+            exportTestId="export-pdf-btn"
+            onPrint={() => window.print()}
+            printTestId="print-btn"
+            onArchive={() => setShowArchiveConfirm(true)}
+            archiveTestId="archive-homework-btn"
+          />
+        }
+      />
 
       {/* Instructions */}
       {homework.instructions && (
@@ -155,18 +171,31 @@ export const HomeworkDetails: React.FC = () => {
         ))}
       </div>
 
+      {/* Standardized Metadata */}
+      <ResourceMetadata
+        type="HOMEWORK"
+        subject={homework.subject}
+        topic={homework.topic}
+        difficulty={homework.difficulty}
+        curriculumBoard={homework.curriculumBoard}
+        estimatedTimeMinutes={homework.estimatedTimeMinutes}
+        status={homework.status}
+        createdAt={homework.createdAt}
+        updatedAt={homework.updatedAt}
+      />
+
       {/* Archive Modal */}
       {showArchiveConfirm && (
         <div
           data-testid="archive-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 no-print"
         >
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-slate-100 space-y-4">
             <h4 className="text-lg font-bold text-slate-900">
               Archive Homework?
             </h4>
             <p className="text-xs text-slate-500">
-              This homework will be hidden from your main dashboard and class list. You can unarchive it later.
+              This homework will be hidden from your main dashboard and class list. You can unarchive it later in the library.
             </p>
             <div className="flex items-center justify-end space-x-3 pt-2">
               <button
@@ -192,3 +221,4 @@ export const HomeworkDetails: React.FC = () => {
     </div>
   );
 };
+export default HomeworkDetails;

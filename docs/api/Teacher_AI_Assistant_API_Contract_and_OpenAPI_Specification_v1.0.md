@@ -69,9 +69,17 @@ GET /content/:contentId -> Retrieves specific catalog record and class details (
 POST /content/:contentId/duplicate -> Duplicates resource domain entity and catalog record transactionally (no AI invocation)
 POST /content/:contentId/archive -> Cascades archive operation to domain resource and catalog record transactionally
 
+## PDF Export
+
+GET /lessons/:lessonId/export/pdf -> Generates and streams full Lesson Plan PDF with Teacher Script (application/pdf)
+GET /worksheets/:worksheetId/export/pdf -> Generates and streams student Worksheet PDF with write-in lines and mark allocation (application/pdf)
+GET /quizzes/:quizId/export/pdf?mode=student -> Generates and streams student Quiz PDF (correct answers and explanations stripped) (application/pdf)
+GET /quizzes/:quizId/export/pdf?mode=answer-key -> Generates and streams teacher Answer Key Quiz PDF (correct answers and explanations highlighted) (application/pdf)
+GET /homeworks/:homeworkId/export/pdf -> Generates and streams Take-Home Homework Assignment PDF (application/pdf)
+
 ## Future resource APIs
 
-PDF export; analytics; billing foundation.
+Analytics; billing foundation.
 
 ## Rules
 

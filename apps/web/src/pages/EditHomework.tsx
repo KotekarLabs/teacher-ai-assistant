@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getHomeworkById, updateHomework } from "../api/homeworks.api";
 import { HomeworkEditor } from "../components/homeworks/HomeworkEditor";
 import { HomeworkSaveBar } from "../components/homeworks/HomeworkSaveBar";
+import { UnsavedChangesDialog } from "../components/resources/UnsavedChangesDialog";
 import type { HomeworkTask } from "@teacher-ai/contracts";
 
 export const EditHomework: React.FC = () => {
@@ -17,6 +18,7 @@ export const EditHomework: React.FC = () => {
   const [tasks, setTasks] = useState<HomeworkTask[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(
     null,
   );
@@ -98,6 +100,30 @@ export const EditHomework: React.FC = () => {
   const handleSave = () => {
     setActionError(null);
     saveMutation.mutate();
+  };
+
+  const handleBack = () => {
+    if (hasUnsavedChanges) {
+      setShowUnsavedDialog(true);
+    } else {
+      navigate(`/homeworks/${homeworkId}`);
+    }
+  };
+
+  const handleSaveAndLeave = async () => {
+    setActionError(null);
+    try {
+      await saveMutation.mutateAsync();
+      setShowUnsavedDialog(false);
+      navigate(`/homeworks/${homeworkId}`);
+    } catch {
+      // actionError set in mutation onError
+    }
+  };
+
+  const handleDiscardAndLeave = () => {
+    setShowUnsavedDialog(false);
+    navigate(`/homeworks/${homeworkId}`);
   };
 
   if (isLoading) {
@@ -187,8 +213,17 @@ export const EditHomework: React.FC = () => {
         hasUnsavedChanges={hasUnsavedChanges}
         isSaving={saveMutation.isPending}
         onSave={handleSave}
-        onBack={() => navigate(`/homeworks/${homework.id}`)}
+        onBack={handleBack}
+      />
+
+      <UnsavedChangesDialog
+        isOpen={showUnsavedDialog}
+        onSave={handleSaveAndLeave}
+        onDiscard={handleDiscardAndLeave}
+        onCancel={() => setShowUnsavedDialog(false)}
+        isSaving={saveMutation.isPending}
       />
     </div>
   );
 };
+export default EditHomework;

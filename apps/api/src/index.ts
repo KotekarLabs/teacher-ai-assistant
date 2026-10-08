@@ -17,6 +17,7 @@ app.use(
   cors({
     origin: config.frontendUrl,
     credentials: true,
+    exposedHeaders: ["Content-Disposition"],
   }),
 );
 app.use(express.json());

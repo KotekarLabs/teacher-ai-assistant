@@ -1,11 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getLessonById } from "../api/lessons.api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getLessonById, archiveLesson } from "../api/lessons.api";
+import { downloadResourcePdf } from "../api/export.api";
+import {
+  ResourceHeader,
+  ResourceActions,
+  ResourceMetadata,
+} from "../components/resources";
 
 export const LessonDetails: React.FC = () => {
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
 
   const {
     data: lessonData,
@@ -16,6 +27,28 @@ export const LessonDetails: React.FC = () => {
     queryFn: () => getLessonById(lessonId!),
     enabled: !!lessonId,
   });
+
+  const archiveMutation = useMutation({
+    mutationFn: () => archiveLesson(lessonId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lessons"] });
+      queryClient.invalidateQueries({ queryKey: ["content"] });
+      navigate("/dashboard");
+    },
+  });
+
+  const handleExportPdf = async () => {
+    if (!lessonData?.lesson) return;
+    setIsExporting(true);
+    setExportError(null);
+    try {
+      await downloadResourcePdf("lessons", lessonData.lesson.id);
+    } catch (_err: unknown) {
+      setExportError("We couldn't generate the PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -47,44 +80,47 @@ export const LessonDetails: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-16" data-testid="lesson-details">
-      {/* Header Bar */}
-      <div className="bg-white p-6 md:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800 uppercase tracking-wider">
-              {lesson.subject}
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700">
-              ⏱ {lesson.durationMinutes} mins
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
-              {lesson.difficulty}
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 uppercase">
-              {lesson.status}
-            </span>
-          </div>
-          <h1
-            data-testid="lesson-details-title"
-            className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight"
-          >
-            {lesson.title}
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">Topic: {lesson.topic}</p>
-        </div>
-
-        <div className="flex items-center space-x-3">
+      {/* Export Error Alert */}
+      {exportError && (
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold flex items-center justify-between no-print">
+          <span>{exportError}</span>
           <button
             type="button"
-            data-testid="edit-lesson-btn"
-            onClick={() => navigate(`/lessons/${lesson.id}/edit`)}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-1.5"
+            onClick={() => setExportError(null)}
+            className="text-red-500 hover:text-red-800 ml-4 font-bold"
           >
-            <span>✏️</span>
-            <span>Edit Lesson</span>
+            ✕
           </button>
         </div>
-      </div>
+      )}
+
+      {/* Header */}
+      <ResourceHeader
+        title={lesson.title}
+        type="LESSON"
+        subject={lesson.subject}
+        topic={lesson.topic}
+        durationMinutes={lesson.durationMinutes}
+        difficulty={lesson.difficulty}
+        status={lesson.status}
+        titleTestId="lesson-details-title"
+        backTo="/library"
+        backLabel="Back to Library"
+        actions={
+          <ResourceActions
+            onEdit={() => navigate(`/lessons/${lesson.id}/edit`)}
+            editLabel="Edit Lesson"
+            editTestId="edit-lesson-btn"
+            onExportPdf={handleExportPdf}
+            isExporting={isExporting}
+            exportTestId="export-pdf-btn"
+            onPrint={() => window.print()}
+            printTestId="print-btn"
+            onArchive={() => setShowArchiveConfirm(true)}
+            archiveTestId="archive-lesson-btn"
+          />
+        }
+      />
 
       {/* Content Sections */}
       <div className="space-y-6">
@@ -237,7 +273,56 @@ export const LessonDetails: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* Standardized Metadata */}
+        <ResourceMetadata
+          type="LESSON PLAN"
+          subject={lesson.subject}
+          topic={lesson.topic}
+          difficulty={lesson.difficulty}
+          curriculumBoard={lesson.curriculumBoard}
+          durationMinutes={lesson.durationMinutes}
+          status={lesson.status}
+          createdAt={lesson.createdAt}
+          updatedAt={lesson.updatedAt}
+        />
       </div>
+
+      {/* Archive Modal */}
+      {showArchiveConfirm && (
+        <div
+          data-testid="archive-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 no-print"
+        >
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-slate-100 space-y-4">
+            <h4 className="text-lg font-bold text-slate-900">
+              Archive Lesson?
+            </h4>
+            <p className="text-xs text-slate-500">
+              This lesson will be archived and hidden from your main dashboard and class list. You can access it anytime in the library.
+            </p>
+            <div className="flex items-center justify-end space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowArchiveConfirm(false)}
+                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                data-testid="confirm-archive-btn"
+                disabled={archiveMutation.isPending}
+                onClick={() => archiveMutation.mutate()}
+                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg"
+              >
+                {archiveMutation.isPending ? "Archiving..." : "Archive"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+export default LessonDetails;

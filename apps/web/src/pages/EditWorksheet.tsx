@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getWorksheetById, updateWorksheet } from "../api/worksheets.api";
 import { WorksheetEditor } from "../components/worksheets/WorksheetEditor";
 import { WorksheetSaveBar } from "../components/worksheets/WorksheetSaveBar";
+import { UnsavedChangesDialog } from "../components/resources/UnsavedChangesDialog";
 import type { WorksheetQuestion } from "@teacher-ai/contracts";
 
 export const EditWorksheet: React.FC = () => {
@@ -17,6 +18,7 @@ export const EditWorksheet: React.FC = () => {
   const [questions, setQuestions] = useState<WorksheetQuestion[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(
     null,
   );
@@ -107,6 +109,30 @@ export const EditWorksheet: React.FC = () => {
     saveMutation.mutate();
   };
 
+  const handleBack = () => {
+    if (hasUnsavedChanges) {
+      setShowUnsavedDialog(true);
+    } else {
+      navigate(`/worksheets/${worksheetId}`);
+    }
+  };
+
+  const handleSaveAndLeave = async () => {
+    setActionError(null);
+    try {
+      await saveMutation.mutateAsync();
+      setShowUnsavedDialog(false);
+      navigate(`/worksheets/${worksheetId}`);
+    } catch {
+      // actionError set in mutation onError
+    }
+  };
+
+  const handleDiscardAndLeave = () => {
+    setShowUnsavedDialog(false);
+    navigate(`/worksheets/${worksheetId}`);
+  };
+
   if (isLoading) {
     return (
       <div className="p-12 text-center text-slate-400">
@@ -194,8 +220,17 @@ export const EditWorksheet: React.FC = () => {
         hasUnsavedChanges={hasUnsavedChanges}
         isSaving={saveMutation.isPending}
         onSave={handleSave}
-        onBack={() => navigate(`/worksheets/${worksheet.id}`)}
+        onBack={handleBack}
+      />
+
+      <UnsavedChangesDialog
+        isOpen={showUnsavedDialog}
+        onSave={handleSaveAndLeave}
+        onDiscard={handleDiscardAndLeave}
+        onCancel={() => setShowUnsavedDialog(false)}
+        isSaving={saveMutation.isPending}
       />
     </div>
   );
 };
+export default EditWorksheet;

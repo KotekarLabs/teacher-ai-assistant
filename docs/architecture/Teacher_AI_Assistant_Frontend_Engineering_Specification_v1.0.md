@@ -6,11 +6,11 @@ React, Vite, TypeScript, Tailwind, React Router, TanStack Query, Zustand, React 
 
 ## Structure
 
-apps/web/src/{api,assets,components/{classes,common,dashboard,layout,lessons,worksheets,quizzes,homeworks,library},hooks,pages,store,styles,utils}
+apps/web/src/{api,assets,components/{classes,common,dashboard,layout,lessons,worksheets,quizzes,homeworks,library,resources},hooks,pages,store,styles,utils}
 
 ## Layout & Navigation
 
-AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, active navigation links for Dashboard, Classes, and Library with accessible disabled "Coming Soon" indicators for future modules), Quick Create (active Lesson Plan, Worksheet, Quiz, and Homework generators with "AI Ready" badge).
+AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar (desktop fixed 64px width, active navigation links for Dashboard, Classes, and Library with accessible disabled "Coming Soon" indicators for future modules), Quick Create (active Lesson Plan, Worksheet, Quiz, and Homework generators with "AI Ready" badge). Resource detail views include standardized back navigation, ResourceHeader, ResourceActions, ResourceMetadata, and @media print support.
 
 ## Routes
 
@@ -18,11 +18,11 @@ AppShell: Top Header (mobile hamburger toggle, identity badge, logout), Sidebar 
 
 ## State
 
-TanStack Query for server state (e.g. useContentList, useClasses); URL search params for library search/filter/sort/pagination state; local state/Zustand only where justified.
+TanStack Query for server state (e.g. useContentList, useClasses); URL search params for library search/filter/sort/pagination state; local state/Zustand only where justified. Resource editors protect unsaved changes with UnsavedChangesDialog on back navigation.
 
 ## API modules
 
-auth.api.ts, teacher.api.ts, classes.api.ts, lessons.api.ts, worksheets.api.ts, quizzes.api.ts, homeworks.api.ts, content.api.ts, analytics.api.ts.
+auth.api.ts, teacher.api.ts, classes.api.ts, lessons.api.ts, worksheets.api.ts, quizzes.api.ts, homeworks.api.ts, content.api.ts, export.api.ts, analytics.api.ts.
 
 ## Forms
 

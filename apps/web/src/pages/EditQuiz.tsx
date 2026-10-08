@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getQuizById, updateQuiz } from "../api/quizzes.api";
 import { QuizEditor } from "../components/quizzes/QuizEditor";
 import { QuizSaveBar } from "../components/quizzes/QuizSaveBar";
+import { UnsavedChangesDialog } from "../components/resources/UnsavedChangesDialog";
 import type { QuizQuestion } from "@teacher-ai/contracts";
 
 export const EditQuiz: React.FC = () => {
@@ -17,6 +18,7 @@ export const EditQuiz: React.FC = () => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(
     null,
   );
@@ -109,6 +111,30 @@ export const EditQuiz: React.FC = () => {
     saveMutation.mutate();
   };
 
+  const handleBack = () => {
+    if (hasUnsavedChanges) {
+      setShowUnsavedDialog(true);
+    } else {
+      navigate(`/quizzes/${quizId}`);
+    }
+  };
+
+  const handleSaveAndLeave = async () => {
+    setActionError(null);
+    try {
+      await saveMutation.mutateAsync();
+      setShowUnsavedDialog(false);
+      navigate(`/quizzes/${quizId}`);
+    } catch {
+      // actionError set in mutation onError
+    }
+  };
+
+  const handleDiscardAndLeave = () => {
+    setShowUnsavedDialog(false);
+    navigate(`/quizzes/${quizId}`);
+  };
+
   if (isLoading) {
     return (
       <div className="p-12 text-center text-slate-400">
@@ -196,8 +222,17 @@ export const EditQuiz: React.FC = () => {
         hasUnsavedChanges={hasUnsavedChanges}
         isSaving={saveMutation.isPending}
         onSave={handleSave}
-        onBack={() => navigate(`/quizzes/${quiz.id}`)}
+        onBack={handleBack}
+      />
+
+      <UnsavedChangesDialog
+        isOpen={showUnsavedDialog}
+        onSave={handleSaveAndLeave}
+        onDiscard={handleDiscardAndLeave}
+        onCancel={() => setShowUnsavedDialog(false)}
+        isSaving={saveMutation.isPending}
       />
     </div>
   );
 };
+export default EditQuiz;

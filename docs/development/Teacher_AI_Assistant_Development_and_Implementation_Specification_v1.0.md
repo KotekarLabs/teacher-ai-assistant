@@ -11,7 +11,7 @@
 7. quiz (Quiz Generation Foundation completed: AI pipeline, prompt architecture, validation, answer consistency, server-authoritative scoring, editor, save/reopen, archive)
 8. homework (Homework Generation Foundation completed: AI pipeline, prompt architecture, validation, structured tasks, workload checks, editor, save/reopen, archive)
 9. library (Content Library Foundation completed: Content catalog model, transactional synchronization across all 4 resource types, duplication, archive cascade, operational `pnpm backfill:content` script, debounced search, class/type/status filtering, URL state persistence)
-10. export
+10. export (Resource Workflow & Export Foundation completed: Standardized resource header, metadata, actions, unsaved changes dialog, pure Node.js pdfkit streaming renderers for Lesson, Worksheet, Quiz student/answer-key, and Homework, @media print CSS)
 11. analytics
 12. billing foundation
 

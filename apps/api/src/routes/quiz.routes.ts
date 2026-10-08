@@ -9,6 +9,7 @@ router.use(requireAuth);
 router.post("/generate", QuizController.generate);
 router.get("/", QuizController.list);
 router.get("/:quizId", QuizController.getById);
+router.get("/:quizId/export/pdf", QuizController.exportPdf);
 router.patch("/:quizId", QuizController.update);
 router.post("/:quizId/archive", QuizController.archive);
 

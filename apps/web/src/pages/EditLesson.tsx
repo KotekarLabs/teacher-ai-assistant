@@ -9,6 +9,7 @@ import {
 import { LessonEditor } from "../components/lessons/LessonEditor";
 import { LessonSaveBar } from "../components/lessons/LessonSaveBar";
 import { LessonGenerationState } from "../components/lessons/LessonGenerationState";
+import { UnsavedChangesDialog } from "../components/resources/UnsavedChangesDialog";
 import type { LessonContent } from "@teacher-ai/contracts";
 
 export const EditLesson: React.FC = () => {
@@ -18,6 +19,7 @@ export const EditLesson: React.FC = () => {
 
   const [localContent, setLocalContent] = useState<LessonContent | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(
     null,
   );
@@ -91,6 +93,31 @@ export const EditLesson: React.FC = () => {
   const handleRegenerate = (instructions?: string) => {
     setActionError(null);
     regenMutation.mutate(instructions);
+  };
+
+  const handleBack = () => {
+    if (hasUnsavedChanges) {
+      setShowUnsavedDialog(true);
+    } else {
+      navigate(`/lessons/${lessonId}`);
+    }
+  };
+
+  const handleSaveAndLeave = async () => {
+    if (!activeContent) return;
+    setActionError(null);
+    try {
+      await saveMutation.mutateAsync(activeContent);
+      setShowUnsavedDialog(false);
+      navigate(`/lessons/${lessonId}`);
+    } catch {
+      // actionError set in mutation onError
+    }
+  };
+
+  const handleDiscardAndLeave = () => {
+    setShowUnsavedDialog(false);
+    navigate(`/lessons/${lessonId}`);
   };
 
   if (isLoading) {
@@ -181,8 +208,17 @@ export const EditLesson: React.FC = () => {
         isRegenerating={regenMutation.isPending}
         onSave={handleSave}
         onRegenerate={handleRegenerate}
-        onBack={() => navigate(`/lessons/${lesson.id}`)}
+        onBack={handleBack}
+      />
+
+      <UnsavedChangesDialog
+        isOpen={showUnsavedDialog}
+        onSave={handleSaveAndLeave}
+        onDiscard={handleDiscardAndLeave}
+        onCancel={() => setShowUnsavedDialog(false)}
+        isSaving={saveMutation.isPending}
       />
     </div>
   );
 };
+export default EditLesson;

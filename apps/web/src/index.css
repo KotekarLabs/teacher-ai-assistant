@@ -1,1 +1,77 @@
-@import "tailwindcss";\n
+@import "tailwindcss";
+
+@media print {
+  /* Hide UI chrome */
+  nav,
+  aside,
+  header,
+  footer,
+  button,
+  .no-print,
+  [data-testid="resource-actions"],
+  [data-testid="archive-modal"],
+  [data-testid="unsaved-changes-dialog"],
+  [data-testid="quiz-export-modal"] {
+    display: none !important;
+  }
+
+  /* Reset document background and text color for clear printing */
+  html,
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Expand container to full page width */
+  .max-w-4xl,
+  .max-w-3xl,
+  .max-w-5xl,
+  .max-w-7xl,
+  .container {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Prevent page breaks inside cards / questions */
+  section,
+  article,
+  [data-testid^="detail-question-"],
+  [data-testid^="detail-task-"],
+  .print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    margin-bottom: 12pt !important;
+  }
+
+  /* Keep headings with their following content */
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+    color: #0f172a !important;
+  }
+
+  /* Remove background colors on interactive pills and badges for clear grayscale printing */
+  .bg-indigo-600,
+  .bg-indigo-100,
+  .bg-amber-100,
+  .bg-emerald-100,
+  .bg-slate-100,
+  .bg-slate-900 {
+    background-color: transparent !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+}

@@ -9,6 +9,7 @@ router.use(requireAuth);
 router.post("/generate", HomeworkController.generate);
 router.get("/", HomeworkController.list);
 router.get("/:homeworkId", HomeworkController.getById);
+router.get("/:homeworkId/export/pdf", HomeworkController.exportPdf);
 router.patch("/:homeworkId", HomeworkController.update);
 router.post("/:homeworkId/archive", HomeworkController.archive);
 

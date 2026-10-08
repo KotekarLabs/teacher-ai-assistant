@@ -7,6 +7,7 @@ import {
   HomeworkService,
   type ServiceError,
 } from "../services/homework.service";
+import { ExportService } from "../services/export.service";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -141,6 +142,27 @@ export class HomeworkController {
       const status = sErr.statusCode || 500;
       res.status(status).json({
         error: sErr.message || "Failed to archive homework",
+      });
+    }
+  }
+
+  static async exportPdf(req: Request, res: Response): Promise<void> {
+    const authReq = req as AuthenticatedRequest;
+    const { homeworkId } = req.params;
+
+    try {
+      const { buffer, filename } = await ExportService.exportHomeworkPdf(
+        homeworkId,
+        authReq.user!.id,
+      );
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.status(200).send(buffer);
+    } catch (err: unknown) {
+      const sErr = err as ServiceError;
+      const status = sErr.statusCode || 500;
+      res.status(status).json({
+        error: sErr.message || "Failed to export homework PDF",
       });
     }
   }

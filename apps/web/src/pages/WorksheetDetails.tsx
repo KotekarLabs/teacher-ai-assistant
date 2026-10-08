@@ -2,6 +2,12 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getWorksheetById, archiveWorksheet } from "../api/worksheets.api";
+import { downloadResourcePdf } from "../api/export.api";
+import {
+  ResourceHeader,
+  ResourceActions,
+  ResourceMetadata,
+} from "../components/resources";
 
 export const WorksheetDetails: React.FC = () => {
   const { worksheetId } = useParams<{ worksheetId: string }>();
@@ -10,6 +16,8 @@ export const WorksheetDetails: React.FC = () => {
 
   const [showAnswerKey, setShowAnswerKey] = useState(true);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const {
     data: worksheetData,
@@ -25,9 +33,23 @@ export const WorksheetDetails: React.FC = () => {
     mutationFn: () => archiveWorksheet(worksheetId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["worksheets"] });
+      queryClient.invalidateQueries({ queryKey: ["content"] });
       navigate("/dashboard");
     },
   });
+
+  const handleExportPdf = async () => {
+    if (!worksheetData?.worksheet) return;
+    setIsExporting(true);
+    setExportError(null);
+    try {
+      await downloadResourcePdf("worksheets", worksheetData.worksheet.id);
+    } catch (_err: unknown) {
+      setExportError("We couldn't generate the PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -62,61 +84,50 @@ export const WorksheetDetails: React.FC = () => {
       className="max-w-4xl mx-auto space-y-6 pb-16"
       data-testid="worksheet-details"
     >
-      {/* Header Bar */}
-      <div className="bg-white p-6 md:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800 uppercase tracking-wider">
-              {worksheet.subject}
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700">
-              ⏱ {worksheet.estimatedTimeMinutes} mins
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
-              {worksheet.difficulty}
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 uppercase">
-              {worksheet.status}
-            </span>
-          </div>
-          <h1
-            data-testid="worksheet-details-title"
-            className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight"
+      {/* Export Error Alert */}
+      {exportError && (
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold flex items-center justify-between no-print">
+          <span>{exportError}</span>
+          <button
+            type="button"
+            onClick={() => setExportError(null)}
+            className="text-red-500 hover:text-red-800 ml-4 font-bold"
           >
-            {worksheet.title}
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">Topic: {worksheet.topic}</p>
+            ✕
+          </button>
         </div>
+      )}
 
-        <div className="flex items-center space-x-3">
-          <button
-            type="button"
-            data-testid="toggle-answers-btn"
-            onClick={() => setShowAnswerKey(!showAnswerKey)}
-            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition-colors"
-          >
-            {showAnswerKey ? "Hide Answer Key" : "Show Answer Key"}
-          </button>
-          <button
-            type="button"
-            data-testid="edit-worksheet-btn"
-            onClick={() => navigate(`/worksheets/${worksheet.id}/edit`)}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-1.5"
-          >
-            <span>✏️</span>
-            <span>Edit Worksheet</span>
-          </button>
-          <button
-            type="button"
-            data-testid="archive-worksheet-btn"
-            onClick={() => setShowArchiveConfirm(true)}
-            className="px-3.5 py-2.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors border border-transparent hover:border-red-200"
-            title="Archive Worksheet"
-          >
-            🗑️
-          </button>
-        </div>
-      </div>
+      {/* Header */}
+      <ResourceHeader
+        title={worksheet.title}
+        type="WORKSHEET"
+        subject={worksheet.subject}
+        topic={worksheet.topic}
+        estimatedTimeMinutes={worksheet.estimatedTimeMinutes}
+        difficulty={worksheet.difficulty}
+        status={worksheet.status}
+        titleTestId="worksheet-details-title"
+        backTo="/library"
+        backLabel="Back to Library"
+        actions={
+          <ResourceActions
+            onEdit={() => navigate(`/worksheets/${worksheet.id}/edit`)}
+            editLabel="Edit Worksheet"
+            editTestId="edit-worksheet-btn"
+            onExportPdf={handleExportPdf}
+            isExporting={isExporting}
+            exportTestId="export-pdf-btn"
+            onPrint={() => window.print()}
+            printTestId="print-btn"
+            onToggleAnswers={() => setShowAnswerKey(!showAnswerKey)}
+            showAnswers={showAnswerKey}
+            toggleAnswersTestId="toggle-answers-btn"
+            onArchive={() => setShowArchiveConfirm(true)}
+            archiveTestId="archive-worksheet-btn"
+          />
+        }
+      />
 
       {/* Instructions */}
       {worksheet.instructions && (
@@ -195,18 +206,31 @@ export const WorksheetDetails: React.FC = () => {
         ))}
       </div>
 
+      {/* Standardized Metadata */}
+      <ResourceMetadata
+        type="WORKSHEET"
+        subject={worksheet.subject}
+        topic={worksheet.topic}
+        difficulty={worksheet.difficulty}
+        curriculumBoard={worksheet.curriculumBoard}
+        estimatedTimeMinutes={worksheet.estimatedTimeMinutes}
+        status={worksheet.status}
+        createdAt={worksheet.createdAt}
+        updatedAt={worksheet.updatedAt}
+      />
+
       {/* Archive Modal */}
       {showArchiveConfirm && (
         <div
           data-testid="archive-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 no-print"
         >
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-slate-100 space-y-4">
             <h4 className="text-lg font-bold text-slate-900">
               Archive Worksheet?
             </h4>
             <p className="text-xs text-slate-500">
-              This worksheet will be hidden from your main dashboard and class list. You can unarchive it later.
+              This worksheet will be hidden from your main dashboard and class list. You can unarchive it later from the library.
             </p>
             <div className="flex items-center justify-end space-x-3 pt-2">
               <button
@@ -232,3 +256,4 @@ export const WorksheetDetails: React.FC = () => {
     </div>
   );
 };
+export default WorksheetDetails;

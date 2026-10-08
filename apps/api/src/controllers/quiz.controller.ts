@@ -7,6 +7,7 @@ import {
   QuizService,
   type ServiceError,
 } from "../services/quiz.service";
+import { ExportService } from "../services/export.service";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -141,6 +142,29 @@ export class QuizController {
       const status = sErr.statusCode || 500;
       res.status(status).json({
         error: sErr.message || "Failed to archive quiz",
+      });
+    }
+  }
+
+  static async exportPdf(req: Request, res: Response): Promise<void> {
+    const authReq = req as AuthenticatedRequest;
+    const { quizId } = req.params;
+    const mode = (req.query.mode as string) || "student";
+
+    try {
+      const { buffer, filename } = await ExportService.exportQuizPdf(
+        quizId,
+        authReq.user!.id,
+        mode,
+      );
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.status(200).send(buffer);
+    } catch (err: unknown) {
+      const sErr = err as ServiceError;
+      const status = sErr.statusCode || 500;
+      res.status(status).json({
+        error: sErr.message || "Failed to export quiz PDF",
       });
     }
   }

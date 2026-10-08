@@ -2,6 +2,13 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getQuizById, archiveQuiz } from "../api/quizzes.api";
+import { downloadResourcePdf, type QuizExportMode } from "../api/export.api";
+import {
+  ResourceHeader,
+  ResourceActions,
+  ResourceMetadata,
+  QuizExportModal,
+} from "../components/resources";
 
 export const QuizDetails: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
@@ -10,6 +17,9 @@ export const QuizDetails: React.FC = () => {
 
   const [showAnswerKey, setShowAnswerKey] = useState(true);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const {
     data: quizData,
@@ -25,9 +35,24 @@ export const QuizDetails: React.FC = () => {
     mutationFn: () => archiveQuiz(quizId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quizzes"] });
+      queryClient.invalidateQueries({ queryKey: ["content"] });
       navigate("/dashboard");
     },
   });
+
+  const handleExportMode = async (mode: QuizExportMode) => {
+    if (!quizData?.quiz) return;
+    setIsExporting(true);
+    setExportError(null);
+    try {
+      await downloadResourcePdf("quizzes", quizData.quiz.id, mode);
+      setShowExportModal(false);
+    } catch (_err: unknown) {
+      setExportError("We couldn't generate the PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -62,64 +87,51 @@ export const QuizDetails: React.FC = () => {
       className="max-w-4xl mx-auto space-y-6 pb-16"
       data-testid="quiz-details"
     >
-      {/* Header Bar */}
-      <div className="bg-white p-6 md:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800 uppercase tracking-wider">
-              {quiz.subject}
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700">
-              ⏱ {quiz.durationMinutes} mins
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700 font-bold">
-              🏆 {quiz.totalMarks} Total Marks
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
-              {quiz.difficulty}
-            </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 uppercase">
-              {quiz.status}
-            </span>
-          </div>
-          <h1
-            data-testid="quiz-details-title"
-            className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight"
+      {/* Export Error Alert */}
+      {exportError && (
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold flex items-center justify-between no-print">
+          <span>{exportError}</span>
+          <button
+            type="button"
+            onClick={() => setExportError(null)}
+            className="text-red-500 hover:text-red-800 ml-4 font-bold"
           >
-            {quiz.title}
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">Topic: {quiz.topic}</p>
+            ✕
+          </button>
         </div>
+      )}
 
-        <div className="flex items-center space-x-3">
-          <button
-            type="button"
-            data-testid="toggle-answers-btn"
-            onClick={() => setShowAnswerKey(!showAnswerKey)}
-            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition-colors"
-          >
-            {showAnswerKey ? "Hide Answer Key" : "Show Answer Key"}
-          </button>
-          <button
-            type="button"
-            data-testid="edit-quiz-btn"
-            onClick={() => navigate(`/quizzes/${quiz.id}/edit`)}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-1.5"
-          >
-            <span>✏️</span>
-            <span>Edit Quiz</span>
-          </button>
-          <button
-            type="button"
-            data-testid="archive-quiz-btn"
-            onClick={() => setShowArchiveConfirm(true)}
-            className="px-3.5 py-2.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors border border-transparent hover:border-red-200"
-            title="Archive Quiz"
-          >
-            🗑️
-          </button>
-        </div>
-      </div>
+      {/* Header */}
+      <ResourceHeader
+        title={quiz.title}
+        type="QUIZ"
+        subject={quiz.subject}
+        topic={quiz.topic}
+        durationMinutes={quiz.durationMinutes}
+        totalMarks={quiz.totalMarks}
+        difficulty={quiz.difficulty}
+        status={quiz.status}
+        titleTestId="quiz-details-title"
+        backTo="/library"
+        backLabel="Back to Library"
+        actions={
+          <ResourceActions
+            onEdit={() => navigate(`/quizzes/${quiz.id}/edit`)}
+            editLabel="Edit Quiz"
+            editTestId="edit-quiz-btn"
+            onExportPdf={() => setShowExportModal(true)}
+            isExporting={isExporting}
+            exportTestId="export-pdf-btn"
+            onPrint={() => window.print()}
+            printTestId="print-btn"
+            onToggleAnswers={() => setShowAnswerKey(!showAnswerKey)}
+            showAnswers={showAnswerKey}
+            toggleAnswersTestId="toggle-answers-btn"
+            onArchive={() => setShowArchiveConfirm(true)}
+            archiveTestId="archive-quiz-btn"
+          />
+        }
+      />
 
       {/* Instructions */}
       {quiz.instructions && (
@@ -219,18 +231,39 @@ export const QuizDetails: React.FC = () => {
         ))}
       </div>
 
+      {/* Standardized Metadata */}
+      <ResourceMetadata
+        type="QUIZ"
+        subject={quiz.subject}
+        topic={quiz.topic}
+        difficulty={quiz.difficulty}
+        curriculumBoard={quiz.curriculumBoard}
+        durationMinutes={quiz.durationMinutes}
+        status={quiz.status}
+        createdAt={quiz.createdAt}
+        updatedAt={quiz.updatedAt}
+      />
+
+      {/* Quiz PDF Export Modal */}
+      <QuizExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExportMode}
+        isExporting={isExporting}
+      />
+
       {/* Archive Modal */}
       {showArchiveConfirm && (
         <div
           data-testid="archive-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 no-print"
         >
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-slate-100 space-y-4">
             <h4 className="text-lg font-bold text-slate-900">
               Archive Quiz?
             </h4>
             <p className="text-xs text-slate-500">
-              This quiz will be hidden from your main dashboard and class list. You can unarchive it later.
+              This quiz will be hidden from your main dashboard and class list. You can unarchive it later in the library.
             </p>
             <div className="flex items-center justify-end space-x-3 pt-2">
               <button
@@ -256,3 +289,4 @@ export const QuizDetails: React.FC = () => {
     </div>
   );
 };
+export default QuizDetails;

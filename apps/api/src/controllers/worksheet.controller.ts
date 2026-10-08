@@ -7,6 +7,7 @@ import {
   WorksheetService,
   type ServiceError,
 } from "../services/worksheet.service";
+import { ExportService } from "../services/export.service";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -138,6 +139,27 @@ export class WorksheetController {
       const error = err as Error;
       res.status(500).json({
         error: error.message || "Failed to archive worksheet",
+      });
+    }
+  }
+
+  static async exportPdf(req: Request, res: Response): Promise<void> {
+    const authReq = req as AuthenticatedRequest;
+    const { worksheetId } = req.params;
+
+    try {
+      const { buffer, filename } = await ExportService.exportWorksheetPdf(
+        worksheetId,
+        authReq.user!.id,
+      );
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.status(200).send(buffer);
+    } catch (err: unknown) {
+      const sErr = err as ServiceError;
+      const status = sErr.statusCode || 500;
+      res.status(status).json({
+        error: sErr.message || "Failed to export worksheet PDF",
       });
     }
   }

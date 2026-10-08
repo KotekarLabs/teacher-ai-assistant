@@ -9,6 +9,7 @@ router.use(requireAuth);
 router.post("/generate", WorksheetController.generate);
 router.get("/", WorksheetController.list);
 router.get("/:worksheetId", WorksheetController.getById);
+router.get("/:worksheetId/export/pdf", WorksheetController.exportPdf);
 router.patch("/:worksheetId", WorksheetController.update);
 router.post("/:worksheetId/archive", WorksheetController.archive);
 
