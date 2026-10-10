@@ -13,12 +13,28 @@ import { config } from "./utils/config";
 
 const app = express();
 
+const allowedOrigins = [
+  config.frontendUrl,
+  "https://teacher-ai-assistant.vercel.app",
+];
+
 app.use(
   cors({
-    origin: config.frontendUrl,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, CURL)
+      if (!origin) return callback(null, true);
+      // Accept exact matches or any subdomain of vercel.app
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app')
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     exposedHeaders: ["Content-Disposition"],
-  }),
+  })
 );
 app.use(express.json());
 app.use(cookieParser());
