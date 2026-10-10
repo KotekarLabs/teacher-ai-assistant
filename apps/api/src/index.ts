@@ -16,6 +16,7 @@ const app = express();
 const allowedOrigins = [
   config.frontendUrl,
   "https://teacher-ai-assistant.vercel.app",
+  "https://ai-teacher.apzelio.com"
 ];
 
 app.use(
