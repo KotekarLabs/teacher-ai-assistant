@@ -1,9 +1,10 @@
 {
   "name": "@teacher-ai/api",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
-    "build": "tsc",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --external:@prisma/client --external:argon2 --external:pdfkit --external:express --external:cors --external:cookie-parser --external:jsonwebtoken --external:zod --outfile=dist/index.js",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -30,6 +31,7 @@
     "@types/supertest": "^7.2.1",
     "supertest": "^7.3.1",
     "tsx": "^4.0.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "esbuild": "^0.25.0"
   }
 }
