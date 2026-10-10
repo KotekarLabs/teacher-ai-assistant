@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: teacher-ai-api
+    runtime: node
+    plan: free
+    region: ohio
+    buildCommand: pnpm install && pnpm prisma generate && pnpm build
+    startCommand: node apps/api/dist/index.js
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false
+      - key: AI_PROVIDER
+        value: OPENAI
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini

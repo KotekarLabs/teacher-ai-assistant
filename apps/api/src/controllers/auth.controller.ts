@@ -5,10 +5,15 @@ import { config } from "../utils/config";
 import { prisma } from "../utils/prisma";
 
 const setCookie = (res: Response, token: string) => {
+  const isProduction = config.nodeEnv === "production";
+  const sameSite =
+    (process.env.COOKIE_SAME_SITE as "lax" | "strict" | "none") ||
+    (isProduction ? "none" : "lax");
+
   res.cookie("token", token, {
     httpOnly: true,
-    secure: config.nodeEnv === "production",
-    sameSite: "lax",
+    secure: isProduction || sameSite === "none",
+    sameSite: sameSite,
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
 };
@@ -84,8 +89,17 @@ export const login: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const logout: RequestHandler = (req, res) => {
-  res.clearCookie("token");
+export const logout: RequestHandler = (_req, res) => {
+  const isProduction = config.nodeEnv === "production";
+  const sameSite =
+    (process.env.COOKIE_SAME_SITE as "lax" | "strict" | "none") ||
+    (isProduction ? "none" : "lax");
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: isProduction || sameSite === "none",
+    sameSite: sameSite,
+  });
   res.json({ success: true });
 };
 
