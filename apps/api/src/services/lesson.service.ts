@@ -12,9 +12,8 @@ import { ClassRepository } from "../repositories/class.repository";
 import { LessonRepository } from "../repositories/lesson.repository";
 import { GenerationRequestRepository } from "../repositories/generation-request.repository";
 import { ContentSyncService } from "./content-sync.service";
-import { Prisma, PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { Prisma } from "@prisma/client";
+import { prisma } from "../utils/prisma";
 
 export interface ServiceError extends Error {
   statusCode?: number;
@@ -54,11 +53,14 @@ export class LessonService {
     const provider = getAIProvider();
     const promptVersion = "lesson/generate.v1";
 
+    const providerType = process.env.AI_PROVIDER || "MOCK";
+    const modelName = process.env.OPENAI_MODEL || (providerType === "OPENAI" ? "gpt-4o-mini" : "mock-pedagogy-v1");
+
     const genRequest = await GenerationRequestRepository.create({
       teacherId,
       contentType: "LESSON",
-      provider: "MOCK",
-      model: "mock-pedagogy-v1",
+      provider: providerType,
+      model: modelName,
       promptVersion,
       status: "PENDING",
       inputContext: context as unknown as Prisma.InputJsonValue,
@@ -139,42 +141,45 @@ export class LessonService {
       throw error;
     }
 
-    const lesson = await prisma.$transaction(async (tx) => {
-      const created = await LessonRepository.create(
-        {
-          teacherId,
-          classId: targetClass.id,
-          generationRequestId: genRequest.id,
-          title: schemaRes.data!.title || data.topic,
-          subject: data.subject,
-          topic: data.topic,
-          curriculumBoard: context.curriculumBoard,
-          difficulty: data.difficulty,
-          durationMinutes: data.durationMinutes,
-          status: "DRAFT",
-          content: schemaRes.data as unknown as Prisma.InputJsonValue,
-        },
-        tx,
-      );
+    const lesson = await prisma.$transaction(
+      async (tx) => {
+        const created = await LessonRepository.create(
+          {
+            teacherId,
+            classId: targetClass.id,
+            generationRequestId: genRequest.id,
+            title: schemaRes.data!.title || data.topic,
+            subject: data.subject,
+            topic: data.topic,
+            curriculumBoard: context.curriculumBoard,
+            difficulty: data.difficulty,
+            durationMinutes: data.durationMinutes,
+            status: "DRAFT",
+            content: schemaRes.data as unknown as Prisma.InputJsonValue,
+          },
+          tx,
+        );
 
-      await ContentSyncService.syncResource(
-        {
-          teacherId,
-          type: "LESSON",
-          resourceId: created.id,
-          title: created.title,
-          subject: created.subject,
-          topic: created.topic,
-          difficulty: created.difficulty,
-          classId: created.classId,
-          status: created.status,
-          archivedAt: created.archivedAt,
-        },
-        tx,
-      );
+        await ContentSyncService.syncResource(
+          {
+            teacherId,
+            type: "LESSON",
+            resourceId: created.id,
+            title: created.title,
+            subject: created.subject,
+            topic: created.topic,
+            difficulty: created.difficulty,
+            classId: created.classId,
+            status: created.status,
+            archivedAt: created.archivedAt,
+          },
+          tx,
+        );
 
-      return created;
-    });
+        return created;
+      },
+      { maxWait: 15000, timeout: 30000 },
+    );
 
     await GenerationRequestRepository.update(genRequest.id, {
       status: "SUCCESS",
@@ -209,40 +214,43 @@ export class LessonService {
       }
     }
 
-    return prisma.$transaction(async (tx) => {
-      const updated = await LessonRepository.update(
-        lessonId,
-        {
-          title:
-            data.title !== undefined
-              ? data.title
-              : data.content?.title !== undefined
-                ? data.content.title
-                : undefined,
-          content: data.content as unknown as Prisma.InputJsonValue,
-          status: data.status || "SAVED",
-        },
-        tx,
-      );
+    return prisma.$transaction(
+      async (tx) => {
+        const updated = await LessonRepository.update(
+          lessonId,
+          {
+            title:
+              data.title !== undefined
+                ? data.title
+                : data.content?.title !== undefined
+                  ? data.content.title
+                  : undefined,
+            content: data.content as unknown as Prisma.InputJsonValue,
+            status: data.status || "SAVED",
+          },
+          tx,
+        );
 
-      await ContentSyncService.syncResource(
-        {
-          teacherId,
-          type: "LESSON",
-          resourceId: updated.id,
-          title: updated.title,
-          subject: updated.subject,
-          topic: updated.topic,
-          difficulty: updated.difficulty,
-          classId: updated.classId,
-          status: updated.status,
-          archivedAt: updated.archivedAt,
-        },
-        tx,
-      );
+        await ContentSyncService.syncResource(
+          {
+            teacherId,
+            type: "LESSON",
+            resourceId: updated.id,
+            title: updated.title,
+            subject: updated.subject,
+            topic: updated.topic,
+            difficulty: updated.difficulty,
+            classId: updated.classId,
+            status: updated.status,
+            archivedAt: updated.archivedAt,
+          },
+          tx,
+        );
 
-      return updated;
-    });
+        return updated;
+      },
+      { maxWait: 15000, timeout: 30000 },
+    );
   }
 
   static async archiveLesson(teacherId: string, lessonId: string) {
@@ -251,27 +259,30 @@ export class LessonService {
       return null;
     }
 
-    return prisma.$transaction(async (tx) => {
-      const archived = await LessonRepository.archive(lessonId, tx);
+    return prisma.$transaction(
+      async (tx) => {
+        const archived = await LessonRepository.archive(lessonId, tx);
 
-      await ContentSyncService.syncResource(
-        {
-          teacherId,
-          type: "LESSON",
-          resourceId: archived.id,
-          title: archived.title,
-          subject: archived.subject,
-          topic: archived.topic,
-          difficulty: archived.difficulty,
-          classId: archived.classId,
-          status: archived.status,
-          archivedAt: archived.archivedAt,
-        },
-        tx,
-      );
+        await ContentSyncService.syncResource(
+          {
+            teacherId,
+            type: "LESSON",
+            resourceId: archived.id,
+            title: archived.title,
+            subject: archived.subject,
+            topic: archived.topic,
+            difficulty: archived.difficulty,
+            classId: archived.classId,
+            status: archived.status,
+            archivedAt: archived.archivedAt,
+          },
+          tx,
+        );
 
-      return archived;
-    });
+        return archived;
+      },
+      { maxWait: 15000, timeout: 30000 },
+    );
   }
 
 
@@ -406,36 +417,39 @@ export class LessonService {
     }
 
     // Only update upon full validation success
-    const updatedLesson = await prisma.$transaction(async (tx) => {
-      const updated = await LessonRepository.update(
-        lessonId,
-        {
-          title: schemaRes.data!.title,
-          content: schemaRes.data as unknown as Prisma.InputJsonValue,
-          generationRequestId: genRequest.id,
-          status: "DRAFT",
-        },
-        tx,
-      );
+    const updatedLesson = await prisma.$transaction(
+      async (tx) => {
+        const updated = await LessonRepository.update(
+          lessonId,
+          {
+            title: schemaRes.data!.title,
+            content: schemaRes.data as unknown as Prisma.InputJsonValue,
+            generationRequestId: genRequest.id,
+            status: "DRAFT",
+          },
+          tx,
+        );
 
-      await ContentSyncService.syncResource(
-        {
-          teacherId,
-          type: "LESSON",
-          resourceId: updated.id,
-          title: updated.title,
-          subject: updated.subject,
-          topic: updated.topic,
-          difficulty: updated.difficulty,
-          classId: updated.classId,
-          status: updated.status,
-          archivedAt: updated.archivedAt,
-        },
-        tx,
-      );
+        await ContentSyncService.syncResource(
+          {
+            teacherId,
+            type: "LESSON",
+            resourceId: updated.id,
+            title: updated.title,
+            subject: updated.subject,
+            topic: updated.topic,
+            difficulty: updated.difficulty,
+            classId: updated.classId,
+            status: updated.status,
+            archivedAt: updated.archivedAt,
+          },
+          tx,
+        );
 
-      return updated;
-    });
+        return updated;
+      },
+      { maxWait: 15000, timeout: 30000 },
+    );
 
 
     await GenerationRequestRepository.update(genRequest.id, {

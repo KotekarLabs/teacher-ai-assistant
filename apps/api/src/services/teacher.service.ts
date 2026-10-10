@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import {
   CreateTeacherProfileRequest,
   UpdateTeacherProfileRequest,
 } from "@teacher-ai/contracts";
-
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
 
 export class TeacherService {
   static async getProfileByUserId(userId: string) {

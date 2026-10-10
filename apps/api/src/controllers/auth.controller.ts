@@ -1,10 +1,8 @@
 import { Response, RequestHandler } from "express";
 import { AuthService } from "../services/auth.service";
 import { SignupSchema, LoginSchema } from "@teacher-ai/contracts";
-import { PrismaClient } from "@prisma/client";
 import { config } from "../utils/config";
-
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
 
 const setCookie = (res: Response, token: string) => {
   res.cookie("token", token, {

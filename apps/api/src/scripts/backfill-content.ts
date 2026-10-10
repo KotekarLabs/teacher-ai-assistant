@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import { ContentSyncService } from "../services/content-sync.service";
-
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
 
 export async function backfillContent() {
   console.log("Starting Content Catalog backfill...");

@@ -3,8 +3,7 @@ import type {
   ContentType,
   ContentSort,
 } from "@teacher-ai/contracts";
-
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
 
 export interface UpsertContentData {
   teacherId: string;

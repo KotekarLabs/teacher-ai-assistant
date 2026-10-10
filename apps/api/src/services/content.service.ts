@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type {
   GetContentQuery,
   ContentDTO,
@@ -18,8 +18,7 @@ import { WorksheetService } from "./worksheet.service";
 import { QuizService } from "./quiz.service";
 import { HomeworkService } from "./homework.service";
 import { ContentSyncService } from "./content-sync.service";
-
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
 
 export interface ServiceError extends Error {
   statusCode?: number;
@@ -125,42 +124,45 @@ export class ContentService {
         throw error;
       }
 
-      const duplicated = await prisma.$transaction(async (tx) => {
-        const createdLesson = await LessonRepository.create(
-          {
-            teacherId,
-            classId: lesson.classId,
-            generationRequestId: null,
-            title: copyTitle,
-            subject: lesson.subject,
-            topic: lesson.topic,
-            curriculumBoard: lesson.curriculumBoard,
-            difficulty: lesson.difficulty,
-            durationMinutes: lesson.durationMinutes,
-            status: "SAVED",
-            content: lesson.content as Prisma.InputJsonValue,
-          },
-          tx,
-        );
+      const duplicated = await prisma.$transaction(
+        async (tx) => {
+          const createdLesson = await LessonRepository.create(
+            {
+              teacherId,
+              classId: lesson.classId,
+              generationRequestId: null,
+              title: copyTitle,
+              subject: lesson.subject,
+              topic: lesson.topic,
+              curriculumBoard: lesson.curriculumBoard,
+              difficulty: lesson.difficulty,
+              durationMinutes: lesson.durationMinutes,
+              status: "SAVED",
+              content: lesson.content as Prisma.InputJsonValue,
+            },
+            tx,
+          );
 
-        const syncedContent = await ContentSyncService.syncResource(
-          {
-            teacherId,
-            type: "LESSON",
-            resourceId: createdLesson.id,
-            title: createdLesson.title,
-            subject: createdLesson.subject,
-            topic: createdLesson.topic,
-            difficulty: createdLesson.difficulty,
-            classId: createdLesson.classId,
-            status: createdLesson.status,
-            archivedAt: null,
-          },
-          tx,
-        );
+          const syncedContent = await ContentSyncService.syncResource(
+            {
+              teacherId,
+              type: "LESSON",
+              resourceId: createdLesson.id,
+              title: createdLesson.title,
+              subject: createdLesson.subject,
+              topic: createdLesson.topic,
+              difficulty: createdLesson.difficulty,
+              classId: createdLesson.classId,
+              status: createdLesson.status,
+              archivedAt: null,
+            },
+            tx,
+          );
 
-        return syncedContent;
-      });
+          return syncedContent;
+        },
+        { maxWait: 15000, timeout: 30000 },
+      );
 
       return this.formatContentDTO(duplicated);
     }
@@ -176,51 +178,54 @@ export class ContentService {
         throw error;
       }
 
-      const duplicated = await prisma.$transaction(async (tx) => {
-        const createdWorksheet = await WorksheetRepository.create(
-          {
-            teacherId,
-            classId: worksheet.classId,
-            generationRequestId: null,
-            title: copyTitle,
-            subject: worksheet.subject,
-            topic: worksheet.topic,
-            curriculumBoard: worksheet.curriculumBoard,
-            difficulty: worksheet.difficulty,
-            estimatedTimeMinutes: worksheet.estimatedTimeMinutes,
-            instructions: worksheet.instructions,
-            status: "SAVED",
-            questions: worksheet.questions.map((q) => ({
-              position: q.position,
-              type: q.type as QuestionType,
-              question: q.question,
-              options: q.options,
-              expectedAnswer: q.expectedAnswer,
-              marks: q.marks,
-              difficulty: q.difficulty as Difficulty,
-            })),
-          },
-          tx,
-        );
+      const duplicated = await prisma.$transaction(
+        async (tx) => {
+          const createdWorksheet = await WorksheetRepository.create(
+            {
+              teacherId,
+              classId: worksheet.classId,
+              generationRequestId: null,
+              title: copyTitle,
+              subject: worksheet.subject,
+              topic: worksheet.topic,
+              curriculumBoard: worksheet.curriculumBoard,
+              difficulty: worksheet.difficulty,
+              estimatedTimeMinutes: worksheet.estimatedTimeMinutes,
+              instructions: worksheet.instructions,
+              status: "SAVED",
+              questions: worksheet.questions.map((q) => ({
+                position: q.position,
+                type: q.type as QuestionType,
+                question: q.question,
+                options: q.options,
+                expectedAnswer: q.expectedAnswer,
+                marks: q.marks,
+                difficulty: q.difficulty as Difficulty,
+              })),
+            },
+            tx,
+          );
 
-        const syncedContent = await ContentSyncService.syncResource(
-          {
-            teacherId,
-            type: "WORKSHEET",
-            resourceId: createdWorksheet.id,
-            title: createdWorksheet.title,
-            subject: createdWorksheet.subject,
-            topic: createdWorksheet.topic,
-            difficulty: createdWorksheet.difficulty,
-            classId: createdWorksheet.classId,
-            status: createdWorksheet.status,
-            archivedAt: null,
-          },
-          tx,
-        );
+          const syncedContent = await ContentSyncService.syncResource(
+            {
+              teacherId,
+              type: "WORKSHEET",
+              resourceId: createdWorksheet.id,
+              title: createdWorksheet.title,
+              subject: createdWorksheet.subject,
+              topic: createdWorksheet.topic,
+              difficulty: createdWorksheet.difficulty,
+              classId: createdWorksheet.classId,
+              status: createdWorksheet.status,
+              archivedAt: null,
+            },
+            tx,
+          );
 
-        return syncedContent;
-      });
+          return syncedContent;
+        },
+        { maxWait: 15000, timeout: 30000 },
+      );
 
       return this.formatContentDTO(duplicated);
     }
@@ -236,53 +241,56 @@ export class ContentService {
         throw error;
       }
 
-      const duplicated = await prisma.$transaction(async (tx) => {
-        const createdQuiz = await QuizRepository.create(
-          {
-            teacherId,
-            classId: quiz.classId,
-            generationRequestId: null,
-            title: copyTitle,
-            subject: quiz.subject,
-            topic: quiz.topic,
-            curriculumBoard: quiz.curriculumBoard,
-            difficulty: quiz.difficulty,
-            durationMinutes: quiz.durationMinutes,
-            totalMarks: quiz.totalMarks,
-            instructions: quiz.instructions,
-            status: "SAVED",
-            questions: quiz.questions.map((q) => ({
-              position: q.position,
-              type: q.type as QuestionType,
-              question: q.question,
-              options: q.options,
-              correctAnswer: q.correctAnswer,
-              explanation: q.explanation,
-              marks: q.marks,
-              difficulty: q.difficulty as Difficulty,
-            })),
-          },
-          tx,
-        );
+      const duplicated = await prisma.$transaction(
+        async (tx) => {
+          const createdQuiz = await QuizRepository.create(
+            {
+              teacherId,
+              classId: quiz.classId,
+              generationRequestId: null,
+              title: copyTitle,
+              subject: quiz.subject,
+              topic: quiz.topic,
+              curriculumBoard: quiz.curriculumBoard,
+              difficulty: quiz.difficulty,
+              durationMinutes: quiz.durationMinutes,
+              totalMarks: quiz.totalMarks,
+              instructions: quiz.instructions,
+              status: "SAVED",
+              questions: quiz.questions.map((q) => ({
+                position: q.position,
+                type: q.type as QuestionType,
+                question: q.question,
+                options: q.options,
+                correctAnswer: q.correctAnswer,
+                explanation: q.explanation,
+                marks: q.marks,
+                difficulty: q.difficulty as Difficulty,
+              })),
+            },
+            tx,
+          );
 
-        const syncedContent = await ContentSyncService.syncResource(
-          {
-            teacherId,
-            type: "QUIZ",
-            resourceId: createdQuiz.id,
-            title: createdQuiz.title,
-            subject: createdQuiz.subject,
-            topic: createdQuiz.topic,
-            difficulty: createdQuiz.difficulty,
-            classId: createdQuiz.classId,
-            status: createdQuiz.status,
-            archivedAt: null,
-          },
-          tx,
-        );
+          const syncedContent = await ContentSyncService.syncResource(
+            {
+              teacherId,
+              type: "QUIZ",
+              resourceId: createdQuiz.id,
+              title: createdQuiz.title,
+              subject: createdQuiz.subject,
+              topic: createdQuiz.topic,
+              difficulty: createdQuiz.difficulty,
+              classId: createdQuiz.classId,
+              status: createdQuiz.status,
+              archivedAt: null,
+            },
+            tx,
+          );
 
-        return syncedContent;
-      });
+          return syncedContent;
+        },
+        { maxWait: 15000, timeout: 30000 },
+      );
 
       return this.formatContentDTO(duplicated);
     }
@@ -298,43 +306,46 @@ export class ContentService {
         throw error;
       }
 
-      const duplicated = await prisma.$transaction(async (tx) => {
-        const createdHomework = await HomeworkRepository.create(
-          {
-            teacherId,
-            classId: homework.classId,
-            generationRequestId: null,
-            title: copyTitle,
-            subject: homework.subject,
-            topic: homework.topic,
-            curriculumBoard: homework.curriculumBoard,
-            difficulty: homework.difficulty as Difficulty,
-            estimatedTimeMinutes: homework.estimatedTimeMinutes,
-            instructions: homework.instructions,
-            status: "SAVED",
-            tasks: homework.tasks as unknown as HomeworkTask[],
-          },
-          tx,
-        );
+      const duplicated = await prisma.$transaction(
+        async (tx) => {
+          const createdHomework = await HomeworkRepository.create(
+            {
+              teacherId,
+              classId: homework.classId,
+              generationRequestId: null,
+              title: copyTitle,
+              subject: homework.subject,
+              topic: homework.topic,
+              curriculumBoard: homework.curriculumBoard,
+              difficulty: homework.difficulty as Difficulty,
+              estimatedTimeMinutes: homework.estimatedTimeMinutes,
+              instructions: homework.instructions,
+              status: "SAVED",
+              tasks: homework.tasks as unknown as HomeworkTask[],
+            },
+            tx,
+          );
 
-        const syncedContent = await ContentSyncService.syncResource(
-          {
-            teacherId,
-            type: "HOMEWORK",
-            resourceId: createdHomework.id,
-            title: createdHomework.title,
-            subject: createdHomework.subject,
-            topic: createdHomework.topic,
-            difficulty: createdHomework.difficulty,
-            classId: createdHomework.classId,
-            status: createdHomework.status,
-            archivedAt: null,
-          },
-          tx,
-        );
+          const syncedContent = await ContentSyncService.syncResource(
+            {
+              teacherId,
+              type: "HOMEWORK",
+              resourceId: createdHomework.id,
+              title: createdHomework.title,
+              subject: createdHomework.subject,
+              topic: createdHomework.topic,
+              difficulty: createdHomework.difficulty,
+              classId: createdHomework.classId,
+              status: createdHomework.status,
+              archivedAt: null,
+            },
+            tx,
+          );
 
-        return syncedContent;
-      });
+          return syncedContent;
+        },
+        { maxWait: 15000, timeout: 30000 },
+      );
 
       return this.formatContentDTO(duplicated);
     }

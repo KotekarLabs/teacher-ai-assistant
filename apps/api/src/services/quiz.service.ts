@@ -12,9 +12,8 @@ import { ClassRepository } from "../repositories/class.repository";
 import { QuizRepository } from "../repositories/quiz.repository";
 import { GenerationRequestRepository } from "../repositories/generation-request.repository";
 import { ContentSyncService } from "./content-sync.service";
-import { Prisma, PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { Prisma } from "@prisma/client";
+import { prisma } from "../utils/prisma";
 
 export interface ServiceError extends Error {
   statusCode?: number;
@@ -55,11 +54,14 @@ export class QuizService {
     const provider = getAIProvider();
     const promptVersion = "quiz/generate.v1";
 
+    const providerType = process.env.AI_PROVIDER || "MOCK";
+    const modelName = process.env.OPENAI_MODEL || (providerType === "OPENAI" ? "gpt-4o-mini" : "mock-pedagogy-v1");
+
     const genRequest = await GenerationRequestRepository.create({
       teacherId,
       contentType: "QUIZ",
-      provider: "MOCK",
-      model: "mock-pedagogy-v1",
+      provider: providerType,
+      model: modelName,
       promptVersion,
       status: "PENDING",
       inputContext: context as unknown as Prisma.InputJsonValue,
@@ -172,44 +174,47 @@ export class QuizService {
       completedAt: new Date(),
     });
 
-    const quiz = await prisma.$transaction(async (tx) => {
-      const created = await QuizRepository.create(
-        {
-          teacherId,
-          classId: targetClass.id,
-          generationRequestId: genRequest.id,
-          title: validContent.title,
-          subject: validContent.subject,
-          topic: validContent.topic,
-          curriculumBoard: targetClass.curriculumBoard,
-          difficulty: data.difficulty || "MEDIUM",
-          durationMinutes: validContent.durationMinutes || data.durationMinutes || 20,
-          totalMarks: authoritativeTotalMarks,
-          instructions: validContent.instructions || null,
-          status: "DRAFT",
-          questions: validContent.questions,
-        },
-        tx,
-      );
+    const quiz = await prisma.$transaction(
+      async (tx) => {
+        const created = await QuizRepository.create(
+          {
+            teacherId,
+            classId: targetClass.id,
+            generationRequestId: genRequest.id,
+            title: validContent.title,
+            subject: validContent.subject,
+            topic: validContent.topic,
+            curriculumBoard: targetClass.curriculumBoard,
+            difficulty: data.difficulty || "MEDIUM",
+            durationMinutes: validContent.durationMinutes || data.durationMinutes || 20,
+            totalMarks: authoritativeTotalMarks,
+            instructions: validContent.instructions || null,
+            status: "DRAFT",
+            questions: validContent.questions,
+          },
+          tx,
+        );
 
-      await ContentSyncService.syncResource(
-        {
-          teacherId,
-          type: "QUIZ",
-          resourceId: created.id,
-          title: created.title,
-          subject: created.subject,
-          topic: created.topic,
-          difficulty: created.difficulty,
-          classId: created.classId,
-          status: created.status,
-          archivedAt: created.archivedAt,
-        },
-        tx,
-      );
+        await ContentSyncService.syncResource(
+          {
+            teacherId,
+            type: "QUIZ",
+            resourceId: created.id,
+            title: created.title,
+            subject: created.subject,
+            topic: created.topic,
+            difficulty: created.difficulty,
+            classId: created.classId,
+            status: created.status,
+            archivedAt: created.archivedAt,
+          },
+          tx,
+        );
 
-      return created;
-    });
+        return created;
+      },
+      { maxWait: 15000, timeout: 30000 },
+    );
 
     await GenerationRequestRepository.update(genRequest.id, {
       resourceId: quiz.id,
@@ -243,38 +248,41 @@ export class QuizService {
       );
     }
 
-    return prisma.$transaction(async (tx) => {
-      const updated = await QuizRepository.update(
-        quizId,
-        {
-          title: data.title,
-          instructions: data.instructions,
-          durationMinutes: data.durationMinutes,
-          totalMarks: calculatedTotalMarks,
-          status: data.status,
-          questions: data.questions,
-        },
-        tx,
-      );
+    return prisma.$transaction(
+      async (tx) => {
+        const updated = await QuizRepository.update(
+          quizId,
+          {
+            title: data.title,
+            instructions: data.instructions,
+            durationMinutes: data.durationMinutes,
+            totalMarks: calculatedTotalMarks,
+            status: data.status,
+            questions: data.questions,
+          },
+          tx,
+        );
 
-      await ContentSyncService.syncResource(
-        {
-          teacherId,
-          type: "QUIZ",
-          resourceId: updated.id,
-          title: updated.title,
-          subject: updated.subject,
-          topic: updated.topic,
-          difficulty: updated.difficulty,
-          classId: updated.classId,
-          status: updated.status,
-          archivedAt: updated.archivedAt,
-        },
-        tx,
-      );
+        await ContentSyncService.syncResource(
+          {
+            teacherId,
+            type: "QUIZ",
+            resourceId: updated.id,
+            title: updated.title,
+            subject: updated.subject,
+            topic: updated.topic,
+            difficulty: updated.difficulty,
+            classId: updated.classId,
+            status: updated.status,
+            archivedAt: updated.archivedAt,
+          },
+          tx,
+        );
 
-      return updated;
-    });
+        return updated;
+      },
+      { maxWait: 15000, timeout: 30000 },
+    );
   }
 
   static async archiveQuiz(teacherId: string, quizId: string) {
@@ -290,27 +298,30 @@ export class QuizService {
       throw error;
     }
 
-    return prisma.$transaction(async (tx) => {
-      const archived = await QuizRepository.archive(quizId, tx);
+    return prisma.$transaction(
+      async (tx) => {
+        const archived = await QuizRepository.archive(quizId, tx);
 
-      await ContentSyncService.syncResource(
-        {
-          teacherId,
-          type: "QUIZ",
-          resourceId: archived.id,
-          title: archived.title,
-          subject: archived.subject,
-          topic: archived.topic,
-          difficulty: archived.difficulty,
-          classId: archived.classId,
-          status: archived.status,
-          archivedAt: archived.archivedAt,
-        },
-        tx,
-      );
+        await ContentSyncService.syncResource(
+          {
+            teacherId,
+            type: "QUIZ",
+            resourceId: archived.id,
+            title: archived.title,
+            subject: archived.subject,
+            topic: archived.topic,
+            difficulty: archived.difficulty,
+            classId: archived.classId,
+            status: archived.status,
+            archivedAt: archived.archivedAt,
+          },
+          tx,
+        );
 
-      return archived;
-    });
+        return archived;
+      },
+      { maxWait: 15000, timeout: 30000 },
+    );
   }
 
 

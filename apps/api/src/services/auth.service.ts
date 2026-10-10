@@ -1,9 +1,7 @@
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
 import { config } from "../utils/config";
-
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
 
 export class AuthService {
   static async hashPassword(password: string): Promise<string> {

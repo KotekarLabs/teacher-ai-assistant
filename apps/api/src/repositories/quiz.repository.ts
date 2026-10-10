@@ -1,7 +1,6 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 import type { QuestionType, QuizDifficulty } from "@teacher-ai/contracts";
-
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
 
 export interface CreateQuizQuestionData {
   position: number;
