@@ -34,6 +34,15 @@
     "vitest": "^5.0.3"
   },
   "packageManager": "pnpm@11.8.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "argon2",
+      "esbuild",
+      "prisma"
+    ]
+  },
   "dependencies": {
     "@prisma/client": "6.4.1"
   }
