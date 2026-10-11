@@ -1,6 +1,6 @@
 import React from "react";
 import { useAuthStore } from "../../store/authStore";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Badge } from "../common/Badge";
 import { Button } from "../ui/Button";
 
@@ -67,6 +67,9 @@ export const Header: React.FC<HeaderProps> = ({
     if (path.startsWith("/homeworks")) {
       return { title: "Homework", subtitle: "Resource Details" };
     }
+    if (path.startsWith("/profile")) {
+      return { title: "Teacher Profile", subtitle: "Pedagogical Settings & Context" };
+    }
     return { title: "Workspace", subtitle: "Teacher AI Assistant" };
   };
 
@@ -111,8 +114,12 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right Side: Identity & Actions */}
         <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
-          {/* Teacher Profile Snippet */}
-          <div className="flex items-center space-x-2">
+          {/* Teacher Profile Snippet as accessible Link */}
+          <Link
+            to="/profile"
+            aria-label="View teacher profile"
+            className="flex items-center space-x-2 p-1.5 -m-1.5 rounded-xl hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 cursor-pointer min-h-[44px]"
+          >
             <div
               className="w-8 h-8 rounded-full bg-violet-100 text-violet-700 font-bold flex items-center justify-center text-xs border border-violet-200 select-none shadow-2xs flex-shrink-0"
               aria-hidden="true"
@@ -131,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               )}
             </div>
-          </div>
+          </Link>
 
           {/* Vertical Divider */}
           <div className="h-5 w-px bg-slate-200" aria-hidden="true" />

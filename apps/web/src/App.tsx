@@ -26,6 +26,7 @@ import { CreateHomework } from "./pages/CreateHomework";
 import { HomeworkDetails } from "./pages/HomeworkDetails";
 import { EditHomework } from "./pages/EditHomework";
 import Library from "./pages/Library";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppShell />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/library" element={<Library />} />
               <Route path="/classes" element={<Classes />} />
 
