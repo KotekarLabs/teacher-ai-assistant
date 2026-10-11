@@ -1,19 +1,26 @@
-import { describe, it, expect, vi } from "vitest";
+// @vitest-environment jsdom
+import React from "react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import {
   LessonContentSchema,
   LessonDifferentiationSchema,
   LessonPacingBreakdownSchema,
   UpdateLessonRequestSchema,
   type LessonContent,
-} from "@teacher-ai/contracts";
+} from "../packages/contracts/index";
 import {
   LessonOutputValidator,
   MockAIProvider,
   type LessonGenerationContext,
 } from "../packages/ai/index";
 import { renderLessonPdf } from "../apps/api/src/services/pdf/lesson-pdf.renderer";
+import { LessonEditor } from "../apps/web/src/components/lessons/LessonEditor";
 
 describe("Milestone 10 Batch 2 — Lesson Content Extensions & Pedagogical Quality Suite", () => {
+  afterEach(() => {
+    cleanup();
+  });
   const baseLesson: LessonContent = {
     title: "Cellular Respiration",
     overview: "How cells extract energy from glucose.",
@@ -383,6 +390,88 @@ describe("Milestone 10 Batch 2 — Lesson Content Extensions & Pedagogical Quali
       expect(buffer).toBeInstanceOf(Buffer);
       expect(buffer.length).toBeGreaterThan(1000);
       expect(buffer.toString("utf-8", 0, 5)).toBe("%PDF-");
+    });
+  });
+
+  /* -------------------------------------------------------------------------- */
+  /* 6. FRONTEND LESSONEDITOR INTEGRATION & ACCESSIBILITY                       */
+  /* -------------------------------------------------------------------------- */
+  describe("LessonEditor UI Integration & Accessibility", () => {
+    it("renders LessonEditor with materials, pacing, and differentiation controls", () => {
+      const onChange = vi.fn();
+      render(React.createElement(LessonEditor, { content: baseLesson, onChange }));
+
+      expect(screen.getByTestId("editor-add-material-btn")).toBeDefined();
+      expect(screen.getByTestId("editor-enable-pacing-btn")).toBeDefined();
+      expect(screen.getByTestId("editor-diff-support")).toBeDefined();
+      expect(screen.getByTestId("editor-diff-extension")).toBeDefined();
+    });
+
+    it("allows adding a material item and invokes onChange", () => {
+      const onChange = vi.fn();
+      render(React.createElement(LessonEditor, { content: baseLesson, onChange }));
+
+      const addBtn = screen.getByTestId("editor-add-material-btn");
+      fireEvent.click(addBtn);
+
+      expect(onChange).toHaveBeenCalled();
+      const updatedCall = onChange.mock.calls[0][0];
+      expect(updatedCall.materials).toEqual([""]);
+    });
+
+    it("allows editing differentiation support and extension", () => {
+      const onChange = vi.fn();
+      render(React.createElement(LessonEditor, { content: baseLesson, onChange }));
+
+      const supportInput = screen.getByTestId("editor-diff-support");
+      fireEvent.change(supportInput, {
+        target: { value: "Provide sentence frames for ESL students." },
+      });
+
+      expect(onChange).toHaveBeenCalled();
+      const updatedCall = onChange.mock.calls[0][0];
+      expect(updatedCall.differentiation.support).toBe("Provide sentence frames for ESL students.");
+    });
+
+    it("allows editing configured pacing breakdown phases", () => {
+      const onChange = vi.fn();
+      const lessonWithPacing: LessonContent = {
+        ...baseLesson,
+        pacingBreakdown: {
+          introductionMinutes: 5,
+          directInstructionMinutes: 15,
+          activityMinutes: 15,
+          practiceMinutes: 7,
+          assessmentMinutes: 3,
+        },
+      };
+
+      render(React.createElement(LessonEditor, { content: lessonWithPacing, onChange }));
+
+      const introInput = screen.getByTestId("editor-pacing-intro");
+      fireEvent.change(introInput, { target: { value: "8" } });
+
+      expect(onChange).toHaveBeenCalled();
+      const updatedCall = onChange.mock.calls[0][0];
+      expect(updatedCall.pacingBreakdown.introductionMinutes).toBe(8);
+    });
+
+    it("confirms button touch target standards for mobile accessibility", () => {
+      const onChange = vi.fn();
+      const lessonWithMaterials: LessonContent = {
+        ...baseLesson,
+        materials: ["Safety Goggles"],
+      };
+
+      render(React.createElement(LessonEditor, { content: lessonWithMaterials, onChange }));
+
+      const addBtn = screen.getByTestId("editor-add-material-btn");
+      expect(addBtn.className).toContain("min-h-[44px]");
+
+      const removeBtn = screen.getByTestId("editor-remove-material-0");
+      expect(removeBtn.className).toContain("min-w-[44px]");
+      expect(removeBtn.className).toContain("min-h-[44px]");
+      expect(removeBtn.getAttribute("aria-label")).toBe("Remove material 1");
     });
   });
 });

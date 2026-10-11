@@ -119,14 +119,16 @@ export class MockAIProvider implements AIProvider {
       },
       pacingBreakdown: (() => {
         const total = context.durationMinutes || 45;
-        const intro = Math.max(4, Math.round(total * 0.15));
-        const direct = Math.max(10, Math.round(total * 0.35));
-        const act = Math.min(15, Math.floor(total / 3));
-        const prac = Math.max(5, Math.round(total * 0.20));
-        const assess = Math.max(3, total - (intro + direct + act + prac));
+        const intro = Math.max(3, Math.round(total * 0.12));
+        const direct = Math.max(8, Math.round(total * 0.30));
+        const act = Math.max(8, Math.min(15, Math.floor(total / 3)));
+        const prac = Math.max(5, Math.round(total * 0.25));
+        const assess = Math.max(2, total - (intro + direct + act + prac));
+        const currentSum = intro + direct + act + prac + assess;
+        const balancedDirect = direct + (total - currentSum);
         return {
           introductionMinutes: intro,
-          directInstructionMinutes: direct,
+          directInstructionMinutes: Math.max(5, balancedDirect),
           activityMinutes: act,
           practiceMinutes: prac,
           assessmentMinutes: assess,
