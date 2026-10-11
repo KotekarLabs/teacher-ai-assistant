@@ -37,7 +37,7 @@ export const GetContentQuerySchema = z.object({
   subject: z.string().optional(),
   topic: z.string().optional(),
   status: z
-    .enum(["ALL", "DRAFT", "EDITED", "SAVED", "ARCHIVED"])
+    .enum(["ALL", "DRAFT", "EDITED", "SAVED", "ARCHIVED", "ACTIVE"])
     .optional(),
   sort: ContentSortEnum.optional().default("updatedAt_desc"),
   page: z.coerce.number().int().positive().optional().default(1),

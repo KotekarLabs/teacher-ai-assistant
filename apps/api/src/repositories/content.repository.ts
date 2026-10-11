@@ -76,6 +76,8 @@ export class ContentRepository {
     // Filter by status & archive state
     if (query.status === "ARCHIVED") {
       where.archivedAt = { not: null };
+    } else if (query.status === "ACTIVE") {
+      where.archivedAt = null;
     } else if (query.status === "ALL") {
       // Return both active and archived
     } else if (query.status) {

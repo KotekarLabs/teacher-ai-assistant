@@ -48,7 +48,7 @@ export default function Library() {
       search: search || undefined,
       type: (type as any) || undefined,
       classId: classId || undefined,
-      status: (status as any) || undefined,
+      status: status === "ACTIVE" ? undefined : ((status as any) || undefined),
       sort,
       page,
       pageSize: 18,

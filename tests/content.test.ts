@@ -804,6 +804,13 @@ describe("Content Library Foundation", () => {
       .get("/api/v1/content?status=ARCHIVED")
       .set("Cookie", authCookieTeacherA);
     expect(archivedList.body.items.find((i: any) => i.id === lessonContent.id)).toBeDefined();
+
+    // Supports explicit status=ACTIVE query param cleanly
+    const explicitActiveList = await request(app)
+      .get("/api/v1/content?status=ACTIVE")
+      .set("Cookie", authCookieTeacherA);
+    expect(explicitActiveList.status).toBe(200);
+    expect(explicitActiveList.body.items.find((i: any) => i.id === lessonContent.id)).toBeUndefined();
   });
 
   it("backfillContent script executes idempotently across all resource types", async () => {
