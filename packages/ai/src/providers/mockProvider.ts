@@ -88,6 +88,50 @@ export class MockAIProvider implements AIProvider {
       ],
       homework: `Review class notes and complete 3 follow-up exercise questions on ${context.topic}.`,
       teacherScript,
+      materials: isSpanish
+        ? [
+            "Pizarra blanca y marcadores interactivos",
+            `Guía de ejercicios impresa sobre ${context.topic}`,
+            "Cuaderno de trabajo y material de escritura",
+          ]
+        : isHindi
+        ? [
+            "व्हाइटबोर्ड और रंगीन मार्कर",
+            `${context.topic} पर मुद्रित अभ्यास कार्यपत्रक`,
+            "छात्र संदर्भ नोटबुक",
+          ]
+        : [
+            "Whiteboard & markers",
+            `Printed guided worksheet on ${context.topic}`,
+            "Student notebooks and demonstration aids",
+          ],
+      differentiation: {
+        support: isSpanish
+          ? "Proporcionar marcos de oraciones y organizadores visuales para los estudiantes que necesitan apoyo adicional."
+          : isHindi
+          ? "कठिनाई का सामना करने वाले विद्यार्थियों के लिए वाक्य-ढांचे और सचित्र आरेख प्रदान करें।"
+          : "Provide sentence frames, worked examples, and visual graphic organizers for emerging learners.",
+        extension: isSpanish
+          ? "Desafiar a los estudiantes avanzados a formular una hipótesis complementaria y probar casos límite."
+          : isHindi
+          ? "उन्नत छात्रों को एक पूरक परिकल्पना तैयार करने और व्यावहारिक अनुप्रयोगों का विश्लेषण करने की चुनौती दें।"
+          : "Challenge advanced learners to design a follow-up inquiry question and analyze real-world edge cases.",
+      },
+      pacingBreakdown: (() => {
+        const total = context.durationMinutes || 45;
+        const intro = Math.max(4, Math.round(total * 0.15));
+        const direct = Math.max(10, Math.round(total * 0.35));
+        const act = Math.min(15, Math.floor(total / 3));
+        const prac = Math.max(5, Math.round(total * 0.20));
+        const assess = Math.max(3, total - (intro + direct + act + prac));
+        return {
+          introductionMinutes: intro,
+          directInstructionMinutes: direct,
+          activityMinutes: act,
+          practiceMinutes: prac,
+          assessmentMinutes: assess,
+        };
+      })(),
     };
 
     const rawOutput = JSON.stringify(structuredContent, null, 2);

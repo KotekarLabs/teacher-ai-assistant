@@ -78,6 +78,40 @@ export async function renderLessonPdf(lesson: LessonPdfData): Promise<Buffer> {
     doc.moveDown(0.8);
   }
 
+  // Required Materials
+  if (content.materials && content.materials.length > 0) {
+    if (doc.y > doc.page.height - 110) doc.addPage();
+    renderSectionTitle(doc, "Required Materials & Equipment");
+    content.materials.forEach((mat) => {
+      doc
+        .fontSize(9.5)
+        .font("Helvetica")
+        .fillColor("#334155")
+        .text(`• ${mat}`, 50, doc.y, { lineGap: 2 });
+    });
+    doc.moveDown(0.8);
+  }
+
+  // Pacing Breakdown
+  if (content.pacingBreakdown) {
+    if (doc.y > doc.page.height - 110) doc.addPage();
+    renderSectionTitle(doc, "Lesson Pacing & Time Allocation");
+    const pb = content.pacingBreakdown;
+    const pacingItems = [
+      `Intro: ${pb.introductionMinutes}m`,
+      `Direct Instruction: ${pb.directInstructionMinutes}m`,
+      `Activity: ${pb.activityMinutes}m`,
+      `Practice: ${pb.practiceMinutes}m`,
+      `Assessment: ${pb.assessmentMinutes}m`,
+    ];
+    doc
+      .fontSize(9.5)
+      .font("Helvetica")
+      .fillColor("#475569")
+      .text(pacingItems.join("  |  "), 50, doc.y, { lineGap: 2 });
+    doc.moveDown(0.8);
+  }
+
   // Structured Phases
   // 1. Introduction
   if (content.introduction) {
@@ -176,6 +210,42 @@ export async function renderLessonPdf(lesson: LessonPdfData): Promise<Buffer> {
       .fillColor("#334155")
       .text(content.homework, { lineGap: 2 });
     doc.moveDown(0.8);
+  }
+
+  // Differentiation & Accommodations
+  if (
+    content.differentiation &&
+    (content.differentiation.support || content.differentiation.extension)
+  ) {
+    if (doc.y > doc.page.height - 120) {
+      doc.addPage();
+    }
+    renderSectionTitle(doc, "Differentiation & Accommodations");
+    if (content.differentiation.support) {
+      doc
+        .fontSize(9.5)
+        .font("Helvetica-Bold")
+        .fillColor("#0369A1")
+        .text("Support & Scaffolding: ", 50, doc.y, { continued: true });
+      doc
+        .font("Helvetica")
+        .fillColor("#334155")
+        .text(content.differentiation.support, { lineGap: 2 });
+      doc.moveDown(0.4);
+    }
+    if (content.differentiation.extension) {
+      doc
+        .fontSize(9.5)
+        .font("Helvetica-Bold")
+        .fillColor("#7E22CE")
+        .text("Extension & Challenge: ", 50, doc.y, { continued: true });
+      doc
+        .font("Helvetica")
+        .fillColor("#334155")
+        .text(content.differentiation.extension, { lineGap: 2 });
+      doc.moveDown(0.4);
+    }
+    doc.moveDown(0.6);
   }
 
   // 8. Teacher Script (Teacher Facing Notes)

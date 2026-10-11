@@ -1,5 +1,8 @@
 import React from "react";
-import type { LessonContent } from "@teacher-ai/contracts";
+import type {
+  LessonContent,
+  LessonPacingBreakdown,
+} from "@teacher-ai/contracts";
 
 interface LessonEditorProps {
   content: LessonContent;
@@ -20,11 +23,17 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({
   };
 
   const handleArrayItemChange = (
-    field: "learningObjectives" | "prerequisites" | "examples" | "practice" | "quickAssessment",
+    field:
+      | "learningObjectives"
+      | "prerequisites"
+      | "examples"
+      | "practice"
+      | "quickAssessment"
+      | "materials",
     index: number,
     value: string,
   ) => {
-    const list = [...content[field]];
+    const list = content[field] ? [...(content[field] as string[])] : [];
     list[index] = value;
     onChange({
       ...content,
@@ -33,19 +42,35 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({
   };
 
   const handleAddArrayItem = (
-    field: "learningObjectives" | "prerequisites" | "examples" | "practice" | "quickAssessment",
+    field:
+      | "learningObjectives"
+      | "prerequisites"
+      | "examples"
+      | "practice"
+      | "quickAssessment"
+      | "materials",
   ) => {
+    const list = content[field] ? [...(content[field] as string[])] : [];
     onChange({
       ...content,
-      [field]: [...content[field], ""],
+      [field]: [...list, ""],
     });
   };
 
   const handleRemoveArrayItem = (
-    field: "learningObjectives" | "prerequisites" | "examples" | "practice" | "quickAssessment",
+    field:
+      | "learningObjectives"
+      | "prerequisites"
+      | "examples"
+      | "practice"
+      | "quickAssessment"
+      | "materials",
     index: number,
   ) => {
-    const list = content[field].filter((_, i) => i !== index);
+    const currentList = content[field]
+      ? [...(content[field] as string[])]
+      : [];
+    const list = currentList.filter((_, i) => i !== index);
     onChange({
       ...content,
       [field]: list,
@@ -61,6 +86,40 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({
       classroomActivity: {
         ...content.classroomActivity,
         [subField]: value,
+      },
+    });
+  };
+
+  const handleDifferentiationChange = (
+    subField: "support" | "extension",
+    value: string,
+  ) => {
+    onChange({
+      ...content,
+      differentiation: {
+        support: content.differentiation?.support ?? "",
+        extension: content.differentiation?.extension ?? "",
+        [subField]: value,
+      },
+    });
+  };
+
+  const handlePacingChange = (
+    subField: keyof LessonPacingBreakdown,
+    value: number,
+  ) => {
+    const current = content.pacingBreakdown ?? {
+      introductionMinutes: 5,
+      directInstructionMinutes: 15,
+      activityMinutes: content.classroomActivity?.durationMinutes ?? 10,
+      practiceMinutes: 10,
+      assessmentMinutes: 5,
+    };
+    onChange({
+      ...content,
+      pacingBreakdown: {
+        ...current,
+        [subField]: Math.max(0, value || 0),
       },
     });
   };
@@ -203,6 +262,57 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({
         </div>
       </section>
 
+      {/* Required Materials */}
+      <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+          <h3 className="text-lg font-bold text-slate-900">
+            Required Materials & Equipment
+          </h3>
+          <button
+            type="button"
+            data-testid="editor-add-material-btn"
+            disabled={disabled}
+            onClick={() => handleAddArrayItem("materials")}
+            className="text-xs font-semibold text-violet-700 hover:text-violet-900 cursor-pointer min-h-[44px] px-3 flex items-center rounded-lg hover:bg-violet-50 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
+          >
+            + Add Material
+          </button>
+        </div>
+        {!content.materials || content.materials.length === 0 ? (
+          <p className="text-xs text-slate-500 italic py-1">
+            No specific materials listed. Click "+ Add Material" to list handouts, lab equipment, or tools.
+          </p>
+        ) : (
+          <div className="space-y-2.5">
+            {content.materials.map((mat, i) => (
+              <div key={i} className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  data-testid={`editor-material-${i}`}
+                  value={mat}
+                  disabled={disabled}
+                  onChange={(e) =>
+                    handleArrayItemChange("materials", i, e.target.value)
+                  }
+                  placeholder="e.g. Whiteboard markers, Student lab kits, Handouts..."
+                  className="flex-1 px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
+                />
+                <button
+                  type="button"
+                  data-testid={`editor-remove-material-${i}`}
+                  disabled={disabled}
+                  onClick={() => handleRemoveArrayItem("materials", i)}
+                  className="text-slate-400 hover:text-rose-600 p-2 cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-rose-50 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-400"
+                  aria-label={`Remove material ${i + 1}`}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Teacher Explanation & Examples */}
       <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
         <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-2.5">
@@ -322,6 +432,151 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({
         </div>
       </section>
 
+      {/* Lesson Pacing Breakdown */}
+      <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">
+              Lesson Pacing Breakdown
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Phase-by-phase time budgeting across the total lesson duration.
+            </p>
+          </div>
+          {content.pacingBreakdown && (
+            <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-violet-50 text-violet-800 border border-violet-100">
+              Total Phase Sum:{" "}
+              {(content.pacingBreakdown.introductionMinutes || 0) +
+                (content.pacingBreakdown.directInstructionMinutes || 0) +
+                (content.pacingBreakdown.activityMinutes || 0) +
+                (content.pacingBreakdown.practiceMinutes || 0) +
+                (content.pacingBreakdown.assessmentMinutes || 0)}{" "}
+              mins
+            </div>
+          )}
+        </div>
+
+        {!content.pacingBreakdown ? (
+          <div className="flex items-center justify-between py-2">
+            <p className="text-xs text-slate-500 italic">
+              Phase pacing breakdown not set for this lesson.
+            </p>
+            <button
+              type="button"
+              data-testid="editor-enable-pacing-btn"
+              disabled={disabled}
+              onClick={() =>
+                handlePacingChange(
+                  "activityMinutes",
+                  content.classroomActivity?.durationMinutes || 10,
+                )
+              }
+              className="text-xs font-semibold text-violet-700 hover:text-violet-900 cursor-pointer min-h-[44px] px-3 flex items-center rounded-lg hover:bg-violet-50 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
+            >
+              + Configure Pacing Breakdown
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 pt-1">
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+                Introduction
+              </label>
+              <input
+                type="number"
+                min="0"
+                data-testid="editor-pacing-intro"
+                value={content.pacingBreakdown.introductionMinutes}
+                disabled={disabled}
+                onChange={(e) =>
+                  handlePacingChange(
+                    "introductionMinutes",
+                    parseInt(e.target.value) || 0,
+                  )
+                }
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+                Direct Instruction
+              </label>
+              <input
+                type="number"
+                min="0"
+                data-testid="editor-pacing-direct"
+                value={content.pacingBreakdown.directInstructionMinutes}
+                disabled={disabled}
+                onChange={(e) =>
+                  handlePacingChange(
+                    "directInstructionMinutes",
+                    parseInt(e.target.value) || 0,
+                  )
+                }
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+                Activity
+              </label>
+              <input
+                type="number"
+                min="0"
+                data-testid="editor-pacing-activity"
+                value={content.pacingBreakdown.activityMinutes}
+                disabled={disabled}
+                onChange={(e) =>
+                  handlePacingChange(
+                    "activityMinutes",
+                    parseInt(e.target.value) || 0,
+                  )
+                }
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+                Practice
+              </label>
+              <input
+                type="number"
+                min="0"
+                data-testid="editor-pacing-practice"
+                value={content.pacingBreakdown.practiceMinutes}
+                disabled={disabled}
+                onChange={(e) =>
+                  handlePacingChange(
+                    "practiceMinutes",
+                    parseInt(e.target.value) || 0,
+                  )
+                }
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+                Assessment
+              </label>
+              <input
+                type="number"
+                min="0"
+                data-testid="editor-pacing-assessment"
+                value={content.pacingBreakdown.assessmentMinutes}
+                disabled={disabled}
+                onChange={(e) =>
+                  handlePacingChange(
+                    "assessmentMinutes",
+                    parseInt(e.target.value) || 0,
+                  )
+                }
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
+              />
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* Practice & Quick Assessment */}
       <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
         <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-2.5">
@@ -404,6 +659,47 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Differentiation & Accommodations */}
+      <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-2.5">
+          Differentiation & Classroom Accommodations
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-sky-800 uppercase tracking-wider">
+              Scaffolding & Support (Emerging Learners / ELL)
+            </label>
+            <textarea
+              rows={3}
+              data-testid="editor-diff-support"
+              value={content.differentiation?.support ?? ""}
+              disabled={disabled}
+              onChange={(e) =>
+                handleDifferentiationChange("support", e.target.value)
+              }
+              placeholder="e.g. Sentence frames, graphic organizers, paired peer support, chunked tasks..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-800 text-sm focus:ring-2 focus:ring-sky-500/20 focus:border-sky-600 transition-colors leading-relaxed"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-purple-800 uppercase tracking-wider">
+              Extension & Challenge (Advanced Learners / Fast Finishers)
+            </label>
+            <textarea
+              rows={3}
+              data-testid="editor-diff-extension"
+              value={content.differentiation?.extension ?? ""}
+              disabled={disabled}
+              onChange={(e) =>
+                handleDifferentiationChange("extension", e.target.value)
+              }
+              placeholder="e.g. Open-ended inquiry questions, hypothesis design, real-world case analysis..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-800 text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-600 transition-colors leading-relaxed"
+            />
           </div>
         </div>
       </section>

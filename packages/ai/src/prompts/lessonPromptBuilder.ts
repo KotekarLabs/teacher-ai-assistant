@@ -14,8 +14,10 @@ Your mission is to produce rigorous, engaging, classroom-ready lesson plans that
 
 ## Pedagogical Quality
 - 2-4 concrete, measurable learning objectives using active Bloom's Taxonomy verbs (e.g., analyze, calculate, compare, explain).
-- Realistic time budgeting that fits inside total lesson duration.
+- Required materials: 2-5 specific physical or digital classroom tools, equipment, or handouts.
+- Realistic phase pacing breakdown (introduction, direct instruction, activity, practice, assessment) whose sum balances total lesson duration.
 - Hands-on interactive classroom activity.
+- Actionable differentiation: scaffolding support for struggling learners and extension challenges for advanced learners.
 - Clear concept progression and actionable teacher talking points.
 
 ## Language & Localization
@@ -65,7 +67,19 @@ Required JSON Schema:
   "practice": string[],
   "quickAssessment": string[],
   "homework": string,
-  "teacherScript": string
+  "teacherScript": string,
+  "materials": string[],
+  "differentiation": {
+    "support": string,
+    "extension": string
+  },
+  "pacingBreakdown": {
+    "introductionMinutes": number,
+    "directInstructionMinutes": number,
+    "activityMinutes": number,
+    "practiceMinutes": number,
+    "assessmentMinutes": number
+  }
 }`;
   }
 }

@@ -95,21 +95,41 @@ export class LessonOutputValidator {
     }
 
     // Backward-compatible check: only evaluated if optional pacingBreakdown is provided
-    const pacing = (content as Record<string, unknown>).pacingBreakdown as Record<string, unknown> | undefined;
+    const pacing = content.pacingBreakdown;
     if (pacing && typeof pacing === "object") {
-      const intro = Number(pacing.introductionMinutes) || 0;
-      const direct = Number(pacing.directInstructionMinutes) || 0;
-      const activity = Number(pacing.activityMinutes) || 0;
-      const practice = Number(pacing.practiceMinutes) || 0;
-      const assessment = Number(pacing.assessmentMinutes) || 0;
-      const sum = intro + direct + activity + practice + assessment;
+      const phases = [
+        { name: "Introduction", val: pacing.introductionMinutes },
+        { name: "Direct instruction", val: pacing.directInstructionMinutes },
+        { name: "Activity", val: pacing.activityMinutes },
+        { name: "Practice", val: pacing.practiceMinutes },
+        { name: "Assessment", val: pacing.assessmentMinutes },
+      ];
 
-      // Tolerance: ±10 mins or 25% of total duration
-      const tolerance = Math.max(10, Math.round(context.durationMinutes * 0.25));
-      if (Math.abs(sum - context.durationMinutes) > tolerance) {
-        errors.push(
-          `Lesson phase pacing sum (${sum}m) deviates significantly from requested duration (${context.durationMinutes}m)`,
-        );
+      let hasInvalidPhase = false;
+      for (const p of phases) {
+        if (typeof p.val !== "number" || isNaN(p.val) || p.val < 0) {
+          errors.push(
+            `Invalid phase duration for ${p.name}: must be a non-negative number`,
+          );
+          hasInvalidPhase = true;
+        }
+      }
+
+      if (!hasInvalidPhase) {
+        const sum =
+          pacing.introductionMinutes +
+          pacing.directInstructionMinutes +
+          pacing.activityMinutes +
+          pacing.practiceMinutes +
+          pacing.assessmentMinutes;
+
+        // Tolerance: ±10 mins or 25% of total duration
+        const tolerance = Math.max(10, Math.round(context.durationMinutes * 0.25));
+        if (Math.abs(sum - context.durationMinutes) > tolerance) {
+          errors.push(
+            `Lesson phase pacing sum (${sum}m) deviates significantly from requested duration (${context.durationMinutes}m)`,
+          );
+        }
       }
     }
 

@@ -8,6 +8,21 @@ export const ClassroomActivitySchema = z.object({
 
 export type ClassroomActivity = z.infer<typeof ClassroomActivitySchema>;
 
+export const LessonDifferentiationSchema = z.object({
+  support: z.string().optional().default(""),
+  extension: z.string().optional().default(""),
+});
+export type LessonDifferentiation = z.infer<typeof LessonDifferentiationSchema>;
+
+export const LessonPacingBreakdownSchema = z.object({
+  introductionMinutes: z.number().int().nonnegative(),
+  directInstructionMinutes: z.number().int().nonnegative(),
+  activityMinutes: z.number().int().nonnegative(),
+  practiceMinutes: z.number().int().nonnegative(),
+  assessmentMinutes: z.number().int().nonnegative(),
+});
+export type LessonPacingBreakdown = z.infer<typeof LessonPacingBreakdownSchema>;
+
 export const LessonContentSchema = z.object({
   title: z.string().min(1, "Title is required"),
   overview: z.string().min(1, "Overview is required"),
@@ -23,6 +38,9 @@ export const LessonContentSchema = z.object({
   quickAssessment: z.array(z.string()),
   homework: z.string(),
   teacherScript: z.string(),
+  materials: z.array(z.string()).optional(),
+  differentiation: LessonDifferentiationSchema.optional(),
+  pacingBreakdown: LessonPacingBreakdownSchema.optional(),
 });
 
 export type LessonContent = z.infer<typeof LessonContentSchema>;
