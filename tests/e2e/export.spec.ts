@@ -214,6 +214,8 @@ test.describe("Resource Workflow & Export Foundation E2E", () => {
       if (url.includes("lessons")) filename = "introduction-to-algorithms-lesson.pdf";
       else if (url.includes("quizzes") && url.includes("mode=student")) filename = "data-structures-quiz-student.pdf";
       else if (url.includes("quizzes") && url.includes("mode=answer-key")) filename = "data-structures-quiz-answer-key.pdf";
+      else if (url.includes("worksheets") && url.includes("mode=student")) filename = "graph-theory-worksheet-student.pdf";
+      else if (url.includes("worksheets") && url.includes("mode=answer-key")) filename = "graph-theory-worksheet-answer-key.pdf";
       else if (url.includes("worksheets")) filename = "graph-theory-worksheet.pdf";
       else if (url.includes("homeworks")) filename = "recursion-homework.pdf";
 
@@ -274,16 +276,35 @@ test.describe("Resource Workflow & Export Foundation E2E", () => {
     expect(answerKeyDownload.suggestedFilename()).toBe("data-structures-quiz-answer-key.pdf");
   });
 
-  test("Worksheet and Homework detail pages trigger PDF export successfully", async ({ page }) => {
-    // Worksheet
+  test("Worksheet Detail page supports Student Export and Teacher Answer Key Export", async ({ page }) => {
     await page.goto("/worksheets/worksheet-export-1");
-    await expect(page.getByTestId("worksheet-details")).toBeVisible();
-    const worksheetDownloadPromise = page.waitForEvent("download");
-    await page.getByTestId("export-pdf-btn").click();
-    const worksheetDownload = await worksheetDownloadPromise;
-    expect(worksheetDownload.suggestedFilename()).toBe("graph-theory-worksheet.pdf");
 
-    // Homework
+    await expect(page.getByTestId("worksheet-details")).toBeVisible();
+    await expect(page.getByTestId("worksheet-details-title")).toHaveText("Graph Theory Worksheet");
+    await expect(page.getByTestId("toggle-answers-btn")).toBeVisible();
+
+    // Click Export PDF to open WorksheetExportModal
+    await page.getByTestId("export-pdf-btn").click();
+    await expect(page.getByTestId("worksheet-export-modal")).toBeVisible();
+    await expect(page.getByTestId("export-student-worksheet-btn")).toBeVisible();
+    await expect(page.getByTestId("export-answer-key-btn")).toBeVisible();
+
+    // Export Student Worksheet
+    const studentDownloadPromise = page.waitForEvent("download");
+    await page.getByTestId("export-student-worksheet-btn").click();
+    const studentDownload = await studentDownloadPromise;
+    expect(studentDownload.suggestedFilename()).toBe("graph-theory-worksheet-student.pdf");
+
+    // Reopen modal and export Answer Key
+    await page.getByTestId("export-pdf-btn").click();
+    await expect(page.getByTestId("worksheet-export-modal")).toBeVisible();
+    const answerKeyDownloadPromise = page.waitForEvent("download");
+    await page.getByTestId("export-answer-key-btn").click();
+    const answerKeyDownload = await answerKeyDownloadPromise;
+    expect(answerKeyDownload.suggestedFilename()).toBe("graph-theory-worksheet-answer-key.pdf");
+  });
+
+  test("Homework detail page triggers PDF export successfully", async ({ page }) => {
     await page.goto("/homeworks/homework-export-1");
     await expect(page.getByTestId("homework-details")).toBeVisible();
     const homeworkDownloadPromise = page.waitForEvent("download");

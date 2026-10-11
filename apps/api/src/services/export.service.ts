@@ -3,7 +3,7 @@ import { WorksheetRepository } from "../repositories/worksheet.repository";
 import { QuizRepository } from "../repositories/quiz.repository";
 import { HomeworkRepository } from "../repositories/homework.repository";
 import { renderLessonPdf, type LessonPdfData } from "./pdf/lesson-pdf.renderer";
-import { renderWorksheetPdf, type WorksheetPdfData } from "./pdf/worksheet-pdf.renderer";
+import { renderWorksheetPdf, type WorksheetPdfData, type WorksheetExportMode } from "./pdf/worksheet-pdf.renderer";
 import { renderQuizPdf, type QuizPdfData, type QuizExportMode } from "./pdf/quiz-pdf.renderer";
 import { renderHomeworkPdf, type HomeworkPdfData } from "./pdf/homework-pdf.renderer";
 import { sanitizeFilename } from "./pdf/pdf-utils";
@@ -42,7 +42,17 @@ export class ExportService {
   static async exportWorksheetPdf(
     worksheetId: string,
     teacherId: string,
+    mode?: string,
   ): Promise<ExportResult> {
+    const effectiveMode = mode || "student";
+    if (effectiveMode !== "student" && effectiveMode !== "answer-key") {
+      const error: ServiceError = new Error(
+        'Invalid worksheet export mode: must be either "student" or "answer-key"',
+      );
+      error.statusCode = 400;
+      throw error;
+    }
+
     const worksheet = await WorksheetRepository.findByIdAndTeacherId(
       worksheetId,
       teacherId,
@@ -54,8 +64,20 @@ export class ExportService {
       throw error;
     }
 
-    const buffer = await renderWorksheetPdf(worksheet as unknown as WorksheetPdfData);
-    const filename = sanitizeFilename(worksheet.title, "worksheet");
+    const validMode = effectiveMode as WorksheetExportMode;
+    const buffer = await renderWorksheetPdf(
+      worksheet as unknown as WorksheetPdfData,
+      validMode,
+    );
+
+    let suffix = "worksheet";
+    if (validMode === "answer-key") {
+      suffix = "worksheet-answer-key";
+    } else if (mode === "student") {
+      suffix = "worksheet-student";
+    }
+
+    const filename = sanitizeFilename(worksheet.title, suffix);
 
     return { buffer, filename };
   }

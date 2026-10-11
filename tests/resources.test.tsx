@@ -7,6 +7,7 @@ import {
   ResourceActions,
   ResourceMetadata,
   QuizExportModal,
+  WorksheetExportModal,
   UnsavedChangesDialog,
 } from "../apps/web/src/components/resources";
 
@@ -146,6 +147,74 @@ describe("Resource Workflow Components", () => {
 
       fireEvent.click(screen.getByTestId("close-export-modal-btn"));
       expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("WorksheetExportModal", () => {
+    it("renders student and answer key choices and fires onExport with correct mode", () => {
+      const onExport = vi.fn();
+      const onClose = vi.fn();
+
+      render(
+        <WorksheetExportModal
+          isOpen={true}
+          onClose={onClose}
+          onExport={onExport}
+        />
+      );
+
+      expect(screen.getByTestId("worksheet-export-modal")).toBeDefined();
+      expect(screen.getByText("Export Worksheet PDF")).toBeDefined();
+
+      fireEvent.click(screen.getByTestId("export-student-worksheet-btn"));
+      expect(onExport).toHaveBeenCalledWith("student");
+
+      fireEvent.click(screen.getByTestId("export-answer-key-btn"));
+      expect(onExport).toHaveBeenCalledWith("answer-key");
+
+      fireEvent.click(screen.getByTestId("close-export-modal-btn"));
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it("closes on Escape key press when not exporting", () => {
+      const onClose = vi.fn();
+      render(
+        <WorksheetExportModal
+          isOpen={true}
+          onClose={onClose}
+          onExport={vi.fn()}
+          isExporting={false}
+        />
+      );
+
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it("disables export and cancel buttons when isExporting is true", () => {
+      const onClose = vi.fn();
+      render(
+        <WorksheetExportModal
+          isOpen={true}
+          onClose={onClose}
+          onExport={vi.fn()}
+          isExporting={true}
+        />
+      );
+
+      expect(
+        (screen.getByTestId("export-student-worksheet-btn") as HTMLButtonElement).disabled
+      ).toBe(true);
+      expect(
+        (screen.getByTestId("export-answer-key-btn") as HTMLButtonElement).disabled
+      ).toBe(true);
+      expect(
+        (screen.getByTestId("close-export-modal-btn") as HTMLButtonElement).disabled
+      ).toBe(true);
+
+      // Escape key should NOT trigger onClose when exporting
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(onClose).not.toHaveBeenCalled();
     });
   });
 

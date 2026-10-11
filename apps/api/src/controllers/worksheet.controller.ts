@@ -146,11 +146,13 @@ export class WorksheetController {
   static async exportPdf(req: Request, res: Response): Promise<void> {
     const authReq = req as AuthenticatedRequest;
     const { worksheetId } = req.params;
+    const mode = req.query.mode as string | undefined;
 
     try {
       const { buffer, filename } = await ExportService.exportWorksheetPdf(
         worksheetId,
         authReq.user!.id,
+        mode,
       );
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);

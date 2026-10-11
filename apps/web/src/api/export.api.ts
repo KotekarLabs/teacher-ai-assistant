@@ -1,11 +1,13 @@
 import { apiClient } from "./client";
 
-export type QuizExportMode = "student" | "answer-key";
+export type ExportMode = "student" | "answer-key";
+export type QuizExportMode = ExportMode;
+export type WorksheetExportMode = ExportMode;
 
 export async function downloadResourcePdf(
   resourceType: "lessons" | "worksheets" | "quizzes" | "homeworks",
   resourceId: string,
-  mode?: QuizExportMode
+  mode?: ExportMode
 ): Promise<void> {
   const url = mode
     ? `/${resourceType}/${resourceId}/export/pdf?mode=${mode}`

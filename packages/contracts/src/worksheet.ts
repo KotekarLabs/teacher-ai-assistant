@@ -22,6 +22,9 @@ export const WorksheetStatusEnum = z.enum([
 ]);
 export type WorksheetStatus = z.infer<typeof WorksheetStatusEnum>;
 
+export const WorksheetExportModeEnum = z.enum(["student", "answer-key"]);
+export type WorksheetExportMode = z.infer<typeof WorksheetExportModeEnum>;
+
 export const WorksheetQuestionSchema = z.object({
   id: z.string().optional(),
   position: z.number().int().positive(),

@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getWorksheetById, archiveWorksheet } from "../api/worksheets.api";
-import { downloadResourcePdf } from "../api/export.api";
+import { downloadResourcePdf, type WorksheetExportMode } from "../api/export.api";
 import {
   ResourceHeader,
   ResourceActions,
   ResourceMetadata,
+  WorksheetExportModal,
 } from "../components/resources";
 
 export const WorksheetDetails: React.FC = () => {
@@ -16,6 +17,7 @@ export const WorksheetDetails: React.FC = () => {
 
   const [showAnswerKey, setShowAnswerKey] = useState(true);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
@@ -49,12 +51,13 @@ export const WorksheetDetails: React.FC = () => {
     },
   });
 
-  const handleExportPdf = async () => {
-    if (!worksheetData?.worksheet) return;
+  const handleExportMode = async (mode: WorksheetExportMode) => {
+    if (!worksheetData?.worksheet || isExporting) return;
     setIsExporting(true);
     setExportError(null);
     try {
-      await downloadResourcePdf("worksheets", worksheetData.worksheet.id);
+      await downloadResourcePdf("worksheets", worksheetData.worksheet.id, mode);
+      setShowExportModal(false);
     } catch {
       setExportError("We couldn't generate the PDF. Please try again.");
     } finally {
@@ -129,7 +132,7 @@ export const WorksheetDetails: React.FC = () => {
             onEdit={() => navigate(`/worksheets/${worksheet.id}/edit`)}
             editLabel="Edit Worksheet"
             editTestId="edit-worksheet-btn"
-            onExportPdf={handleExportPdf}
+            onExportPdf={() => setShowExportModal(true)}
             isExporting={isExporting}
             exportTestId="export-pdf-btn"
             onPrint={() => window.print()}
@@ -274,6 +277,14 @@ export const WorksheetDetails: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Worksheet Export Modal */}
+      <WorksheetExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExportMode}
+        isExporting={isExporting}
+      />
     </div>
   );
 };
