@@ -3,15 +3,15 @@ import React from "react";
 export interface NavItem {
   name: string;
   href: string;
+  category: "workspace" | "create";
   icon: (props: React.SVGProps<SVGSVGElement>) => React.JSX.Element;
-  enabled: boolean;
 }
 
-export const navItems: NavItem[] = [
+export const workspaceNavItems: NavItem[] = [
   {
     name: "Dashboard",
     href: "/dashboard",
-    enabled: true,
+    category: "workspace",
     icon: (props) => (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
         <path
@@ -24,24 +24,9 @@ export const navItems: NavItem[] = [
     ),
   },
   {
-    name: "Create",
-    href: "/create",
-    enabled: false,
-    icon: (props) => (
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M12 4v16m8-8H4"
-        />
-      </svg>
-    ),
-  },
-  {
     name: "Library",
     href: "/library",
-    enabled: true,
+    category: "workspace",
     icon: (props) => (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
         <path
@@ -56,7 +41,7 @@ export const navItems: NavItem[] = [
   {
     name: "Classes",
     href: "/classes",
-    enabled: true,
+    category: "workspace",
     icon: (props) => (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
         <path
@@ -68,40 +53,70 @@ export const navItems: NavItem[] = [
       </svg>
     ),
   },
+];
+
+export const createNavItems: NavItem[] = [
   {
-    name: "Profile",
-    href: "/profile",
-    enabled: false,
+    name: "Lesson Plan",
+    href: "/create/lesson",
+    category: "create",
     icon: (props) => (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          d="M13 10V3L4 14h7v7l9-11h-7z"
         />
       </svg>
     ),
   },
   {
-    name: "Settings",
-    href: "/settings",
-    enabled: false,
+    name: "Worksheet",
+    href: "/create/worksheet",
+    category: "create",
     icon: (props) => (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
         />
+      </svg>
+    ),
+  },
+  {
+    name: "Quiz",
+    href: "/create/quiz",
+    category: "create",
+    icon: (props) => (
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+    ),
+  },
+  {
+    name: "Homework",
+    href: "/create/homework",
+    category: "create",
+    icon: (props) => (
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
         />
       </svg>
     ),
   },
 ];
+
+// Combine all for backward-compatible consumption if needed
+export const navItems = [...workspaceNavItems, ...createNavItems];

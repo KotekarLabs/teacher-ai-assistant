@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuthStore } from "./store/authStore";
 import { ProtectedRoute, OnboardingRoute } from "./components/ProtectedRoute";
 import { AppShell } from "./components/layout/AppShell";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Onboarding from "./pages/Onboarding";
@@ -41,6 +42,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route element={<OnboardingRoute />}>

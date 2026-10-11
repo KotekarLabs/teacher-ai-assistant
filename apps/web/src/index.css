@@ -1,5 +1,58 @@
 @import "tailwindcss";
 
+@theme {
+  /* Surfaces & Canvas (Soft Ivory & Warm Tones) */
+  --color-canvas-ivory: #fdfcf9;
+  --color-canvas-subtle: #f7f5f0;
+  --color-canvas-muted: #efece6;
+  --color-surface-white: #ffffff;
+
+  /* Typography & Structure (Midnight Slate) */
+  --color-midnight-950: #0b1120;
+  --color-midnight-900: #0f172a;
+  --color-midnight-800: #1e293b;
+  --color-midnight-700: #334155;
+  --color-midnight-500: #64748b;
+  --color-midnight-300: #cbd5e1;
+  --color-midnight-100: #f1f5f9;
+
+  /* AI Accents (Luminous Violet) */
+  --color-violet-ai-600: #7c3aed;
+  --color-violet-ai-500: #8b5cf6;
+  --color-violet-ai-100: #ede9fe;
+  --color-violet-ai-50: #f5f3ff;
+
+  /* Validation & Success (Teal / Sage) */
+  --color-teal-700: #0f766e;
+  --color-teal-600: #0d9488;
+  --color-teal-100: #ccfbf1;
+  --color-teal-50: #f0fdfa;
+
+  /* Warm Accents (Apricot / Coral / Amber) */
+  --color-apricot-500: #f97316;
+  --color-apricot-100: #ffedd5;
+  --color-coral-500: #f43f5e;
+  --color-coral-100: #ffe4e6;
+  --color-amber-600: #d97706;
+  --color-amber-100: #fef3c7;
+
+  /* Elevation & Shadows */
+  --shadow-subtle: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+  --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
+  --shadow-elevated: 0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @media print {
   /* Hide UI chrome */
   nav,
