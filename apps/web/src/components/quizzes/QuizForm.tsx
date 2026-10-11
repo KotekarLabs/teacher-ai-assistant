@@ -8,9 +8,12 @@ import {
   type ClassDTO,
 } from "@teacher-ai/contracts";
 
+import { useAuthStore } from "../../store/authStore";
+
 interface QuizFormProps {
   classes: ClassDTO[];
   initialClassId?: string;
+  initialValues?: Partial<GenerateQuizRequest>;
   onSubmit: (data: GenerateQuizRequest) => void;
   isLoading?: boolean;
 }
@@ -41,13 +44,29 @@ const ALL_QUIZ_QUESTION_TYPES: { id: QuestionType; label: string; desc: string }
 export const QuizForm: React.FC<QuizFormProps> = ({
   classes,
   initialClassId,
+  initialValues,
   onSubmit,
   isLoading = false,
 }) => {
-  const [selectedTypes, setSelectedTypes] = useState<QuestionType[]>([
-    "MULTIPLE_CHOICE",
-    "TRUE_FALSE",
-  ]);
+  const profile = useAuthStore((s) => s.profile);
+
+  const initialTypes: QuestionType[] =
+    initialValues?.questionTypes && initialValues.questionTypes.length > 0
+      ? initialValues.questionTypes
+      : ["MULTIPLE_CHOICE", "TRUE_FALSE"];
+
+  const [selectedTypes, setSelectedTypes] = useState<QuestionType[]>(initialTypes);
+  const [typeError, setTypeError] = useState<string | null>(null);
+
+  const chosenClass =
+    classes.find((c) => c.id === (initialValues?.classId || initialClassId)) ||
+    (classes.length > 0 ? classes[0] : undefined);
+  const defaultBoard =
+    initialValues?.curriculumBoard ??
+    (chosenClass?.curriculumBoard || profile?.curriculumBoard || "");
+  const defaultSubject =
+    initialValues?.subject ??
+    (profile?.subjects && profile.subjects.length > 0 ? profile.subjects[0] : "");
 
   const {
     register,
@@ -58,15 +77,15 @@ export const QuizForm: React.FC<QuizFormProps> = ({
   } = useForm<GenerateQuizRequest>({
     resolver: zodResolver(GenerateQuizRequestSchema) as any,
     defaultValues: {
-      classId: initialClassId || (classes.length > 0 ? classes[0].id : ""),
-      subject: "",
-      topic: "",
-      questionCount: 5,
-      questionTypes: ["MULTIPLE_CHOICE", "TRUE_FALSE"],
-      difficulty: "MEDIUM",
-      durationMinutes: 20,
-      curriculumBoard: "",
-      teacherInstructions: "",
+      classId: initialValues?.classId || initialClassId || (chosenClass ? chosenClass.id : ""),
+      subject: defaultSubject,
+      topic: initialValues?.topic || "",
+      questionCount: initialValues?.questionCount ?? 5,
+      questionTypes: initialTypes,
+      difficulty: initialValues?.difficulty || "MEDIUM",
+      durationMinutes: initialValues?.durationMinutes ?? 20,
+      curriculumBoard: defaultBoard,
+      teacherInstructions: initialValues?.teacherInstructions || "",
     },
   });
 
@@ -78,15 +97,22 @@ export const QuizForm: React.FC<QuizFormProps> = ({
     const cls = classes.find((c) => c.id === cid);
     if (cls && cls.curriculumBoard) {
       setValue("curriculumBoard", cls.curriculumBoard);
+    } else if (profile?.curriculumBoard && !watch("curriculumBoard")) {
+      setValue("curriculumBoard", profile.curriculumBoard);
     }
   };
 
   const handleTypeToggle = (type: QuestionType) => {
     let next: QuestionType[];
     if (selectedTypes.includes(type)) {
-      if (selectedTypes.length === 1) return; // Keep at least one
+      if (selectedTypes.length === 1) {
+        setTypeError("At least one question type must be selected.");
+        return;
+      }
+      setTypeError(null);
       next = selectedTypes.filter((t) => t !== type);
     } else {
+      setTypeError(null);
       next = [...selectedTypes, type];
     }
     setSelectedTypes(next);
@@ -155,6 +181,25 @@ export const QuizForm: React.FC<QuizFormProps> = ({
             <p className="mt-1 text-xs text-rose-600 font-medium">
               {errors.subject.message}
             </p>
+          )}
+          {profile?.subjects && profile.subjects.length > 0 && (
+            <div
+              className="mt-2 flex flex-wrap items-center gap-1.5"
+              data-testid="profile-subject-suggestions"
+            >
+              <span className="text-[11px] text-slate-400 select-none">Quick fill:</span>
+              {profile.subjects.map((subj) => (
+                <button
+                  key={subj}
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => setValue("subject", subj, { shouldValidate: true })}
+                  className="inline-flex items-center text-xs px-2.5 py-1 min-h-[32px] rounded-lg border font-medium bg-slate-50 border-slate-200 text-slate-700 hover:bg-violet-50 hover:border-violet-300 hover:text-violet-800 transition-colors cursor-pointer select-none"
+                >
+                  {subj}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -284,6 +329,17 @@ export const QuizForm: React.FC<QuizFormProps> = ({
             );
           })}
         </div>
+        {typeError && (
+          <p
+            role="alert"
+            aria-live="polite"
+            data-testid="question-types-error"
+            className="mt-2.5 text-xs text-rose-600 font-semibold flex items-center space-x-1"
+          >
+            <span>⚠️</span>
+            <span>{typeError}</span>
+          </p>
+        )}
       </div>
 
       <div>

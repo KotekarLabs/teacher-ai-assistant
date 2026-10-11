@@ -26,9 +26,31 @@ export class MockAIProvider implements AIProvider {
   ): Promise<LessonGenerationResult> {
     const startTime = Date.now();
 
+    const lang = context.preferredLanguage?.toLowerCase();
+    const isSpanish = lang === "spanish";
+    const isHindi = lang === "hindi";
+
+    const title = isSpanish
+      ? `${context.topic} — Grado ${context.grade} ${context.subject} (Plan de Clase)`
+      : isHindi
+      ? `${context.topic} — कक्षा ${context.grade} ${context.subject} (पाठ योजना)`
+      : `${context.topic} — Grade ${context.grade} ${context.subject}`;
+
+    const overview = isSpanish
+      ? `Una lección integral de ${context.durationMinutes} minutos diseñada para enseñar ${context.topic} a estudiantes de Grado ${context.grade}.`
+      : isHindi
+      ? `कक्षा ${context.grade} के विद्यार्थियों के लिए ${context.topic} सिखाने हेतु ${context.durationMinutes} मिनट का व्यापक पाठ।`
+      : `A comprehensive ${context.durationMinutes}-minute lesson designed to teach ${context.topic} to Grade ${context.grade} students with engaging conceptual breakdown and hands-on practice.`;
+
+    const teacherScript = isSpanish
+      ? `¡Buenos días clase! Hoy exploraremos un tema fascinante: ${context.topic}. ¿Cómo lo observan en su vida diaria? ¡Descubrámoslo juntos!`
+      : isHindi
+      ? `सुप्रभात बच्चों! आज हम ${context.topic} के बारे में विस्तार से सीखेंगे। दैनिक जीवन में यह कैसे दिखता है? आइए मिलकर समझें!`
+      : `Good morning class! Today we are diving into an exciting topic: ${context.topic}. Look around you—how do you see this in action every day? Let's find out together!`;
+
     const structuredContent: LessonContent = {
-      title: `${context.topic} — Grade ${context.grade} ${context.subject}`,
-      overview: `A comprehensive ${context.durationMinutes}-minute lesson designed to teach ${context.topic} to Grade ${context.grade} students with engaging conceptual breakdown and hands-on practice.`,
+      title,
+      overview,
       learningObjectives: [
         `Understand the core principles and key mechanisms of ${context.topic}.`,
         `Identify real-world examples and applications of ${context.topic}.`,
@@ -37,8 +59,16 @@ export class MockAIProvider implements AIProvider {
       prerequisites: [
         `Basic foundational understanding of Grade ${context.grade} ${context.subject} concepts.`,
       ],
-      introduction: `Begin by asking students an engaging hook question related to ${context.topic} in daily life. Connect their existing observations to today's core concept.`,
-      teacherExplanation: `Explain ${context.topic} step-by-step using clear, grade-appropriate language. Highlight key terminology, cause-and-effect relationships, and practical significance.`,
+      introduction: isSpanish
+        ? `Comience haciendo a los estudiantes una pregunta motivadora sobre ${context.topic} en la vida diaria.`
+        : isHindi
+        ? `${context.topic} पर दैनिक जीवन से जुड़ा एक प्रेरक प्रश्न पूछकर शुरुआत करें।`
+        : `Begin by asking students an engaging hook question related to ${context.topic} in daily life. Connect their existing observations to today's core concept.`,
+      teacherExplanation: isSpanish
+        ? `Explique ${context.topic} paso a paso utilizando un lenguaje claro y apropiado para la edad.`
+        : isHindi
+        ? `${context.topic} को स्पष्ट और आयु-उपयुक्त भाषा में चरणबद्ध तरीके से समझाएं।`
+        : `Explain ${context.topic} step-by-step using clear, grade-appropriate language. Highlight key terminology, cause-and-effect relationships, and practical significance.`,
       examples: [
         `Example 1: Demonstrating ${context.topic} in an everyday classroom scenario.`,
         `Example 2: Analyzing a standard step-by-step problem related to ${context.topic}.`,
@@ -57,7 +87,7 @@ export class MockAIProvider implements AIProvider {
         `Exit ticket question to evaluate student mastery before conclusion.`,
       ],
       homework: `Review class notes and complete 3 follow-up exercise questions on ${context.topic}.`,
-      teacherScript: `Good morning class! Today we are diving into an exciting topic: ${context.topic}. Look around you—how do you see this in action every day? Let's find out together!`,
+      teacherScript,
     };
 
     const rawOutput = JSON.stringify(structuredContent, null, 2);
@@ -148,13 +178,27 @@ export class MockAIProvider implements AIProvider {
       }
     }
 
+    const lang = context.preferredLanguage?.toLowerCase();
+    const isSpanish = lang === "spanish";
+    const isHindi = lang === "hindi";
+
+    const title = isSpanish
+      ? `${context.topic} Hoja de Ejercicios — Grado ${context.grade}`
+      : isHindi
+      ? `${context.topic} अभ्यास कार्यपत्रक — कक्षा ${context.grade}`
+      : `${context.topic} Practice Worksheet — Grade ${context.grade}`;
+
     const structuredContent: WorksheetContent = {
-      title: `${context.topic} Practice Worksheet — Grade ${context.grade}`,
+      title,
       subject: context.subject,
       topic: context.topic,
       instructions:
         context.teacherInstructions ||
-        "Answer all questions thoroughly. Show your work where required.",
+        (isSpanish
+          ? "Responda todas las preguntas detalladamente. Muestre su trabajo donde sea necesario."
+          : isHindi
+          ? "सभी प्रश्नों के उत्तर ध्यानपूर्वक दें। जहां आवश्यक हो अपना कार्य दिखाएं।"
+          : "Answer all questions thoroughly. Show your work where required."),
       estimatedTimeMinutes: context.estimatedTimeMinutes || 30,
       questions,
     };
@@ -242,15 +286,29 @@ export class MockAIProvider implements AIProvider {
 
     const totalMarks = questions.reduce((acc, q) => acc + q.marks, 0);
 
+    const lang = context.preferredLanguage?.toLowerCase();
+    const isSpanish = lang === "spanish";
+    const isHindi = lang === "hindi";
+
+    const title = isSpanish
+      ? `${context.topic} Cuestionario de Evaluación — Grado ${context.grade}`
+      : isHindi
+      ? `${context.topic} मूल्यांकन प्रश्नोत्तरी — कक्षा ${context.grade}`
+      : `${context.topic} Assessment Quiz — Grade ${context.grade}`;
+
     const structuredContent: QuizContent = {
-      title: `${context.topic} Assessment Quiz — Grade ${context.grade}`,
+      title,
       subject: context.subject,
       topic: context.topic,
       difficulty: (context.difficulty as "EASY" | "MEDIUM" | "HARD") || "MEDIUM",
       durationMinutes: context.durationMinutes || 20,
       instructions:
         context.teacherInstructions ||
-        "Read each question carefully and select or write the best answer.",
+        (isSpanish
+          ? "Lea cada pregunta cuidadosamente y seleccione o escriba la mejor respuesta."
+          : isHindi
+          ? "प्रत्येक प्रश्न को ध्यान से पढ़ें और सबसे सही उत्तर चुनें या लिखें।"
+          : "Read each question carefully and select or write the best answer."),
       totalMarks,
       questions,
     };
@@ -324,8 +382,18 @@ export class MockAIProvider implements AIProvider {
       }
     }
 
+    const hwLang = context.preferredLanguage?.toLowerCase();
+    const isHwSpanish = hwLang === "spanish";
+    const isHwHindi = hwLang === "hindi";
+
+    const hwTitle = isHwSpanish
+      ? `${context.topic} Tarea para el Hogar — Grado ${context.grade}`
+      : isHwHindi
+      ? `${context.topic} गृहकार्य असाइनमेंट — कक्षा ${context.grade}`
+      : `${context.topic} Homework Assignment — Grade ${context.grade}`;
+
     const structuredContent: HomeworkContent = {
-      title: `${context.topic} Homework Assignment — Grade ${context.grade}`,
+      title: hwTitle,
       subject: context.subject,
       topic: context.topic,
       difficulty: (context.difficulty as "EASY" | "MEDIUM" | "HARD") || "MEDIUM",

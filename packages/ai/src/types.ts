@@ -16,6 +16,9 @@ export interface LessonGenerationContext {
   durationMinutes: number;
   difficulty: string;
   teacherInstructions?: string;
+  preferredLanguage?: string;
+  teachingRole?: string;
+  experienceLevel?: string;
 }
 
 export interface LessonGenerationResult {
@@ -42,6 +45,9 @@ export interface WorksheetGenerationContext {
   questionTypes: QuestionType[];
   estimatedTimeMinutes?: number;
   teacherInstructions?: string;
+  preferredLanguage?: string;
+  teachingRole?: string;
+  experienceLevel?: string;
 }
 
 export interface WorksheetGenerationResult {
@@ -68,6 +74,9 @@ export interface QuizGenerationContext {
   questionTypes: QuestionType[];
   durationMinutes?: number;
   teacherInstructions?: string;
+  preferredLanguage?: string;
+  teachingRole?: string;
+  experienceLevel?: string;
 }
 
 export interface QuizGenerationResult {
@@ -95,6 +104,9 @@ export interface HomeworkGenerationContext {
   taskPreferences?: HomeworkTaskType[];
   estimatedTimeMinutes?: number;
   teacherInstructions?: string;
+  preferredLanguage?: string;
+  teachingRole?: string;
+  experienceLevel?: string;
 }
 
 export interface HomeworkGenerationResult {

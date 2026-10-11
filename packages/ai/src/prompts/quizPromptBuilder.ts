@@ -23,12 +23,27 @@ export class QuizPromptBuilder {
 - Allocate marks >= 1 for each question.
 - Calculate totalMarks as the sum of all question marks.
 
+## Language & Localization
+- Deliver all quiz questions, options, instructions, and correct answers in the specified Output Language (defaulting to English if not specified).
+
 ## Output Format
 - Return ONLY valid JSON matching the target schema.
 - No markdown wrappers outside the JSON string.`;
   }
 
   static buildUserPrompt(context: QuizGenerationContext): string {
+    const langDirective =
+      context.preferredLanguage &&
+      context.preferredLanguage.toLowerCase() !== "english"
+        ? `- Output Language: ${context.preferredLanguage} (Generate all titles, questions, options, and explanations in ${context.preferredLanguage})\n`
+        : "";
+    const roleDirective = context.teachingRole
+      ? `- Target Educator Role: ${context.teachingRole}\n`
+      : "";
+    const expDirective = context.experienceLevel
+      ? `- Educator Experience Level: ${context.experienceLevel}\n`
+      : "";
+
     return `Generate a complete, structured Quiz with ${context.questionCount} questions for:
 - Grade Level: Grade ${context.grade}
 - Subject: ${context.subject}
@@ -38,7 +53,7 @@ export class QuizPromptBuilder {
 - Target Question Count: ${context.questionCount}
 - Allowed Question Types: ${context.questionTypes.join(", ")}
 - Target Duration: ${context.durationMinutes || 20} minutes
-- Teacher's Custom Instructions: ${context.teacherInstructions || "None provided"}
+${langDirective}${roleDirective}${expDirective}- Teacher's Custom Instructions: ${context.teacherInstructions || "None provided"}
 
 Required JSON Schema:
 {

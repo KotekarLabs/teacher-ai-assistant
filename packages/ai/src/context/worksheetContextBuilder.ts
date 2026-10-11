@@ -1,6 +1,8 @@
 import type { GenerateWorksheetRequest } from "@teacher-ai/contracts";
 import type { WorksheetGenerationContext } from "../types";
 
+import type { TeacherProfileContextInput } from "./lessonContextBuilder";
+
 export interface WorksheetClassContextInput {
   id: string;
   grade: string;
@@ -13,6 +15,7 @@ export class WorksheetContextBuilder {
   static buildContext(
     request: GenerateWorksheetRequest,
     classData: WorksheetClassContextInput,
+    profileData?: TeacherProfileContextInput | null,
   ): WorksheetGenerationContext {
     return {
       classId: classData.id,
@@ -31,6 +34,9 @@ export class WorksheetContextBuilder {
         : ["MULTIPLE_CHOICE", "SHORT_ANSWER"],
       estimatedTimeMinutes: request.estimatedTimeMinutes || 30,
       teacherInstructions: request.teacherInstructions?.trim() || undefined,
+      preferredLanguage: profileData?.preferredLanguage?.trim() || "English",
+      teachingRole: profileData?.teachingRole?.trim() || undefined,
+      experienceLevel: profileData?.experienceLevel?.trim() || undefined,
     };
   }
 }

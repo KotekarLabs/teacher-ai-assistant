@@ -12,6 +12,7 @@ import { ClassRepository } from "../repositories/class.repository";
 import { QuizRepository } from "../repositories/quiz.repository";
 import { GenerationRequestRepository } from "../repositories/generation-request.repository";
 import { ContentSyncService } from "./content-sync.service";
+import { TeacherService } from "./teacher.service";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
@@ -43,13 +44,19 @@ export class QuizService {
       throw error;
     }
 
-    const context = QuizContextBuilder.buildContext(data, {
-      id: targetClass.id,
-      grade: targetClass.grade,
-      section: targetClass.section,
-      curriculumBoard: targetClass.curriculumBoard,
-      name: targetClass.name,
-    });
+    const profile = await TeacherService.getProfileByUserId(teacherId);
+
+    const context = QuizContextBuilder.buildContext(
+      data,
+      {
+        id: targetClass.id,
+        grade: targetClass.grade,
+        section: targetClass.section,
+        curriculumBoard: targetClass.curriculumBoard,
+        name: targetClass.name,
+      },
+      profile,
+    );
 
     const provider = getAIProvider();
     const promptVersion = "quiz/generate.v1";

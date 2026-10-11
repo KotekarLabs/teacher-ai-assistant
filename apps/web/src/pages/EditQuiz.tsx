@@ -77,6 +77,8 @@ export const EditQuiz: React.FC = () => {
       setHasUnsavedChanges(false);
       setSaveSuccessMessage("Quiz saved successfully!");
       queryClient.setQueryData(["quiz", quizId], data);
+      queryClient.invalidateQueries({ queryKey: ["quizzes"] });
+      queryClient.invalidateQueries({ queryKey: ["content"] });
       setTimeout(() => setSaveSuccessMessage(null), 3000);
     },
     onError: (err: any) => {

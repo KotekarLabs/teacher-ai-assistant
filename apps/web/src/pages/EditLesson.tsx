@@ -49,6 +49,8 @@ export const EditLesson: React.FC = () => {
       setHasUnsavedChanges(false);
       setSaveSuccessMessage("Lesson saved successfully!");
       queryClient.setQueryData(["lesson", lessonId], data);
+      queryClient.invalidateQueries({ queryKey: ["lessons"] });
+      queryClient.invalidateQueries({ queryKey: ["content"] });
       setTimeout(() => setSaveSuccessMessage(null), 3000);
     },
     onError: (err: any) => {

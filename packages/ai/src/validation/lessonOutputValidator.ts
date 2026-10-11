@@ -75,6 +75,50 @@ export class LessonOutputValidator {
     return { isSafe: true };
   }
 
+  static checkPacing(
+    content: LessonContent,
+    context: LessonGenerationContext,
+  ): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    if (context.durationMinutes <= 0) {
+      errors.push("Lesson duration must be greater than 0");
+    }
+
+    if (
+      content.classroomActivity &&
+      content.classroomActivity.durationMinutes > context.durationMinutes
+    ) {
+      errors.push(
+        `Classroom activity duration (${content.classroomActivity.durationMinutes}m) exceeds total lesson duration (${context.durationMinutes}m)`,
+      );
+    }
+
+    // Backward-compatible check: only evaluated if optional pacingBreakdown is provided
+    const pacing = (content as Record<string, unknown>).pacingBreakdown as Record<string, unknown> | undefined;
+    if (pacing && typeof pacing === "object") {
+      const intro = Number(pacing.introductionMinutes) || 0;
+      const direct = Number(pacing.directInstructionMinutes) || 0;
+      const activity = Number(pacing.activityMinutes) || 0;
+      const practice = Number(pacing.practiceMinutes) || 0;
+      const assessment = Number(pacing.assessmentMinutes) || 0;
+      const sum = intro + direct + activity + practice + assessment;
+
+      // Tolerance: ±10 mins or 25% of total duration
+      const tolerance = Math.max(10, Math.round(context.durationMinutes * 0.25));
+      if (Math.abs(sum - context.durationMinutes) > tolerance) {
+        errors.push(
+          `Lesson phase pacing sum (${sum}m) deviates significantly from requested duration (${context.durationMinutes}m)`,
+        );
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }
+
   static checkEducationalQuality(
     content: LessonContent,
     context: LessonGenerationContext,
@@ -83,6 +127,12 @@ export class LessonOutputValidator {
 
     if (!content.learningObjectives || content.learningObjectives.length === 0) {
       feedback.push("Missing learning objectives");
+    } else {
+      content.learningObjectives.forEach((obj, idx) => {
+        if (!obj || obj.trim().length < 5) {
+          feedback.push(`Learning objective #${idx + 1} is too brief or empty`);
+        }
+      });
     }
 
     if (!content.examples || content.examples.length === 0) {
@@ -93,13 +143,9 @@ export class LessonOutputValidator {
       feedback.push("Teacher explanation is too brief for classroom delivery");
     }
 
-    if (
-      content.classroomActivity &&
-      content.classroomActivity.durationMinutes > context.durationMinutes
-    ) {
-      feedback.push(
-        `Classroom activity duration (${content.classroomActivity.durationMinutes}m) exceeds total lesson duration (${context.durationMinutes}m)`,
-      );
+    const pacingCheck = this.checkPacing(content, context);
+    if (!pacingCheck.isValid) {
+      feedback.push(...pacingCheck.errors);
     }
 
     if (feedback.length > 0) {

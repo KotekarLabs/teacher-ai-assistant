@@ -13,10 +13,13 @@ Your mission is to produce rigorous, engaging, classroom-ready lesson plans that
 - Ensure all activities are physically safe and require adult supervision when necessary.
 
 ## Pedagogical Quality
-- 2-4 concrete, measurable learning objectives.
+- 2-4 concrete, measurable learning objectives using active Bloom's Taxonomy verbs (e.g., analyze, calculate, compare, explain).
 - Realistic time budgeting that fits inside total lesson duration.
 - Hands-on interactive classroom activity.
 - Clear concept progression and actionable teacher talking points.
+
+## Language & Localization
+- Deliver all instructional text, scripts, and classroom content in the specified Output Language (defaulting to English if not specified).
 
 ## Output Format
 - Return ONLY valid JSON matching the target schema.
@@ -24,6 +27,18 @@ Your mission is to produce rigorous, engaging, classroom-ready lesson plans that
   }
 
   static buildUserPrompt(context: LessonGenerationContext): string {
+    const langDirective =
+      context.preferredLanguage &&
+      context.preferredLanguage.toLowerCase() !== "english"
+        ? `- Output Language: ${context.preferredLanguage} (Generate all titles, scripts, explanations, and student activities in ${context.preferredLanguage})\n`
+        : "";
+    const roleDirective = context.teachingRole
+      ? `- Target Educator Role: ${context.teachingRole}\n`
+      : "";
+    const expDirective = context.experienceLevel
+      ? `- Educator Experience Level: ${context.experienceLevel}\n`
+      : "";
+
     return `Generate a complete, structured Lesson Plan for:
 - Grade Level: ${context.grade}
 - Subject: ${context.subject}
@@ -31,7 +46,7 @@ Your mission is to produce rigorous, engaging, classroom-ready lesson plans that
 - Curriculum Board: ${context.curriculumBoard || "General"}
 - Total Duration: ${context.durationMinutes} minutes
 - Difficulty Level: ${context.difficulty}
-- Special Teacher Instructions: ${context.teacherInstructions || "None provided"}
+${langDirective}${roleDirective}${expDirective}- Special Teacher Instructions: ${context.teacherInstructions || "None provided"}
 
 Required JSON Schema:
 {

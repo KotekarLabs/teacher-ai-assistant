@@ -7,9 +7,12 @@ import {
   type ClassDTO,
 } from "@teacher-ai/contracts";
 
+import { useAuthStore } from "../../store/authStore";
+
 interface LessonFormProps {
   classes: ClassDTO[];
   initialClassId?: string;
+  initialValues?: Partial<GenerateLessonRequest>;
   onSubmit: (data: GenerateLessonRequest) => void;
   isLoading?: boolean;
 }
@@ -17,9 +20,22 @@ interface LessonFormProps {
 export const LessonForm: React.FC<LessonFormProps> = ({
   classes,
   initialClassId,
+  initialValues,
   onSubmit,
   isLoading = false,
 }) => {
+  const profile = useAuthStore((s) => s.profile);
+
+  const chosenClass =
+    classes.find((c) => c.id === (initialValues?.classId || initialClassId)) ||
+    (classes.length > 0 ? classes[0] : undefined);
+  const defaultBoard =
+    initialValues?.curriculumBoard ??
+    (chosenClass?.curriculumBoard || profile?.curriculumBoard || "");
+  const defaultSubject =
+    initialValues?.subject ??
+    (profile?.subjects && profile.subjects.length > 0 ? profile.subjects[0] : "");
+
   const {
     register,
     handleSubmit,
@@ -29,13 +45,13 @@ export const LessonForm: React.FC<LessonFormProps> = ({
   } = useForm<GenerateLessonRequest>({
     resolver: zodResolver(GenerateLessonRequestSchema) as any,
     defaultValues: {
-      classId: initialClassId || (classes.length > 0 ? classes[0].id : ""),
-      subject: "",
-      topic: "",
-      durationMinutes: 40,
-      difficulty: "MEDIUM",
-      curriculumBoard: "",
-      teacherInstructions: "",
+      classId: initialValues?.classId || initialClassId || (chosenClass ? chosenClass.id : ""),
+      subject: defaultSubject,
+      topic: initialValues?.topic || "",
+      durationMinutes: initialValues?.durationMinutes ?? 40,
+      difficulty: initialValues?.difficulty || "MEDIUM",
+      curriculumBoard: defaultBoard,
+      teacherInstructions: initialValues?.teacherInstructions || "",
     },
   });
 
@@ -47,6 +63,8 @@ export const LessonForm: React.FC<LessonFormProps> = ({
     const cls = classes.find((c) => c.id === cid);
     if (cls && cls.curriculumBoard) {
       setValue("curriculumBoard", cls.curriculumBoard);
+    } else if (profile?.curriculumBoard && !watch("curriculumBoard")) {
+      setValue("curriculumBoard", profile.curriculumBoard);
     }
   };
 
@@ -112,6 +130,25 @@ export const LessonForm: React.FC<LessonFormProps> = ({
             <p className="mt-1 text-xs text-rose-600 font-medium">
               {errors.subject.message}
             </p>
+          )}
+          {profile?.subjects && profile.subjects.length > 0 && (
+            <div
+              className="mt-2 flex flex-wrap items-center gap-1.5"
+              data-testid="profile-subject-suggestions"
+            >
+              <span className="text-[11px] text-slate-400 select-none">Quick fill:</span>
+              {profile.subjects.map((subj) => (
+                <button
+                  key={subj}
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => setValue("subject", subj, { shouldValidate: true })}
+                  className="inline-flex items-center text-xs px-2.5 py-1 min-h-[32px] rounded-lg border font-medium bg-slate-50 border-slate-200 text-slate-700 hover:bg-violet-50 hover:border-violet-300 hover:text-violet-800 transition-colors cursor-pointer select-none"
+                >
+                  {subj}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 

@@ -1,6 +1,8 @@
 import type { GenerateQuizRequest } from "@teacher-ai/contracts";
 import type { QuizGenerationContext } from "../types";
 
+import type { TeacherProfileContextInput } from "./lessonContextBuilder";
+
 export interface QuizClassContextInput {
   id: string;
   grade: string;
@@ -13,6 +15,7 @@ export class QuizContextBuilder {
   static buildContext(
     request: GenerateQuizRequest,
     classData: QuizClassContextInput,
+    profileData?: TeacherProfileContextInput | null,
   ): QuizGenerationContext {
     return {
       classId: classData.id,
@@ -32,6 +35,9 @@ export class QuizContextBuilder {
           : ["MULTIPLE_CHOICE", "TRUE_FALSE"],
       durationMinutes: request.durationMinutes || 20,
       teacherInstructions: request.teacherInstructions?.trim() || undefined,
+      preferredLanguage: profileData?.preferredLanguage?.trim() || "English",
+      teachingRole: profileData?.teachingRole?.trim() || undefined,
+      experienceLevel: profileData?.experienceLevel?.trim() || undefined,
     };
   }
 }

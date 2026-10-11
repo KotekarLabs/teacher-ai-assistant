@@ -68,6 +68,8 @@ export const EditHomework: React.FC = () => {
       setHasUnsavedChanges(false);
       setSaveSuccessMessage("Homework saved successfully!");
       queryClient.setQueryData(["homework", homeworkId], data);
+      queryClient.invalidateQueries({ queryKey: ["homeworks"] });
+      queryClient.invalidateQueries({ queryKey: ["content"] });
       setTimeout(() => setSaveSuccessMessage(null), 3000);
     },
     onError: (err: any) => {

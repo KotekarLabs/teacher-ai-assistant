@@ -1,6 +1,8 @@
 import type { GenerateHomeworkRequest } from "@teacher-ai/contracts";
 import type { HomeworkGenerationContext } from "../types";
 
+import type { TeacherProfileContextInput } from "./lessonContextBuilder";
+
 export interface HomeworkClassContextInput {
   id: string;
   grade: string;
@@ -13,6 +15,7 @@ export class HomeworkContextBuilder {
   static buildContext(
     request: GenerateHomeworkRequest,
     classData: HomeworkClassContextInput,
+    profileData?: TeacherProfileContextInput | null,
   ): HomeworkGenerationContext {
     return {
       classId: classData.id,
@@ -32,6 +35,9 @@ export class HomeworkContextBuilder {
           : ["PRACTICE", "WRITTEN"],
       estimatedTimeMinutes: request.estimatedTimeMinutes || 30,
       teacherInstructions: request.teacherInstructions?.trim() || undefined,
+      preferredLanguage: profileData?.preferredLanguage?.trim() || "English",
+      teachingRole: profileData?.teachingRole?.trim() || undefined,
+      experienceLevel: profileData?.experienceLevel?.trim() || undefined,
     };
   }
 }

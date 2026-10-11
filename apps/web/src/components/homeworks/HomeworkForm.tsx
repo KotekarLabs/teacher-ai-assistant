@@ -8,9 +8,12 @@ import {
   type ClassDTO,
 } from "@teacher-ai/contracts";
 
+import { useAuthStore } from "../../store/authStore";
+
 interface HomeworkFormProps {
   classes: ClassDTO[];
   initialClassId?: string;
+  initialValues?: Partial<GenerateHomeworkRequest>;
   onSubmit: (data: GenerateHomeworkRequest) => void;
   isLoading?: boolean;
 }
@@ -46,13 +49,29 @@ const ALL_HOMEWORK_TASK_TYPES: { id: HomeworkTaskType; label: string; desc: stri
 export const HomeworkForm: React.FC<HomeworkFormProps> = ({
   classes,
   initialClassId,
+  initialValues,
   onSubmit,
   isLoading = false,
 }) => {
-  const [selectedTypes, setSelectedTypes] = useState<HomeworkTaskType[]>([
-    "PRACTICE",
-    "SHORT_ANSWER",
-  ]);
+  const profile = useAuthStore((s) => s.profile);
+
+  const initialTypes: HomeworkTaskType[] =
+    initialValues?.taskTypes && initialValues.taskTypes.length > 0
+      ? initialValues.taskTypes
+      : ["PRACTICE", "SHORT_ANSWER"];
+
+  const [selectedTypes, setSelectedTypes] = useState<HomeworkTaskType[]>(initialTypes);
+  const [typeError, setTypeError] = useState<string | null>(null);
+
+  const chosenClass =
+    classes.find((c) => c.id === (initialValues?.classId || initialClassId)) ||
+    (classes.length > 0 ? classes[0] : undefined);
+  const defaultBoard =
+    initialValues?.curriculumBoard ??
+    (chosenClass?.curriculumBoard || profile?.curriculumBoard || "");
+  const defaultSubject =
+    initialValues?.subject ??
+    (profile?.subjects && profile.subjects.length > 0 ? profile.subjects[0] : "");
 
   const {
     register,
@@ -63,15 +82,15 @@ export const HomeworkForm: React.FC<HomeworkFormProps> = ({
   } = useForm<GenerateHomeworkRequest>({
     resolver: zodResolver(GenerateHomeworkRequestSchema) as any,
     defaultValues: {
-      classId: initialClassId || (classes.length > 0 ? classes[0].id : ""),
-      subject: "",
-      topic: "",
-      taskCount: 3,
-      taskTypes: ["PRACTICE", "SHORT_ANSWER"],
-      difficulty: "MEDIUM",
-      estimatedTimeMinutes: 30,
-      curriculumBoard: "",
-      teacherInstructions: "",
+      classId: initialValues?.classId || initialClassId || (chosenClass ? chosenClass.id : ""),
+      subject: defaultSubject,
+      topic: initialValues?.topic || "",
+      taskCount: initialValues?.taskCount ?? 3,
+      taskTypes: initialTypes,
+      difficulty: initialValues?.difficulty || "MEDIUM",
+      estimatedTimeMinutes: initialValues?.estimatedTimeMinutes ?? 30,
+      curriculumBoard: defaultBoard,
+      teacherInstructions: initialValues?.teacherInstructions || "",
     },
   });
 
@@ -83,15 +102,22 @@ export const HomeworkForm: React.FC<HomeworkFormProps> = ({
     const cls = classes.find((c) => c.id === cid);
     if (cls && cls.curriculumBoard) {
       setValue("curriculumBoard", cls.curriculumBoard);
+    } else if (profile?.curriculumBoard && !watch("curriculumBoard")) {
+      setValue("curriculumBoard", profile.curriculumBoard);
     }
   };
 
   const handleTypeToggle = (type: HomeworkTaskType) => {
     let next: HomeworkTaskType[];
     if (selectedTypes.includes(type)) {
-      if (selectedTypes.length === 1) return; // Keep at least one
+      if (selectedTypes.length === 1) {
+        setTypeError("At least one task type must be selected.");
+        return;
+      }
+      setTypeError(null);
       next = selectedTypes.filter((t) => t !== type);
     } else {
+      setTypeError(null);
       next = [...selectedTypes, type];
     }
     setSelectedTypes(next);
@@ -160,6 +186,25 @@ export const HomeworkForm: React.FC<HomeworkFormProps> = ({
             <p className="mt-1 text-xs text-rose-600 font-medium">
               {errors.subject.message}
             </p>
+          )}
+          {profile?.subjects && profile.subjects.length > 0 && (
+            <div
+              className="mt-2 flex flex-wrap items-center gap-1.5"
+              data-testid="profile-subject-suggestions"
+            >
+              <span className="text-[11px] text-slate-400 select-none">Quick fill:</span>
+              {profile.subjects.map((subj) => (
+                <button
+                  key={subj}
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => setValue("subject", subj, { shouldValidate: true })}
+                  className="inline-flex items-center text-xs px-2.5 py-1 min-h-[32px] rounded-lg border font-medium bg-slate-50 border-slate-200 text-slate-700 hover:bg-violet-50 hover:border-violet-300 hover:text-violet-800 transition-colors cursor-pointer select-none"
+                >
+                  {subj}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -294,6 +339,17 @@ export const HomeworkForm: React.FC<HomeworkFormProps> = ({
             );
           })}
         </div>
+        {typeError && (
+          <p
+            role="alert"
+            aria-live="polite"
+            data-testid="task-types-error"
+            className="mt-2.5 text-xs text-rose-600 font-semibold flex items-center space-x-1"
+          >
+            <span>⚠️</span>
+            <span>{typeError}</span>
+          </p>
+        )}
       </div>
 
       <div>

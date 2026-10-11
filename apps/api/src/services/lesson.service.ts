@@ -12,6 +12,7 @@ import { ClassRepository } from "../repositories/class.repository";
 import { LessonRepository } from "../repositories/lesson.repository";
 import { GenerationRequestRepository } from "../repositories/generation-request.repository";
 import { ContentSyncService } from "./content-sync.service";
+import { TeacherService } from "./teacher.service";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
@@ -43,12 +44,18 @@ export class LessonService {
       throw error;
     }
 
-    const context = LessonContextBuilder.buildContext(data, {
-      id: targetClass.id,
-      grade: targetClass.grade,
-      curriculumBoard: targetClass.curriculumBoard,
-      name: targetClass.name,
-    });
+    const profile = await TeacherService.getProfileByUserId(teacherId);
+
+    const context = LessonContextBuilder.buildContext(
+      data,
+      {
+        id: targetClass.id,
+        grade: targetClass.grade,
+        curriculumBoard: targetClass.curriculumBoard,
+        name: targetClass.name,
+      },
+      profile,
+    );
 
     const provider = getAIProvider();
     const promptVersion = "lesson/generate.v1";
@@ -308,6 +315,8 @@ export class LessonService {
 
     const existingContent = existing.content as unknown as LessonContent;
 
+    const profile = await TeacherService.getProfileByUserId(teacherId);
+
     const context = LessonContextBuilder.buildContext(
       {
         classId: targetClass.id,
@@ -325,17 +334,21 @@ export class LessonService {
         curriculumBoard: targetClass.curriculumBoard,
         name: targetClass.name,
       },
+      profile,
     );
 
     const provider = getAIProvider();
     const promptVersion = "lesson/generate.v1";
 
+    const providerType = process.env.AI_PROVIDER || "MOCK";
+    const modelName = process.env.OPENAI_MODEL || (providerType === "OPENAI" ? "gpt-4o-mini" : "mock-pedagogy-v1");
+
     const genRequest = await GenerationRequestRepository.create({
       teacherId,
       contentType: "LESSON",
       resourceId: lessonId,
-      provider: "MOCK",
-      model: "mock-pedagogy-v1",
+      provider: providerType,
+      model: modelName,
       promptVersion,
       status: "PENDING",
       inputContext: context as unknown as Prisma.InputJsonValue,

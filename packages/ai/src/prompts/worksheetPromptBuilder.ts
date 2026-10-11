@@ -16,11 +16,14 @@ export class WorksheetPromptBuilder {
 - Produce exactly the requested number of questions.
 - Distribute questions evenly across the requested Question Types.
 - Every question MUST have an accurate, unambiguous expected answer and marks value.
-- For MULTIPLE_CHOICE: Provide 4 distinct options (A, B, C, D) and specify the exact correct answer.
-- For TRUE_FALSE: Options must be ["True", "False"].
+- For MULTIPLE_CHOICE: Provide 4 distinct options and expectedAnswer MUST EXACTLY MATCH one item in options.
+- For TRUE_FALSE: Options must be ["True", "False"], and expectedAnswer must be "True" or "False".
 - For FILL_IN_THE_BLANK: Use '___' for the blank space and give the exact missing term.
 - For SHORT_ANSWER: Provide concise question and a 1-2 sentence model answer.
 - For MATCH_THE_FOLLOWING: Clearly state items to match and expected correct pairing.
+
+## Language & Localization
+- Deliver all worksheet questions, options, instructions, and expected answers in the specified Output Language (defaulting to English if not specified).
 
 ## Output Format
 - Return ONLY valid JSON matching the target schema.
@@ -28,6 +31,18 @@ export class WorksheetPromptBuilder {
   }
 
   static buildUserPrompt(context: WorksheetGenerationContext): string {
+    const langDirective =
+      context.preferredLanguage &&
+      context.preferredLanguage.toLowerCase() !== "english"
+        ? `- Output Language: ${context.preferredLanguage} (Generate all titles, questions, options, and model answers in ${context.preferredLanguage})\n`
+        : "";
+    const roleDirective = context.teachingRole
+      ? `- Target Educator Role: ${context.teachingRole}\n`
+      : "";
+    const expDirective = context.experienceLevel
+      ? `- Educator Experience Level: ${context.experienceLevel}\n`
+      : "";
+
     return `Generate a complete, structured Worksheet with ${context.questionCount} questions for:
 - Grade Level: Grade ${context.grade}
 - Subject: ${context.subject}
@@ -37,7 +52,7 @@ export class WorksheetPromptBuilder {
 - Target Question Count: ${context.questionCount}
 - Allowed Question Types: ${context.questionTypes.join(", ")}
 - Estimated Completion Time: ${context.estimatedTimeMinutes || 30} minutes
-- Teacher's Custom Instructions: ${context.teacherInstructions || "None provided"}
+${langDirective}${roleDirective}${expDirective}- Teacher's Custom Instructions: ${context.teacherInstructions || "None provided"}
 
 Required JSON Schema:
 {

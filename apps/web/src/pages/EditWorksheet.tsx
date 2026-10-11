@@ -75,6 +75,8 @@ export const EditWorksheet: React.FC = () => {
       setHasUnsavedChanges(false);
       setSaveSuccessMessage("Worksheet saved successfully!");
       queryClient.setQueryData(["worksheet", worksheetId], data);
+      queryClient.invalidateQueries({ queryKey: ["worksheets"] });
+      queryClient.invalidateQueries({ queryKey: ["content"] });
       setTimeout(() => setSaveSuccessMessage(null), 3000);
     },
     onError: (err: any) => {

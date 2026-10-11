@@ -8,10 +8,17 @@ export interface ClassContextInput {
   name?: string;
 }
 
+export interface TeacherProfileContextInput {
+  preferredLanguage?: string | null;
+  teachingRole?: string | null;
+  experienceLevel?: string | null;
+}
+
 export class LessonContextBuilder {
   static buildContext(
     request: GenerateLessonRequest,
     classData: ClassContextInput,
+    profileData?: TeacherProfileContextInput | null,
   ): LessonGenerationContext {
     return {
       classId: classData.id,
@@ -23,6 +30,9 @@ export class LessonContextBuilder {
       durationMinutes: request.durationMinutes || 40,
       difficulty: request.difficulty || "MEDIUM",
       teacherInstructions: request.teacherInstructions?.trim() || undefined,
+      preferredLanguage: profileData?.preferredLanguage?.trim() || "English",
+      teachingRole: profileData?.teachingRole?.trim() || undefined,
+      experienceLevel: profileData?.experienceLevel?.trim() || undefined,
     };
   }
 }
