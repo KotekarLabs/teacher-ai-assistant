@@ -35,10 +35,10 @@ export const ContentSearch: React.FC<ContentSearchProps> = ({
   };
 
   return (
-    <div className="relative flex-1 min-w-[240px]">
+    <div className="relative flex-1 w-full min-w-0 sm:min-w-[240px]">
       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
         <svg
-          className="w-4 h-4"
+          className="w-4 h-4 text-slate-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -59,7 +59,7 @@ export const ContentSearch: React.FC<ContentSearchProps> = ({
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder={placeholder}
         aria-label="Search teaching resources"
-        className="w-full pl-10 pr-10 py-2.5 bg-white text-slate-900 placeholder-slate-400 text-sm font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition-all"
+        className="w-full pl-10 pr-11 py-2.5 bg-white text-slate-900 placeholder-slate-400 text-sm font-medium rounded-xl border border-slate-200/90 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 shadow-xs transition-colors"
       />
       {searchTerm && (
         <button
@@ -67,22 +67,24 @@ export const ContentSearch: React.FC<ContentSearchProps> = ({
           data-testid="clear-search-btn"
           onClick={handleClear}
           aria-label="Clear search"
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+          className="absolute inset-y-0 right-0 pr-2.5 flex items-center justify-center min-w-[44px] min-h-[44px] text-slate-400 hover:text-slate-600 focus:outline-none focus-visible:text-violet-700 transition-colors cursor-pointer"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <span className="p-1 rounded-full hover:bg-slate-100 transition-colors">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </span>
         </button>
       )}
     </div>

@@ -33,7 +33,14 @@ export default function Library() {
   const updateParams = (updates: Record<string, string | null>) => {
     const next = new URLSearchParams(searchParams);
     Object.entries(updates).forEach(([key, val]) => {
-      if (val === null || val === "" || (key === "page" && val === "1") || (key === "type" && val === "ALL") || (key === "status" && val === "ACTIVE") || (key === "sort" && val === "updatedAt_desc")) {
+      if (
+        val === null ||
+        val === "" ||
+        (key === "page" && val === "1") ||
+        (key === "type" && val === "ALL") ||
+        (key === "status" && val === "ACTIVE") ||
+        (key === "sort" && val === "updatedAt_desc")
+      ) {
         next.delete(key);
       } else {
         next.set(key, val);
@@ -90,7 +97,7 @@ export default function Library() {
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-5 border-b border-slate-200/80">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Resource Library
@@ -101,40 +108,40 @@ export default function Library() {
         </div>
 
         {/* Quick Generation Actions */}
-        <div className="flex items-center space-x-2 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <Link
             to="/create/lesson"
-            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors shadow-sm"
+            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200/80 transition-colors shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 min-h-[38px]"
           >
-            <span>✨</span>
+            <span aria-hidden="true">✨</span>
             <span className="ml-1.5">New Lesson</span>
           </Link>
           <Link
             to="/create/worksheet"
-            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-colors shadow-sm"
+            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/80 transition-colors shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 min-h-[38px]"
           >
-            <span>📝</span>
+            <span aria-hidden="true">📝</span>
             <span className="ml-1.5">New Worksheet</span>
           </Link>
           <Link
             to="/create/quiz"
-            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors shadow-sm"
+            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-colors shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 min-h-[38px]"
           >
-            <span>❓</span>
+            <span aria-hidden="true">❓</span>
             <span className="ml-1.5">New Quiz</span>
           </Link>
           <Link
             to="/create/homework"
-            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-sm"
+            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-colors shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 min-h-[38px]"
           >
-            <span>📚</span>
+            <span aria-hidden="true">📚</span>
             <span className="ml-1.5">New Homework</span>
           </Link>
         </div>
       </div>
 
       {/* Search and Sort Toolbar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 shadow-xs">
         <ContentSearch
           value={search}
           onChange={(val) => updateParams({ search: val, page: "1" })}
@@ -160,15 +167,15 @@ export default function Library() {
       {isError ? (
         <div
           role="alert"
-          className="p-8 bg-white rounded-2xl border border-red-200 text-center space-y-3"
+          className="p-8 bg-white rounded-2xl border border-rose-200 text-center space-y-3 shadow-xs"
         >
-          <p className="text-sm font-bold text-red-600">
+          <p className="text-sm font-bold text-rose-600">
             Failed to load resources from library.
           </p>
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200"
+            className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 min-h-[38px] cursor-pointer"
           >
             Retry
           </button>

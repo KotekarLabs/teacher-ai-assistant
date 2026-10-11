@@ -28,28 +28,29 @@ export const ContentFilters: React.FC<ContentFiltersProps> = ({
   classes = [],
 }) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 py-1">
       {/* Type Pill Selector */}
       <div
         role="tablist"
         aria-label="Filter by resource type"
-        className="flex items-center space-x-1 p-1 bg-slate-100 rounded-xl overflow-x-auto max-w-full"
+        className="flex items-center space-x-1 p-1 bg-slate-100/90 rounded-xl overflow-x-auto max-w-full scrollbar-none"
       >
         {TYPE_OPTIONS.map((opt) => {
           const isSelected = (selectedType || "ALL") === opt.id;
           return (
             <button
               key={opt.id}
+              type="button"
               role="tab"
               aria-selected={isSelected}
               onClick={() => onTypeChange(opt.id)}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 min-h-[36px] cursor-pointer ${
                 isSelected
-                  ? "bg-white text-indigo-700 shadow-sm font-bold"
+                  ? "bg-white text-violet-700 shadow-xs font-bold"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
               }`}
             >
-              <span>{opt.icon}</span>
+              <span aria-hidden="true">{opt.icon}</span>
               <span>{opt.label}</span>
             </button>
           );
@@ -57,9 +58,9 @@ export const ContentFilters: React.FC<ContentFiltersProps> = ({
       </div>
 
       {/* Class and Status Controls */}
-      <div className="flex items-center space-x-3 flex-wrap sm:flex-nowrap">
+      <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full lg:w-auto">
         {/* Class Filter Dropdown */}
-        <div className="w-48">
+        <div className="w-full sm:w-48 min-w-0">
           <label htmlFor="library-class-select" className="sr-only">
             Filter by Class
           </label>
@@ -67,7 +68,7 @@ export const ContentFilters: React.FC<ContentFiltersProps> = ({
             id="library-class-select"
             value={selectedClassId}
             onChange={(e) => onClassChange(e.target.value)}
-            className="w-full px-3 py-2 bg-white text-slate-800 text-xs font-semibold rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-colors"
+            className="w-full px-3 py-2 bg-white text-slate-800 text-xs font-semibold rounded-xl border border-slate-200/90 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 shadow-xs transition-colors min-h-[40px] cursor-pointer"
           >
             <option value="">All Classes</option>
             {classes.map((c) => (
@@ -79,13 +80,13 @@ export const ContentFilters: React.FC<ContentFiltersProps> = ({
         </div>
 
         {/* Status Toggle (Active / Archived) */}
-        <div className="flex items-center space-x-1 p-1 bg-slate-100 rounded-xl">
+        <div className="flex items-center space-x-1 p-1 bg-slate-100/90 rounded-xl flex-shrink-0">
           <button
             type="button"
             onClick={() => onStatusChange("ACTIVE")}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 min-h-[36px] cursor-pointer ${
               status !== "ARCHIVED"
-                ? "bg-white text-slate-900 shadow-sm"
+                ? "bg-white text-slate-900 shadow-xs font-bold"
                 : "text-slate-500 hover:text-slate-900"
             }`}
           >
@@ -94,9 +95,9 @@ export const ContentFilters: React.FC<ContentFiltersProps> = ({
           <button
             type="button"
             onClick={() => onStatusChange("ARCHIVED")}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 min-h-[36px] cursor-pointer ${
               status === "ARCHIVED"
-                ? "bg-white text-red-600 shadow-sm font-bold"
+                ? "bg-white text-rose-600 shadow-xs font-bold"
                 : "text-slate-500 hover:text-slate-900"
             }`}
           >

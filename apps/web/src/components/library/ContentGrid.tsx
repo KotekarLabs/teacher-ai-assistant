@@ -31,19 +31,22 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm animate-pulse space-y-4"
+            className="p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs animate-pulse space-y-4"
           >
             <div className="flex items-center justify-between">
-              <div className="w-20 h-6 bg-slate-200 rounded-lg" />
-              <div className="w-16 h-5 bg-slate-200 rounded-md" />
+              <div className="w-24 h-6 bg-slate-200 rounded-lg" />
+              <div className="w-16 h-5 bg-slate-100 rounded-md" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 pt-1">
               <div className="w-3/4 h-5 bg-slate-200 rounded-md" />
-              <div className="w-1/2 h-3.5 bg-slate-200 rounded-md" />
+              <div className="w-1/2 h-3.5 bg-slate-100 rounded-md" />
             </div>
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-              <div className="w-16 h-6 bg-slate-200 rounded-lg" />
-              <div className="w-12 h-6 bg-slate-200 rounded-lg" />
+              <div className="w-20 h-5 bg-slate-100 rounded-lg" />
+              <div className="flex space-x-1.5">
+                <div className="w-12 h-6 bg-slate-100 rounded-lg" />
+                <div className="w-12 h-6 bg-slate-100 rounded-lg" />
+              </div>
             </div>
           </div>
         ))}
@@ -71,20 +74,20 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
         <div
           role="navigation"
           aria-label="Pagination"
-          className="flex items-center justify-between pt-4 border-t border-slate-200 text-xs text-slate-500"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200/80 text-xs text-slate-500"
         >
-          <div>
+          <div className="text-center sm:text-left">
             Showing page <strong className="text-slate-900 font-bold">{pagination.page}</strong> of{" "}
             <strong className="text-slate-900 font-bold">{pagination.totalPages}</strong> ({pagination.total} total items)
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center sm:justify-end space-x-2">
             <button
               type="button"
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page <= 1}
               aria-label="Previous page"
-              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors min-h-[40px] cursor-pointer"
             >
               Previous
             </button>
@@ -93,7 +96,7 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
               aria-label="Next page"
-              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-3.5 py-2 rounded-xl border border-slate-200/90 bg-white font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors min-h-[40px] cursor-pointer"
             >
               Next
             </button>
