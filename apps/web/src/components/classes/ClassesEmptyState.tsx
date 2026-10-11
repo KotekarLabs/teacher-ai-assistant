@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 
 export const ClassesEmptyState: React.FC = () => {
   return (
-    <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
-      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 mb-4">
+    <div className="flex flex-col items-center justify-center p-8 sm:p-14 text-center bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-violet-50 text-violet-700 border border-violet-100 mb-4 shadow-xs">
         <svg
           className="w-8 h-8"
           fill="none"
@@ -20,13 +20,18 @@ export const ClassesEmptyState: React.FC = () => {
           />
         </svg>
       </div>
-      <h3 className="text-lg font-bold text-slate-900 mb-1">No classes yet</h3>
+
+      <h3 className="text-lg font-bold text-slate-900 mb-1 tracking-tight">
+        No classes yet
+      </h3>
+
       <p className="text-sm text-slate-500 max-w-md mb-6 leading-relaxed">
         Create your first class to start organizing your teaching context and student groupings.
       </p>
+
       <Link
         to="/classes/new"
-        className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 text-white hover:bg-violet-700 active:bg-violet-800 shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-600 min-h-[44px]"
       >
         <svg
           className="w-4 h-4 mr-2"

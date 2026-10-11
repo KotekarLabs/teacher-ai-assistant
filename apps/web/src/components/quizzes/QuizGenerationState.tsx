@@ -21,20 +21,22 @@ export const QuizGenerationState: React.FC = () => {
   return (
     <div
       data-testid="quiz-generation-loading"
-      className="flex flex-col items-center justify-center p-12 bg-white rounded-xl shadow-sm border border-slate-200 text-center max-w-lg mx-auto"
+      role="status"
+      aria-label="Generating Quiz"
+      className="flex flex-col items-center justify-center p-10 sm:p-14 bg-white rounded-2xl shadow-xs border border-slate-200/80 text-center max-w-lg mx-auto"
     >
       <div className="relative w-16 h-16 mb-6">
-        <div className="absolute inset-0 rounded-full border-4 border-indigo-100 animate-pulse"></div>
-        <div className="w-16 h-16 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+        <div className="absolute inset-0 rounded-full border-4 border-violet-100 animate-pulse" />
+        <div className="w-16 h-16 rounded-full border-4 border-violet-600 border-t-transparent animate-spin" />
       </div>
 
-      <h3 className="text-xl font-bold text-slate-800 mb-2">
+      <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-2">
         Generating Quiz
       </h3>
-      <p className="text-sm text-indigo-600 font-medium mb-4 animate-fade-in">
+      <p className="text-sm text-violet-700 font-semibold mb-4 transition-all">
         {STAGES[stageIndex]}
       </p>
-      <p className="text-xs text-slate-400 max-w-xs">
+      <p className="text-xs text-slate-500 max-w-xs leading-relaxed">
         Our pedagogical AI is creating questions, validating answers, and calculating marks aligned with your grade and difficulty.
       </p>
     </div>

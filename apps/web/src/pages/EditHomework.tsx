@@ -136,14 +136,14 @@ export const EditHomework: React.FC = () => {
 
   if (error || !homeworkData?.homework) {
     return (
-      <div className="max-w-3xl mx-auto p-8 bg-red-50 text-red-700 rounded-xl border border-red-200">
+      <div className="max-w-3xl mx-auto p-8 bg-rose-50 text-rose-700 rounded-2xl border border-rose-200" role="alert">
         <h3 className="font-bold text-lg mb-1">Homework Not Found</h3>
         <p className="text-sm">
           Could not load the requested homework. It may not exist or you may not have permission to view it.
         </p>
         <button
           onClick={() => navigate("/dashboard")}
-          className="mt-4 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg"
+          className="mt-4 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl cursor-pointer min-h-[44px]"
         >
           Return to Dashboard
         </button>
@@ -154,15 +154,15 @@ export const EditHomework: React.FC = () => {
   const homework = homeworkData.homework;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20">
+    <div className="max-w-4xl mx-auto space-y-6 pb-28 sm:pb-32">
       <div className="flex items-center justify-between">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+          <span className="text-xs font-bold uppercase tracking-wider text-violet-700">
             {homework.subject} • {homework.topic}
           </span>
           <h1
             data-testid="homework-edit-page-title"
-            className="text-2xl font-bold text-slate-900 tracking-tight"
+            className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1"
           >
             Edit Homework
           </h1>
@@ -172,7 +172,8 @@ export const EditHomework: React.FC = () => {
       {saveSuccessMessage && (
         <div
           data-testid="save-success-alert"
-          className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-xl font-medium"
+          role="status"
+          className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-xl font-medium"
         >
           ✓ {saveSuccessMessage}
         </div>
@@ -181,7 +182,8 @@ export const EditHomework: React.FC = () => {
       {actionError && (
         <div
           data-testid="homework-action-error"
-          className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl flex items-start justify-between"
+          role="alert"
+          className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl flex items-start justify-between"
         >
           <div>
             <p className="font-semibold">Action Failed</p>
@@ -190,7 +192,7 @@ export const EditHomework: React.FC = () => {
           <button
             type="button"
             onClick={() => setActionError(null)}
-            className="text-red-500 font-bold ml-4"
+            className="text-rose-500 hover:text-rose-700 font-bold ml-4 cursor-pointer"
           >
             ✕
           </button>

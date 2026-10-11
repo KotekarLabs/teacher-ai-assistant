@@ -78,12 +78,12 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
   };
 
   return (
-    <div className="space-y-6" data-testid="homework-editor">
+    <div className="space-y-6 sm:space-y-8" data-testid="homework-editor">
       {/* Header Info */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+      <div className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex-1">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
               Homework Title
             </label>
             <input
@@ -91,17 +91,17 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
               data-testid="homework-title-input"
               value={title}
               onChange={(e) => onTitleChange(e.target.value)}
-              className="w-full text-xl font-bold text-slate-900 border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none px-1 py-1 rounded"
+              className="w-full text-xl sm:text-2xl font-bold text-slate-900 border-b border-slate-200 focus:border-violet-600 focus:outline-none px-1 py-1.5 rounded transition-colors"
             />
           </div>
-          <div className="flex items-center space-x-3">
-            <div className="px-3.5 py-1.5 bg-indigo-50 rounded-lg border border-indigo-100 text-indigo-900 text-center">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-indigo-500">
+          <div className="flex items-center space-x-3 shrink-0">
+            <div className="px-4 py-2 bg-violet-50/80 rounded-xl border border-violet-100 text-violet-900 text-center">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-violet-600">
                 Est. Completion Time
               </span>
               <span
                 data-testid="estimated-time-display"
-                className="text-lg font-extrabold"
+                className="text-lg font-extrabold text-violet-950"
               >
                 {estimatedTimeMinutes} min
               </span>
@@ -111,7 +111,7 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
               General Instructions for Students
             </label>
             <textarea
@@ -119,13 +119,13 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
               data-testid="homework-instructions-editor"
               value={instructions}
               onChange={(e) => onInstructionsChange(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
               placeholder="e.g. Complete in your notebook. Show all working clearly."
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
               Estimated Time (Minutes)
             </label>
             <input
@@ -135,7 +135,7 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
               data-testid="homework-time-editor"
               value={estimatedTimeMinutes}
               onChange={(e) => onEstimatedTimeChange(Number(e.target.value) || 30)}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
             />
           </div>
         </div>
@@ -144,14 +144,14 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
       {/* Tasks List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-900">
+          <h3 className="text-lg font-bold text-slate-900 tracking-tight">
             Tasks & Activities ({tasks.length})
           </h3>
           <button
             type="button"
             data-testid="add-task-btn"
             onClick={handleAddTask}
-            className="px-4 py-2 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center space-x-1"
+            className="px-4 py-2 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 rounded-xl transition-colors flex items-center space-x-1 cursor-pointer min-h-[36px]"
           >
             <span>+ Add Task</span>
           </button>
@@ -161,11 +161,11 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
           <div
             key={tIndex}
             data-testid={`task-item-${tIndex}`}
-            className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 relative"
+            className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4 relative"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-3">
-                <span className="w-7 h-7 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                <span className="w-7 h-7 bg-violet-600 text-white rounded-full flex items-center justify-center text-xs font-bold shrink-0">
                   {task.position}
                 </span>
 
@@ -175,7 +175,7 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
                   onChange={(e) =>
                     handleTaskTypeChange(tIndex, e.target.value as HomeworkTaskType)
                   }
-                  className="text-xs font-semibold px-2.5 py-1 rounded border border-slate-200 bg-slate-50 text-slate-700"
+                  className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-300 bg-slate-50 text-slate-700 cursor-pointer"
                 >
                   <option value="PRACTICE">Practice</option>
                   <option value="WRITTEN">Written</option>
@@ -185,32 +185,35 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
                 </select>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5">
                 <button
                   type="button"
                   title="Move Up"
+                  aria-label="Move Up"
                   disabled={tIndex === 0}
                   onClick={() => handleMoveTask(tIndex, "up")}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                  className="p-2 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg"
                 >
                   ▲
                 </button>
                 <button
                   type="button"
                   title="Move Down"
+                  aria-label="Move Down"
                   disabled={tIndex === tasks.length - 1}
                   onClick={() => handleMoveTask(tIndex, "down")}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                  className="p-2 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg"
                 >
                   ▼
                 </button>
                 <button
                   type="button"
                   title="Delete Task"
+                  aria-label="Delete Task"
                   data-testid={`delete-task-${tIndex}`}
                   disabled={tasks.length <= 1}
                   onClick={() => handleDeleteTask(tIndex)}
-                  className="p-1.5 text-red-400 hover:text-red-600 disabled:opacity-30"
+                  className="p-2 text-rose-500 hover:text-rose-700 disabled:opacity-30 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg"
                 >
                   🗑️
                 </button>
@@ -219,7 +222,7 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
 
             {/* Task Title */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Task Title
               </label>
               <input
@@ -227,13 +230,13 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
                 data-testid={`task-title-${tIndex}`}
                 value={task.title}
                 onChange={(e) => handleTaskTitleChange(tIndex, e.target.value)}
-                className="w-full px-3 py-2 text-sm font-semibold rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 text-slate-900"
+                className="w-full px-3.5 py-2 text-sm font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
               />
             </div>
 
             {/* Task Description */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Task Instructions / Description
               </label>
               <textarea
@@ -243,7 +246,7 @@ export const HomeworkEditor: React.FC<HomeworkEditorProps> = ({
                 onChange={(e) =>
                   handleTaskDescriptionChange(tIndex, e.target.value)
                 }
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 text-slate-800"
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-800 leading-relaxed"
                 placeholder="Explain the exercise or activity in detail..."
               />
             </div>

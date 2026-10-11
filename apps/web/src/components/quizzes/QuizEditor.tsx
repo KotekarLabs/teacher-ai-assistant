@@ -171,12 +171,12 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
   };
 
   return (
-    <div className="space-y-6" data-testid="quiz-editor">
+    <div className="space-y-6 sm:space-y-8" data-testid="quiz-editor">
       {/* Header Info */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+      <div className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex-1">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
               Quiz Title
             </label>
             <input
@@ -184,17 +184,17 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
               data-testid="quiz-title-input"
               value={title}
               onChange={(e) => onTitleChange(e.target.value)}
-              className="w-full text-xl font-bold text-slate-900 border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none px-1 py-1 rounded"
+              className="w-full text-xl sm:text-2xl font-bold text-slate-900 border-b border-slate-200 focus:border-violet-600 focus:outline-none px-1 py-1.5 rounded transition-colors"
             />
           </div>
-          <div className="flex items-center space-x-3">
-            <div className="px-3.5 py-1.5 bg-indigo-50 rounded-lg border border-indigo-100 text-indigo-900 text-center">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-indigo-500">
+          <div className="flex items-center space-x-3 shrink-0">
+            <div className="px-4 py-2 bg-violet-50/80 rounded-xl border border-violet-100 text-violet-900 text-center">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-violet-600">
                 Total Marks
               </span>
               <span
                 data-testid="calculated-total-marks"
-                className="text-lg font-extrabold"
+                className="text-lg font-extrabold text-violet-950"
               >
                 {calculatedTotalMarks}
               </span>
@@ -204,7 +204,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
               Quiz Instructions for Students
             </label>
             <textarea
@@ -212,13 +212,13 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
               data-testid="quiz-instructions-editor"
               value={instructions}
               onChange={(e) => onInstructionsChange(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
               placeholder="e.g. Answer all questions. Choose the most appropriate option."
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
               Duration (Minutes)
             </label>
             <input
@@ -228,7 +228,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
               data-testid="quiz-time-editor"
               value={durationMinutes}
               onChange={(e) => onDurationChange(Number(e.target.value) || 20)}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors text-slate-900"
             />
           </div>
         </div>
@@ -237,14 +237,14 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
       {/* Questions List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-900">
+          <h3 className="text-lg font-bold text-slate-900 tracking-tight">
             Questions ({questions.length})
           </h3>
           <button
             type="button"
             data-testid="add-question-btn"
             onClick={handleAddQuestion}
-            className="px-4 py-2 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center space-x-1"
+            className="px-4 py-2 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 rounded-xl transition-colors flex items-center space-x-1 cursor-pointer min-h-[36px]"
           >
             <span>+ Add Question</span>
           </button>
@@ -254,11 +254,11 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
           <div
             key={qIndex}
             data-testid={`question-item-${qIndex}`}
-            className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 relative"
+            className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4 relative"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-3">
-                <span className="w-7 h-7 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                <span className="w-7 h-7 bg-violet-600 text-white rounded-full flex items-center justify-center text-xs font-bold shrink-0">
                   {q.position}
                 </span>
 
@@ -268,7 +268,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                   onChange={(e) =>
                     handleTypeChange(qIndex, e.target.value as QuestionType)
                   }
-                  className="text-xs font-semibold px-2.5 py-1 rounded border border-slate-200 bg-slate-50 text-slate-700"
+                  className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-300 bg-slate-50 text-slate-700 cursor-pointer"
                 >
                   <option value="MULTIPLE_CHOICE">Multiple Choice</option>
                   <option value="TRUE_FALSE">True / False</option>
@@ -276,7 +276,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                   <option value="SHORT_ANSWER">Short Answer</option>
                 </select>
 
-                <div className="flex items-center space-x-2 text-xs text-slate-500">
+                <div className="flex items-center space-x-1.5 text-xs text-slate-500">
                   <span>Marks:</span>
                   <input
                     type="number"
@@ -287,12 +287,12 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                     onChange={(e) =>
                       handleMarksChange(qIndex, Number(e.target.value))
                     }
-                    className="w-14 px-2 py-0.5 border border-slate-200 rounded text-center"
+                    className="w-14 px-2 py-0.5 border border-slate-300 rounded-lg text-center text-slate-900 font-medium"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5">
                 <select
                   data-testid={`question-difficulty-${qIndex}`}
                   value={q.difficulty}
@@ -302,7 +302,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                       e.target.value as QuizDifficulty,
                     )
                   }
-                  className="text-xs px-2 py-1 border border-slate-200 rounded bg-white text-slate-700"
+                  className="text-xs px-2.5 py-1 border border-slate-300 rounded-lg bg-white text-slate-700 cursor-pointer"
                 >
                   <option value="EASY">Easy</option>
                   <option value="MEDIUM">Medium</option>
@@ -312,28 +312,31 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                 <button
                   type="button"
                   title="Move Up"
+                  aria-label="Move Up"
                   disabled={qIndex === 0}
                   onClick={() => handleMoveQuestion(qIndex, "up")}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                  className="p-2 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg"
                 >
                   ▲
                 </button>
                 <button
                   type="button"
                   title="Move Down"
+                  aria-label="Move Down"
                   disabled={qIndex === questions.length - 1}
                   onClick={() => handleMoveQuestion(qIndex, "down")}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                  className="p-2 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg"
                 >
                   ▼
                 </button>
                 <button
                   type="button"
                   title="Delete Question"
+                  aria-label="Delete Question"
                   data-testid={`delete-question-${qIndex}`}
                   disabled={questions.length <= 1}
                   onClick={() => handleDeleteQuestion(qIndex)}
-                  className="p-1.5 text-red-400 hover:text-red-600 disabled:opacity-30"
+                  className="p-2 text-rose-500 hover:text-rose-700 disabled:opacity-30 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg"
                 >
                   🗑️
                 </button>
@@ -342,7 +345,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
 
             {/* Question Text */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Question Text
               </label>
               <textarea
@@ -352,14 +355,14 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                 onChange={(e) =>
                   handleQuestionTextChange(qIndex, e.target.value)
                 }
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 font-medium text-slate-900"
+                className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors font-medium text-slate-900"
               />
             </div>
 
             {/* Options (for MULTIPLE_CHOICE) */}
             {q.type === "MULTIPLE_CHOICE" && (
-              <div className="space-y-2 bg-slate-50 p-3.5 rounded-lg border border-slate-100">
-                <label className="block text-xs font-semibold text-slate-600">
+              <div className="space-y-2.5 bg-slate-50/80 p-4 rounded-xl border border-slate-100">
+                <label className="block text-xs font-semibold text-slate-700">
                   Multiple Choice Options (Select radio to set Correct Answer)
                 </label>
                 {(q.options || []).map((opt, optIdx) => (
@@ -369,7 +372,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                       name={`correct-radio-${qIndex}`}
                       checked={q.correctAnswer === opt}
                       onChange={() => handleCorrectAnswerChange(qIndex, opt)}
-                      className="text-indigo-600 focus:ring-indigo-500"
+                      className="text-violet-600 focus:ring-violet-500 h-4 w-4 cursor-pointer"
                       title="Set as correct answer"
                     />
                     <span className="text-xs font-bold text-slate-400 w-6">
@@ -382,12 +385,13 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                       onChange={(e) =>
                         handleOptionChange(qIndex, optIdx, e.target.value)
                       }
-                      className="flex-1 px-3 py-1.5 text-xs rounded border border-slate-200 bg-white"
+                      className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900"
                     />
                     <button
                       type="button"
                       onClick={() => handleRemoveOption(qIndex, optIdx)}
-                      className="text-xs text-red-500 hover:text-red-700 px-1"
+                      className="text-xs text-rose-500 hover:text-rose-700 p-1.5 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center"
+                      aria-label={`Remove Option ${String.fromCharCode(65 + optIdx)}`}
                     >
                       ✕
                     </button>
@@ -396,7 +400,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                 <button
                   type="button"
                   onClick={() => handleAddOption(qIndex)}
-                  className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 pt-1"
+                  className="text-xs font-semibold text-violet-700 hover:text-violet-900 pt-1 cursor-pointer"
                 >
                   + Add Option
                 </button>
@@ -405,19 +409,19 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
 
             {/* True / False Selection */}
             {q.type === "TRUE_FALSE" && (
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                <label className="block text-xs font-semibold text-slate-600 mb-2">
+              <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-100">
+                <label className="block text-xs font-semibold text-slate-700 mb-2">
                   Select Correct Answer
                 </label>
                 <div className="flex items-center space-x-6">
                   {["True", "False"].map((opt) => (
-                    <label key={opt} className="flex items-center space-x-2 cursor-pointer text-sm font-medium">
+                    <label key={opt} className="flex items-center space-x-2 cursor-pointer text-sm font-medium text-slate-900">
                       <input
                         type="radio"
                         name={`tf-radio-${qIndex}`}
                         checked={q.correctAnswer === opt}
                         onChange={() => handleCorrectAnswerChange(qIndex, opt)}
-                        className="text-indigo-600 focus:ring-indigo-500"
+                        className="text-violet-600 focus:ring-violet-500 h-4 w-4"
                       />
                       <span>{opt}</span>
                     </label>
@@ -428,8 +432,8 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
 
             {/* Correct Answer for Fill-in-the-blank & Short Answer */}
             {(q.type === "FILL_IN_THE_BLANK" || q.type === "SHORT_ANSWER") && (
-              <div className="bg-emerald-50/60 p-3 rounded-lg border border-emerald-100">
-                <label className="block text-xs font-semibold text-emerald-800 mb-1">
+              <div className="bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-100">
+                <label className="block text-xs font-semibold text-emerald-900 mb-1">
                   Correct Answer
                 </label>
                 <input
@@ -439,14 +443,14 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                   onChange={(e) =>
                     handleCorrectAnswerChange(qIndex, e.target.value)
                   }
-                  className="w-full px-3 py-1.5 text-sm rounded border border-emerald-200 bg-white text-slate-900"
+                  className="w-full px-3.5 py-1.5 text-sm rounded-lg border border-emerald-200 bg-white text-slate-900"
                 />
               </div>
             )}
 
             {/* Explanation */}
-            <div className="bg-slate-50/70 p-3 rounded-lg border border-slate-200">
-              <label className="block text-xs font-semibold text-slate-600 mb-1">
+            <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/80">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Answer Explanation (Teacher & Student Feedback)
               </label>
               <textarea
@@ -457,7 +461,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                   handleExplanationChange(qIndex, e.target.value)
                 }
                 placeholder="Explain why this answer is correct..."
-                className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 bg-white text-slate-800"
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 transition-colors"
               />
             </div>
           </div>

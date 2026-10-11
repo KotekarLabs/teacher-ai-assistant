@@ -96,18 +96,18 @@ export const QuizForm: React.FC<QuizFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6 bg-white p-6 md:p-8 rounded-xl border border-slate-200 shadow-sm"
+      className="space-y-6 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs"
       data-testid="quiz-form"
     >
       <div>
         <label
           htmlFor="classId"
-          className="block text-sm font-semibold text-slate-700 mb-1"
+          className="block text-xs font-semibold text-slate-800 mb-1.5"
         >
-          Select Class <span className="text-red-500">*</span>
+          Select Class <span className="text-rose-500">*</span>
         </label>
         {classes.length === 0 ? (
-          <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg">
+          <div className="p-3.5 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium rounded-xl">
             No classes available. Please create a class first.
           </div>
         ) : (
@@ -117,7 +117,7 @@ export const QuizForm: React.FC<QuizFormProps> = ({
             value={selectedClassId}
             onChange={handleClassChange}
             disabled={isLoading}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-slate-900"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 bg-white text-slate-900 text-sm transition-colors"
           >
             {classes.map((c) => (
               <option key={c.id} value={c.id}>
@@ -128,7 +128,7 @@ export const QuizForm: React.FC<QuizFormProps> = ({
           </select>
         )}
         {errors.classId && (
-          <p className="mt-1 text-sm text-red-600">
+          <p className="mt-1 text-xs text-rose-600 font-medium">
             {errors.classId.message}
           </p>
         )}
@@ -138,9 +138,9 @@ export const QuizForm: React.FC<QuizFormProps> = ({
         <div>
           <label
             htmlFor="subject"
-            className="block text-sm font-semibold text-slate-700 mb-1"
+            className="block text-xs font-semibold text-slate-800 mb-1.5"
           >
-            Subject <span className="text-red-500">*</span>
+            Subject <span className="text-rose-500">*</span>
           </label>
           <input
             id="subject"
@@ -149,10 +149,10 @@ export const QuizForm: React.FC<QuizFormProps> = ({
             placeholder="e.g. Science, Mathematics, History"
             {...register("subject")}
             disabled={isLoading}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 text-sm text-slate-900 transition-colors placeholder:text-slate-400"
           />
           {errors.subject && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1 text-xs text-rose-600 font-medium">
               {errors.subject.message}
             </p>
           )}
@@ -161,9 +161,9 @@ export const QuizForm: React.FC<QuizFormProps> = ({
         <div>
           <label
             htmlFor="topic"
-            className="block text-sm font-semibold text-slate-700 mb-1"
+            className="block text-xs font-semibold text-slate-800 mb-1.5"
           >
-            Topic / Chapter <span className="text-red-500">*</span>
+            Topic / Chapter <span className="text-rose-500">*</span>
           </label>
           <input
             id="topic"
@@ -172,21 +172,21 @@ export const QuizForm: React.FC<QuizFormProps> = ({
             placeholder="e.g. Photosynthesis, Fractions, Solar System"
             {...register("topic")}
             disabled={isLoading}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 text-sm text-slate-900 transition-colors placeholder:text-slate-400"
           />
           {errors.topic && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1 text-xs text-rose-600 font-medium">
               {errors.topic.message}
             </p>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label
             htmlFor="questionCount"
-            className="block text-sm font-semibold text-slate-700 mb-1"
+            className="block text-xs font-semibold text-slate-800 mb-1.5"
           >
             Number of Questions (1-30)
           </label>
@@ -198,10 +198,10 @@ export const QuizForm: React.FC<QuizFormProps> = ({
             max={30}
             {...register("questionCount", { valueAsNumber: true })}
             disabled={isLoading}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 text-sm text-slate-900 transition-colors"
           />
           {errors.questionCount && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1 text-xs text-rose-600 font-medium">
               {errors.questionCount.message}
             </p>
           )}
@@ -210,7 +210,7 @@ export const QuizForm: React.FC<QuizFormProps> = ({
         <div>
           <label
             htmlFor="difficulty"
-            className="block text-sm font-semibold text-slate-700 mb-1"
+            className="block text-xs font-semibold text-slate-800 mb-1.5"
           >
             Difficulty Level
           </label>
@@ -219,7 +219,7 @@ export const QuizForm: React.FC<QuizFormProps> = ({
             data-testid="quiz-difficulty-select"
             {...register("difficulty")}
             disabled={isLoading}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 bg-white text-sm text-slate-900 transition-colors"
           >
             <option value="EASY">Easy</option>
             <option value="MEDIUM">Medium</option>
@@ -230,7 +230,7 @@ export const QuizForm: React.FC<QuizFormProps> = ({
         <div>
           <label
             htmlFor="durationMinutes"
-            className="block text-sm font-semibold text-slate-700 mb-1"
+            className="block text-xs font-semibold text-slate-800 mb-1.5"
           >
             Duration (Minutes)
           </label>
@@ -242,15 +242,15 @@ export const QuizForm: React.FC<QuizFormProps> = ({
             max={180}
             {...register("durationMinutes", { valueAsNumber: true })}
             disabled={isLoading}
-            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 text-sm text-slate-900 transition-colors"
           />
         </div>
       </div>
 
       {/* Question Types Selection */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-2">
-          Question Types to Include <span className="text-red-500">*</span>
+        <label className="block text-xs font-semibold text-slate-800 mb-2">
+          Question Types to Include <span className="text-rose-500">*</span>
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {ALL_QUIZ_QUESTION_TYPES.map((qt) => {
@@ -262,24 +262,24 @@ export const QuizForm: React.FC<QuizFormProps> = ({
                 data-testid={`question-type-${qt.id}`}
                 onClick={() => handleTypeToggle(qt.id)}
                 disabled={isLoading}
-                className={`p-3 rounded-lg border text-left transition-all ${
+                className={`p-3.5 rounded-xl border text-left transition-all min-h-[44px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                   isChecked
-                    ? "border-indigo-500 bg-indigo-50/50 ring-1 ring-indigo-500"
+                    ? "border-violet-500 bg-violet-50/70 ring-1 ring-violet-500"
                     : "border-slate-200 bg-white hover:border-slate-300"
                 }`}
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2.5">
                   <input
                     type="checkbox"
                     checked={isChecked}
                     readOnly
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded pointer-events-none"
+                    className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-slate-300 rounded pointer-events-none"
                   />
                   <span className="text-sm font-medium text-slate-900">
                     {qt.label}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-slate-500 ml-6">{qt.desc}</p>
+                <p className="mt-1 text-xs text-slate-500 ml-6.5">{qt.desc}</p>
               </button>
             );
           })}
@@ -289,7 +289,7 @@ export const QuizForm: React.FC<QuizFormProps> = ({
       <div>
         <label
           htmlFor="teacherInstructions"
-          className="block text-sm font-semibold text-slate-700 mb-1"
+          className="block text-xs font-semibold text-slate-800 mb-1.5"
         >
           Special Instructions (Optional)
         </label>
@@ -300,7 +300,7 @@ export const QuizForm: React.FC<QuizFormProps> = ({
           placeholder="e.g. Include word problems; focus on conceptual understanding."
           {...register("teacherInstructions")}
           disabled={isLoading}
-          className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-600 text-sm text-slate-900 transition-colors placeholder:text-slate-400"
         />
       </div>
 
@@ -309,7 +309,7 @@ export const QuizForm: React.FC<QuizFormProps> = ({
           type="submit"
           data-testid="generate-quiz-btn"
           disabled={isLoading || classes.length === 0}
-          className="w-full md:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center justify-center space-x-2"
+          className="w-full sm:w-auto px-8 py-3 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 disabled:opacity-50 text-white font-semibold rounded-xl shadow-xs transition-colors flex items-center justify-center space-x-2 min-h-[44px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
         >
           <span>Generate Quiz</span>
         </button>

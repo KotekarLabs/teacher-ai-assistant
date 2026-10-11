@@ -45,7 +45,7 @@ export const CreateLesson: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Create AI Lesson Plan
           </h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -57,7 +57,8 @@ export const CreateLesson: React.FC = () => {
       {generationError && (
         <div
           data-testid="generation-error-alert"
-          className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-start justify-between"
+          role="alert"
+          className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-start justify-between"
         >
           <div>
             <p className="font-semibold">Generation Failed</p>
@@ -66,7 +67,7 @@ export const CreateLesson: React.FC = () => {
           <button
             type="button"
             onClick={() => setGenerationError(null)}
-            className="text-red-500 hover:text-red-700 font-bold ml-4"
+            className="text-rose-500 hover:text-rose-700 font-bold ml-4 cursor-pointer"
           >
             ✕
           </button>
@@ -78,7 +79,7 @@ export const CreateLesson: React.FC = () => {
       ) : isLoadingClasses ? (
         <div className="p-12 text-center text-slate-400">Loading classes...</div>
       ) : classesError ? (
-        <div className="p-6 bg-red-50 text-red-600 rounded-xl">
+        <div className="p-6 bg-rose-50 text-rose-600 rounded-xl border border-rose-200">
           Failed to load classes. Please refresh the page.
         </div>
       ) : (

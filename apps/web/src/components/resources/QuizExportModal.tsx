@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export interface QuizExportModalProps {
   isOpen: boolean;
@@ -13,19 +13,51 @@ export const QuizExportModal: React.FC<QuizExportModalProps> = ({
   onExport,
   isExporting = false,
 }) => {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isExporting) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, isExporting, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div
       data-testid="quiz-export-modal"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quiz-export-title"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isExporting) onClose();
+      }}
     >
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-slate-100 space-y-5">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900">Export Quiz PDF</h3>
-          <p className="text-xs text-slate-500 mt-1">
-            Choose the format you wish to generate and download.
-          </p>
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200 space-y-5 animate-in zoom-in-95 duration-150">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 id="quiz-export-title" className="text-lg font-bold text-slate-900 tracking-tight">
+              Export Quiz PDF
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Choose the format you wish to generate and download.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isExporting}
+            aria-label="Close dialog"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         <div className="space-y-3">
@@ -35,16 +67,16 @@ export const QuizExportModal: React.FC<QuizExportModalProps> = ({
             data-testid="export-student-quiz-btn"
             disabled={isExporting}
             onClick={() => onExport("student")}
-            className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition-colors flex items-start space-x-3 cursor-pointer group disabled:opacity-50"
+            className="w-full text-left p-4 rounded-xl border border-slate-200/80 hover:border-violet-400 hover:bg-violet-50/40 transition-all flex items-start space-x-3.5 cursor-pointer group disabled:opacity-50 min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
           >
-            <div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors text-lg">
+            <div className="p-2.5 bg-violet-100 text-violet-700 rounded-xl group-hover:bg-violet-600 group-hover:text-white transition-colors text-lg flex-shrink-0">
               🎓
             </div>
             <div>
-              <div className="font-bold text-sm text-slate-900 group-hover:text-indigo-900">
+              <div className="font-bold text-sm text-slate-900 group-hover:text-violet-900">
                 Student Quiz
               </div>
-              <div className="text-xs text-slate-500 mt-0.5">
+              <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">
                 Clean printable questionnaire with student header and mark breakdown. No answers or explanations.
               </div>
             </div>
@@ -56,28 +88,29 @@ export const QuizExportModal: React.FC<QuizExportModalProps> = ({
             data-testid="export-answer-key-btn"
             disabled={isExporting}
             onClick={() => onExport("answer-key")}
-            className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/50 transition-colors flex items-start space-x-3 cursor-pointer group disabled:opacity-50"
+            className="w-full text-left p-4 rounded-xl border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/40 transition-all flex items-start space-x-3.5 cursor-pointer group disabled:opacity-50 min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
-            <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition-colors text-lg">
+            <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-colors text-lg flex-shrink-0">
               🔑
             </div>
             <div>
               <div className="font-bold text-sm text-slate-900 group-hover:text-emerald-900">
                 Teacher Answer Key
               </div>
-              <div className="text-xs text-slate-500 mt-0.5">
+              <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">
                 Complete evaluation guide highlighting correct answers and pedagogical explanations.
               </div>
             </div>
           </button>
         </div>
 
-        <div className="flex items-center justify-end pt-2 border-t border-slate-100">
+        <div className="flex items-center justify-end pt-3 border-t border-slate-100">
           <button
             type="button"
             data-testid="close-export-modal-btn"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 rounded-lg transition-colors cursor-pointer"
+            disabled={isExporting}
+            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-lg transition-colors cursor-pointer min-h-[36px]"
           >
             Cancel
           </button>

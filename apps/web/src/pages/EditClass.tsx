@@ -49,9 +49,9 @@ export default function EditClass() {
       <div
         role="status"
         aria-label="Loading class for editing"
-        className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-slate-200 max-w-2xl mx-auto"
+        className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-slate-200/80 shadow-xs max-w-2xl mx-auto"
       >
-        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3" />
+        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mb-3" />
         <p className="text-sm text-slate-500 font-medium">Loading class data...</p>
       </div>
     );
@@ -61,15 +61,15 @@ export default function EditClass() {
     return (
       <div
         role="alert"
-        className="max-w-2xl mx-auto p-8 bg-white rounded-2xl border border-slate-200 text-center"
+        className="max-w-2xl mx-auto p-8 bg-white rounded-2xl border border-slate-200/80 shadow-xs text-center space-y-4"
       >
-        <h2 className="text-lg font-bold text-slate-900 mb-2">Class Not Found</h2>
-        <p className="text-sm text-slate-500 mb-6">
+        <h2 className="text-lg font-bold text-slate-900">Class Not Found</h2>
+        <p className="text-sm text-slate-500">
           {(error as any)?.response?.data?.error || "The requested class does not exist or you do not have permission to edit it."}
         </p>
         <Link
           to="/classes"
-          className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700"
+          className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 text-white hover:bg-violet-700 min-h-[44px]"
         >
           Back to Classes
         </Link>
@@ -80,13 +80,13 @@ export default function EditClass() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Breadcrumb Navigation */}
-      <div className="flex items-center space-x-2 text-sm text-slate-500">
+      <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-sm text-slate-500">
         <Link
           to="/classes"
-          className="hover:text-slate-900 transition-colors flex items-center"
+          className="hover:text-slate-900 transition-colors flex items-center focus:outline-none focus-visible:underline"
         >
           <svg
-            className="w-4 h-4 mr-1"
+            className="w-4 h-4 mr-1 text-slate-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -101,19 +101,19 @@ export default function EditClass() {
           </svg>
           Classes
         </Link>
-        <span>/</span>
+        <span aria-hidden="true">/</span>
         <Link
           to={`/classes/${classItem.id}`}
-          className="hover:text-slate-900 transition-colors"
+          className="hover:text-slate-900 transition-colors focus:outline-none focus-visible:underline truncate max-w-[200px]"
         >
           {classItem.name}
         </Link>
-        <span>/</span>
+        <span aria-hidden="true">/</span>
         <span className="text-slate-900 font-medium">Edit</span>
-      </div>
+      </nav>
 
       {/* Form Card */}
-      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs">
         <div className="mb-6 pb-4 border-b border-slate-100">
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
             Edit Class
@@ -126,7 +126,7 @@ export default function EditClass() {
         {serverError && (
           <div
             role="alert"
-            className="p-4 mb-6 bg-red-50 border border-red-200 rounded-xl text-sm font-medium text-red-700"
+            className="p-4 mb-6 bg-rose-50 border border-rose-200 rounded-xl text-sm font-medium text-rose-700"
           >
             {serverError}
           </div>

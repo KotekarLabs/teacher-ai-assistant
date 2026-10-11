@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getHomeworkById, archiveHomework } from "../api/homeworks.api";
@@ -17,6 +17,17 @@ export const HomeworkDetails: React.FC = () => {
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!showArchiveConfirm) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowArchiveConfirm(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showArchiveConfirm]);
 
   const {
     data: homeworkData,
@@ -43,7 +54,7 @@ export const HomeworkDetails: React.FC = () => {
     setExportError(null);
     try {
       await downloadResourcePdf("homeworks", homeworkData.homework.id);
-    } catch (_err: unknown) {
+    } catch {
       setExportError("We couldn't generate the PDF. Please try again.");
     } finally {
       setIsExporting(false);
@@ -60,14 +71,14 @@ export const HomeworkDetails: React.FC = () => {
 
   if (error || !homeworkData?.homework) {
     return (
-      <div className="max-w-3xl mx-auto p-8 bg-red-50 text-red-700 rounded-xl border border-red-200">
+      <div className="max-w-3xl mx-auto p-8 bg-rose-50 text-rose-700 rounded-2xl border border-rose-200" role="alert">
         <h3 className="font-bold text-lg mb-1">Homework Not Found</h3>
         <p className="text-sm">
           The requested homework could not be found or you do not have permission to access it.
         </p>
         <button
           onClick={() => navigate("/dashboard")}
-          className="mt-4 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg"
+          className="mt-4 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl cursor-pointer min-h-[44px]"
         >
           Return to Dashboard
         </button>
@@ -85,12 +96,15 @@ export const HomeworkDetails: React.FC = () => {
     >
       {/* Export Error Alert */}
       {exportError && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold flex items-center justify-between no-print">
+        <div
+          role="alert"
+          className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center justify-between no-print"
+        >
           <span>{exportError}</span>
           <button
             type="button"
             onClick={() => setExportError(null)}
-            className="text-red-500 hover:text-red-800 ml-4 font-bold"
+            className="text-rose-500 hover:text-rose-800 ml-4 font-bold cursor-pointer"
           >
             ✕
           </button>
@@ -127,11 +141,11 @@ export const HomeworkDetails: React.FC = () => {
 
       {/* Instructions */}
       {homework.instructions && (
-        <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
             Homework Instructions
           </h3>
-          <p className="text-slate-700 leading-relaxed text-sm">
+          <p className="text-slate-800 leading-relaxed text-sm">
             {homework.instructions}
           </p>
         </section>
@@ -139,7 +153,7 @@ export const HomeworkDetails: React.FC = () => {
 
       {/* Tasks List */}
       <div className="space-y-4">
-        <h3 className="text-lg font-bold text-slate-900">
+        <h3 className="text-lg font-bold text-slate-900 tracking-tight">
           Tasks & Activities ({tasks.length})
         </h3>
 
@@ -147,24 +161,24 @@ export const HomeworkDetails: React.FC = () => {
           <div
             key={idx}
             data-testid={`detail-task-${idx}`}
-            className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3"
+            className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-3.5"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <div className="flex items-center space-x-2">
-                <span className="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <div className="flex items-center space-x-2.5">
+                <span className="w-6 h-6 bg-violet-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                   {task.position}
                 </span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
                   {task.type.replace(/_/g, " ")}
                 </span>
               </div>
             </div>
 
-            <h4 className="text-slate-900 font-bold text-base pt-1">
+            <h4 className="text-slate-900 font-bold text-base pt-0.5">
               {task.title}
             </h4>
 
-            <p className="text-slate-700 text-sm whitespace-pre-line leading-relaxed">
+            <p className="text-slate-800 text-sm whitespace-pre-line leading-relaxed">
               {task.description}
             </p>
           </div>
@@ -188,20 +202,27 @@ export const HomeworkDetails: React.FC = () => {
       {showArchiveConfirm && (
         <div
           data-testid="archive-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 no-print"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="archive-homework-dialog-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-xs p-4 no-print animate-fade-in"
+          onClick={() => setShowArchiveConfirm(false)}
         >
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-slate-100 space-y-4">
-            <h4 className="text-lg font-bold text-slate-900">
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-100 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h4 id="archive-homework-dialog-title" className="text-lg font-bold text-slate-900">
               Archive Homework?
             </h4>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 leading-relaxed">
               This homework will be hidden from your main dashboard and class list. You can unarchive it later in the library.
             </p>
             <div className="flex items-center justify-end space-x-3 pt-2">
               <button
                 type="button"
                 onClick={() => setShowArchiveConfirm(false)}
-                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 rounded-lg"
+                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 rounded-xl cursor-pointer min-h-[44px]"
               >
                 Cancel
               </button>
@@ -210,7 +231,7 @@ export const HomeworkDetails: React.FC = () => {
                 data-testid="confirm-archive-btn"
                 disabled={archiveMutation.isPending}
                 onClick={() => archiveMutation.mutate()}
-                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg"
+                className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl cursor-pointer min-h-[44px]"
               >
                 {archiveMutation.isPending ? "Archiving..." : "Archive"}
               </button>

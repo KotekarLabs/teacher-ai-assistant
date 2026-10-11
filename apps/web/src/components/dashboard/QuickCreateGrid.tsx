@@ -7,9 +7,10 @@ const quickCreateOptions: QuickCreateOption[] = [
     title: "Lesson Plan",
     description:
       "Generate structured lesson plans with objectives, prerequisites, activities, and timings.",
-    badgeColor: "bg-blue-50 text-blue-700",
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-600",
+    badgeColor: "bg-violet-50 text-violet-700",
+    iconBg: "bg-violet-100/70",
+    iconColor: "text-violet-700",
+    accentBorderHover: "hover:border-violet-300",
     href: "/create/lesson",
     enabled: true,
     icon: (
@@ -18,6 +19,7 @@ const quickCreateOptions: QuickCreateOption[] = [
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path
           strokeLinecap="round"
@@ -33,9 +35,10 @@ const quickCreateOptions: QuickCreateOption[] = [
     title: "Worksheet",
     description:
       "Create printable classroom worksheets with multiple question formats and answer keys.",
-    badgeColor: "bg-purple-50 text-purple-700",
-    iconBg: "bg-purple-50",
-    iconColor: "text-purple-600",
+    badgeColor: "bg-sky-50 text-sky-700",
+    iconBg: "bg-sky-100/70",
+    iconColor: "text-sky-700",
+    accentBorderHover: "hover:border-sky-300",
     href: "/create/worksheet",
     enabled: true,
     icon: (
@@ -44,6 +47,7 @@ const quickCreateOptions: QuickCreateOption[] = [
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path
           strokeLinecap="round"
@@ -60,8 +64,9 @@ const quickCreateOptions: QuickCreateOption[] = [
     description:
       "Build formative quizzes, assessments, and tests tailored to specific curriculum topics.",
     badgeColor: "bg-amber-50 text-amber-700",
-    iconBg: "bg-amber-50",
-    iconColor: "text-amber-600",
+    iconBg: "bg-amber-100/70",
+    iconColor: "text-amber-700",
+    accentBorderHover: "hover:border-amber-300",
     href: "/create/quiz",
     enabled: true,
     icon: (
@@ -70,6 +75,7 @@ const quickCreateOptions: QuickCreateOption[] = [
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path
           strokeLinecap="round"
@@ -86,8 +92,9 @@ const quickCreateOptions: QuickCreateOption[] = [
     description:
       "Prepare clear, take-home practice assignments with instructions and criteria.",
     badgeColor: "bg-emerald-50 text-emerald-700",
-    iconBg: "bg-emerald-50",
-    iconColor: "text-emerald-600",
+    iconBg: "bg-emerald-100/70",
+    iconColor: "text-emerald-700",
+    accentBorderHover: "hover:border-emerald-300",
     href: "/create/homework",
     enabled: true,
     icon: (
@@ -96,6 +103,7 @@ const quickCreateOptions: QuickCreateOption[] = [
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path
           strokeLinecap="round"
@@ -115,11 +123,11 @@ export const QuickCreateGrid: React.FC = () => {
         <div>
           <h2
             id="quick-create-heading"
-            className="text-lg font-bold text-slate-900"
+            className="text-lg font-bold text-slate-900 tracking-tight"
           >
             Quick Create
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 mt-0.5">
             Generate customized, classroom-ready teaching resources
           </p>
         </div>

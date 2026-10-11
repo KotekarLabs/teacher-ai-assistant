@@ -7,7 +7,6 @@ import { Badge } from "../components/common/Badge";
 import { ClassResourcesList } from "../components/library/ClassResourcesList";
 
 export default function ClassDetails() {
-
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -40,9 +39,9 @@ export default function ClassDetails() {
       <div
         role="status"
         aria-label="Loading class details"
-        className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-slate-200 max-w-3xl mx-auto"
+        className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-slate-200/80 shadow-xs max-w-4xl mx-auto"
       >
-        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3" />
+        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mb-3" />
         <p className="text-sm text-slate-500 font-medium">Loading class details...</p>
       </div>
     );
@@ -52,15 +51,15 @@ export default function ClassDetails() {
     return (
       <div
         role="alert"
-        className="max-w-3xl mx-auto p-8 bg-white rounded-2xl border border-slate-200 text-center"
+        className="max-w-4xl mx-auto p-8 bg-white rounded-2xl border border-slate-200/80 shadow-xs text-center space-y-4"
       >
-        <h2 className="text-lg font-bold text-slate-900 mb-2">Class Not Found</h2>
-        <p className="text-sm text-slate-500 mb-6">
+        <h2 className="text-lg font-bold text-slate-900">Class Not Found</h2>
+        <p className="text-sm text-slate-500">
           {(error as any)?.response?.data?.error || "The requested class does not exist or you do not have permission to view it."}
         </p>
         <Link
           to="/classes"
-          className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700"
+          className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 text-white hover:bg-violet-700 min-h-[44px]"
         >
           Back to Classes
         </Link>
@@ -71,13 +70,13 @@ export default function ClassDetails() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Breadcrumb Navigation */}
-      <div className="flex items-center space-x-2 text-sm text-slate-500">
+      <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-sm text-slate-500">
         <Link
           to="/classes"
-          className="hover:text-slate-900 transition-colors flex items-center"
+          className="hover:text-slate-900 transition-colors flex items-center focus:outline-none focus-visible:underline"
         >
           <svg
-            className="w-4 h-4 mr-1"
+            className="w-4 h-4 mr-1 text-slate-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -92,66 +91,68 @@ export default function ClassDetails() {
           </svg>
           Classes
         </Link>
-        <span>/</span>
-        <span className="text-slate-900 font-medium">{classItem.name}</span>
-      </div>
+        <span aria-hidden="true">/</span>
+        <span className="text-slate-900 font-medium truncate max-w-[240px]">
+          {classItem.name}
+        </span>
+      </nav>
 
       {/* Class Details Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-6 border-b border-slate-100">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 md:p-8">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 pb-6 border-b border-slate-100">
           <div>
-            <div className="flex items-center space-x-2 mb-2">
-              <Badge variant="primary" className="font-semibold text-sm py-1 px-3">
+            <div className="flex flex-wrap items-center gap-2 mb-2.5">
+              <Badge variant="primary" className="font-semibold text-xs py-1 px-3">
                 Grade {classItem.grade}
               </Badge>
               {classItem.section && (
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80">
                   Section {classItem.section}
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight break-words">
               {classItem.name}
             </h1>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
+          <div className="flex flex-wrap items-center gap-2 pt-1 lg:pt-0">
             <Link
               to={`/create/lesson?classId=${classItem.id}`}
               data-testid="create-lesson-for-class-btn"
-              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 active:bg-violet-800 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 transition-colors min-h-[40px]"
             >
-              <span>✨</span>
+              <span aria-hidden="true">✨</span>
               <span className="ml-1.5">Create Lesson</span>
             </Link>
             <Link
               to={`/create/worksheet?classId=${classItem.id}`}
               data-testid="create-worksheet-for-class-btn"
-              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-sky-800 bg-sky-50 hover:bg-sky-100 border border-sky-200 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 transition-colors min-h-[40px]"
             >
-              <span>📝</span>
+              <span aria-hidden="true">📝</span>
               <span className="ml-1.5">Create Worksheet</span>
             </Link>
             <Link
               to={`/create/quiz?classId=${classItem.id}`}
               data-testid="create-quiz-for-class-btn"
-              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 transition-colors min-h-[40px]"
             >
-              <span>❓</span>
+              <span aria-hidden="true">❓</span>
               <span className="ml-1.5">Create Quiz</span>
             </Link>
             <Link
               to={`/create/homework?classId=${classItem.id}`}
               data-testid="create-homework-for-class-btn"
-              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 transition-colors min-h-[40px]"
             >
-              <span>📚</span>
+              <span aria-hidden="true">📚</span>
               <span className="ml-1.5">Create Homework</span>
             </Link>
             <Link
               to={`/classes/${classItem.id}/edit`}
-              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 transition-colors min-h-[40px]"
             >
               <svg
                 className="w-4 h-4 mr-1 text-slate-500"
@@ -172,10 +173,10 @@ export default function ClassDetails() {
             <button
               type="button"
               onClick={() => setIsArchiveDialogOpen(true)}
-              className="inline-flex items-center px-3.5 py-2 rounded-xl text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+              className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 transition-colors min-h-[40px]"
             >
               <svg
-                className="w-4 h-4 mr-1 text-red-500"
+                className="w-4 h-4 mr-1 text-rose-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -194,8 +195,8 @@ export default function ClassDetails() {
         </div>
 
         {/* Structured Context Fields */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 pt-6">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-6">
+          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/60">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
               Grade Level
             </span>
@@ -204,7 +205,7 @@ export default function ClassDetails() {
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/60">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
               Section
             </span>
@@ -213,7 +214,7 @@ export default function ClassDetails() {
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/60">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
               Curriculum Board
             </span>
@@ -222,7 +223,7 @@ export default function ClassDetails() {
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/60">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">
               Academic Year
             </span>
@@ -247,4 +248,3 @@ export default function ClassDetails() {
     </div>
   );
 }
-

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getQuizById, archiveQuiz } from "../api/quizzes.api";
@@ -20,6 +20,17 @@ export const QuizDetails: React.FC = () => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!showArchiveConfirm) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowArchiveConfirm(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showArchiveConfirm]);
 
   const {
     data: quizData,
@@ -47,7 +58,7 @@ export const QuizDetails: React.FC = () => {
     try {
       await downloadResourcePdf("quizzes", quizData.quiz.id, mode);
       setShowExportModal(false);
-    } catch (_err: unknown) {
+    } catch {
       setExportError("We couldn't generate the PDF. Please try again.");
     } finally {
       setIsExporting(false);
@@ -64,14 +75,14 @@ export const QuizDetails: React.FC = () => {
 
   if (error || !quizData?.quiz) {
     return (
-      <div className="max-w-3xl mx-auto p-8 bg-red-50 text-red-700 rounded-xl border border-red-200">
+      <div className="max-w-3xl mx-auto p-8 bg-rose-50 text-rose-700 rounded-2xl border border-rose-200" role="alert">
         <h3 className="font-bold text-lg mb-1">Quiz Not Found</h3>
         <p className="text-sm">
           The requested quiz could not be found or you do not have permission to access it.
         </p>
         <button
           onClick={() => navigate("/dashboard")}
-          className="mt-4 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg"
+          className="mt-4 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl cursor-pointer min-h-[44px]"
         >
           Return to Dashboard
         </button>
@@ -89,12 +100,15 @@ export const QuizDetails: React.FC = () => {
     >
       {/* Export Error Alert */}
       {exportError && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold flex items-center justify-between no-print">
+        <div
+          role="alert"
+          className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center justify-between no-print"
+        >
           <span>{exportError}</span>
           <button
             type="button"
             onClick={() => setExportError(null)}
-            className="text-red-500 hover:text-red-800 ml-4 font-bold"
+            className="text-rose-500 hover:text-rose-800 ml-4 font-bold cursor-pointer"
           >
             ✕
           </button>
@@ -135,11 +149,11 @@ export const QuizDetails: React.FC = () => {
 
       {/* Instructions */}
       {quiz.instructions && (
-        <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
             Quiz Instructions
           </h3>
-          <p className="text-slate-700 leading-relaxed text-sm">
+          <p className="text-slate-800 leading-relaxed text-sm">
             {quiz.instructions}
           </p>
         </section>
@@ -147,7 +161,7 @@ export const QuizDetails: React.FC = () => {
 
       {/* Questions List */}
       <div className="space-y-4">
-        <h3 className="text-lg font-bold text-slate-900">
+        <h3 className="text-lg font-bold text-slate-900 tracking-tight">
           Quiz Questions ({questions.length})
         </h3>
 
@@ -155,38 +169,38 @@ export const QuizDetails: React.FC = () => {
           <div
             key={q.id || idx}
             data-testid={`detail-question-${idx}`}
-            className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3"
+            className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-3.5"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <div className="flex items-center space-x-2">
-                <span className="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <div className="flex items-center space-x-2.5">
+                <span className="w-6 h-6 bg-violet-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                   {q.position}
                 </span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
                   {q.type.replace(/_/g, " ")}
                 </span>
               </div>
               <div className="flex items-center space-x-2 text-xs text-slate-500">
                 <span className="font-semibold">{q.marks} mark{q.marks > 1 ? "s" : ""}</span>
                 <span>•</span>
-                <span className="uppercase">{q.difficulty}</span>
+                <span className="uppercase font-medium">{q.difficulty}</span>
               </div>
             </div>
 
-            <p className="text-slate-900 font-medium text-base pt-1">
+            <p className="text-slate-900 font-medium text-base pt-0.5">
               {q.question}
             </p>
 
             {/* Multiple Choice Options */}
             {q.type === "MULTIPLE_CHOICE" && q.options.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1.5">
                 {q.options.map((opt, optIdx) => (
                   <div
                     key={optIdx}
-                    className={`p-2.5 rounded-lg text-xs flex items-center space-x-2 border ${
+                    className={`p-3 rounded-xl text-xs flex items-center space-x-2 border transition-all ${
                       showAnswerKey && opt === q.correctAnswer
-                        ? "bg-emerald-50 border-emerald-300 font-semibold text-emerald-900"
-                        : "bg-slate-50 border-slate-100 text-slate-800"
+                        ? "bg-emerald-50/80 border-emerald-300 font-semibold text-emerald-900"
+                        : "bg-slate-50/80 border-slate-100 text-slate-800"
                     }`}
                   >
                     <span className="font-bold text-slate-400">
@@ -194,7 +208,7 @@ export const QuizDetails: React.FC = () => {
                     </span>
                     <span>{opt}</span>
                     {showAnswerKey && opt === q.correctAnswer && (
-                      <span className="ml-auto text-emerald-600 text-xs font-bold">
+                      <span className="ml-auto text-emerald-700 text-xs font-bold">
                         ✓ Correct
                       </span>
                     )}
@@ -207,7 +221,7 @@ export const QuizDetails: React.FC = () => {
             {showAnswerKey && (
               <div
                 data-testid={`answer-key-${idx}`}
-                className="mt-3 p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-lg text-xs space-y-1.5"
+                className="mt-3 p-3.5 bg-emerald-50/70 border border-emerald-100/90 rounded-xl text-xs space-y-1.5"
               >
                 <div>
                   <span className="font-bold text-emerald-900 mr-2">
@@ -218,7 +232,7 @@ export const QuizDetails: React.FC = () => {
                   </span>
                 </div>
                 {q.explanation && (
-                  <div className="text-slate-600 pt-1 border-t border-emerald-100/60">
+                  <div className="text-slate-600 pt-1.5 border-t border-emerald-100/60 leading-relaxed">
                     <span className="font-semibold text-slate-700 mr-1">
                       Explanation:
                     </span>
@@ -256,20 +270,27 @@ export const QuizDetails: React.FC = () => {
       {showArchiveConfirm && (
         <div
           data-testid="archive-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 no-print"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="archive-quiz-dialog-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-xs p-4 no-print animate-fade-in"
+          onClick={() => setShowArchiveConfirm(false)}
         >
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-slate-100 space-y-4">
-            <h4 className="text-lg font-bold text-slate-900">
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-100 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h4 id="archive-quiz-dialog-title" className="text-lg font-bold text-slate-900">
               Archive Quiz?
             </h4>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 leading-relaxed">
               This quiz will be hidden from your main dashboard and class list. You can unarchive it later in the library.
             </p>
             <div className="flex items-center justify-end space-x-3 pt-2">
               <button
                 type="button"
                 onClick={() => setShowArchiveConfirm(false)}
-                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 rounded-lg"
+                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 rounded-xl cursor-pointer min-h-[44px]"
               >
                 Cancel
               </button>
@@ -278,7 +299,7 @@ export const QuizDetails: React.FC = () => {
                 data-testid="confirm-archive-btn"
                 disabled={archiveMutation.isPending}
                 onClick={() => archiveMutation.mutate()}
-                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg"
+                className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl cursor-pointer min-h-[44px]"
               >
                 {archiveMutation.isPending ? "Archiving..." : "Archive"}
               </button>

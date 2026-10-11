@@ -24,23 +24,23 @@ const typeStyles: Record<
 > = {
   LESSON: {
     label: "Lesson Plan",
-    badge: "bg-indigo-100 text-indigo-800",
-    border: "border-indigo-200",
+    badge: "bg-violet-100 text-violet-800 border-violet-200",
+    border: "border-violet-200",
   },
   WORKSHEET: {
     label: "Worksheet",
-    badge: "bg-emerald-100 text-emerald-800",
-    border: "border-emerald-200",
+    badge: "bg-sky-100 text-sky-800 border-sky-200",
+    border: "border-sky-200",
   },
   QUIZ: {
     label: "Quiz",
-    badge: "bg-purple-100 text-purple-800",
-    border: "border-purple-200",
+    badge: "bg-amber-100 text-amber-800 border-amber-200",
+    border: "border-amber-200",
   },
   HOMEWORK: {
     label: "Homework",
-    badge: "bg-amber-100 text-amber-800",
-    border: "border-amber-200",
+    badge: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    border: "border-emerald-200",
   },
 };
 
@@ -69,52 +69,52 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
       <div className="no-print">
         <Link
           to={backTo}
-          className="inline-flex items-center space-x-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+          className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-violet-700 transition-colors focus:outline-none focus-visible:underline"
         >
-          <span>←</span>
+          <span aria-hidden="true">←</span>
           <span>{backLabel}</span>
         </Link>
       </div>
 
       {/* Main Header Card */}
-      <div className="bg-white p-6 md:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div className="space-y-2">
+      <div className="bg-white p-5 sm:p-6 md:p-8 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+        <div className="space-y-2.5 min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span
-              className={`px-2.5 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${typeConfig.badge}`}
+              className={`px-2.5 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider border ${typeConfig.badge}`}
             >
               {typeConfig.label}
             </span>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700">
+            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700 border border-slate-200/60">
               {subject}
             </span>
             {className && (
-              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-700">
+              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">
                 🏫 {className}
               </span>
             )}
             {time !== undefined && time !== null && (
-              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700">
+              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700 border border-slate-200/60">
                 ⏱ {time} mins
               </span>
             )}
             {totalMarks !== undefined && totalMarks !== null && (
-              <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-purple-50 text-purple-700">
+              <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-violet-50 text-violet-700 border border-violet-200/60">
                 🏆 {totalMarks} Total Marks
               </span>
             )}
             {difficulty && (
-              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-50 text-amber-800">
+              <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200/60">
                 {difficulty}
               </span>
             )}
             <span
-              className={`px-2.5 py-0.5 text-xs font-semibold rounded-full uppercase ${
+              className={`px-2.5 py-0.5 text-xs font-semibold rounded-full uppercase border ${
                 status === "SAVED"
-                  ? "bg-emerald-100 text-emerald-800"
+                  ? "bg-teal-50 text-teal-800 border-teal-200"
                   : status === "ARCHIVED"
-                    ? "bg-slate-200 text-slate-700"
-                    : "bg-blue-100 text-blue-800"
+                    ? "bg-slate-100 text-slate-600 border-slate-200"
+                    : "bg-amber-50 text-amber-800 border-amber-200"
               }`}
             >
               {status}
@@ -123,16 +123,17 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
 
           <h1
             data-testid={titleTestId}
-            className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight"
+            className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight break-words"
           >
             {title}
           </h1>
+
           <p className="text-sm text-slate-500">
             <span className="font-medium text-slate-700">Topic:</span> {topic}
           </p>
         </div>
 
-        {actions && <div className="shrink-0">{actions}</div>}
+        {actions && <div className="shrink-0 pt-2 md:pt-0">{actions}</div>}
       </div>
     </div>
   );

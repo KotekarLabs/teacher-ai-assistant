@@ -45,7 +45,7 @@ export const ResourceMetadata: React.FC<ResourceMetadataProps> = ({
 
   return (
     <div
-      className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4"
+      className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4"
       data-testid="resource-metadata"
     >
       <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
