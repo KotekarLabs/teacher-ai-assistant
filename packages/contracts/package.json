@@ -1,6 +1,7 @@
 {
   "name": "@teacher-ai/contracts",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -138,7 +138,19 @@ export class ContentService {
               difficulty: lesson.difficulty,
               durationMinutes: lesson.durationMinutes,
               status: "SAVED",
-              content: lesson.content as Prisma.InputJsonValue,
+              content: (() => {
+                const rawContent = (typeof lesson.content === "string"
+                  ? JSON.parse(lesson.content)
+                  : lesson.content) as Record<string, unknown>;
+                return {
+                  ...rawContent,
+                  duplicationMetadata: {
+                    duplicatedFromId: lesson.id,
+                    duplicatedAt: new Date().toISOString(),
+                    originalTeacherId: lesson.teacherId,
+                  },
+                } as unknown as Prisma.InputJsonValue;
+              })(),
             },
             tx,
           );

@@ -154,14 +154,19 @@ export function renderSectionTitle(
     .fillColor("#1E293B")
     .text(title, 48, startY);
 
+  const titleWidth = doc.widthOfString(title);
+  const titleHeight = doc.heightOfString(title);
+
   if (badgeText) {
     doc
       .fontSize(9)
       .font("Helvetica")
       .fillColor("#64748B")
-      .text(`(${badgeText})`, 48 + doc.widthOfString(title) + 6, startY + 2);
+      .text(`(${badgeText})`, 48 + titleWidth + 6, startY + 2);
   }
 
+  doc.x = doc.page.margins.left;
+  doc.y = startY + titleHeight;
   doc.moveDown(0.6);
 }
 
@@ -169,6 +174,8 @@ export function addDocumentFooters(doc: PDFKit.PDFDocument) {
   const range = doc.bufferedPageRange();
   for (let i = range.start; i < range.start + range.count; i++) {
     doc.switchToPage(i);
+    const origBottomMargin = doc.page.margins.bottom;
+    doc.page.margins.bottom = 0;
 
     // Top border of footer
     const footerY = doc.page.height - 30;
@@ -186,11 +193,15 @@ export function addDocumentFooters(doc: PDFKit.PDFDocument) {
       .fillColor("#94A3B8")
       .text("Teacher AI Assistant — Classroom Resource", 40, footerY, {
         align: "left",
+        lineBreak: false,
       })
       .text(`Page ${i + 1} of ${range.count}`, 40, footerY, {
         align: "right",
         width: doc.page.width - 80,
+        lineBreak: false,
       });
+
+    doc.page.margins.bottom = origBottomMargin;
   }
 }
 

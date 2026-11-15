@@ -26,6 +26,10 @@ export class MockAIProvider implements AIProvider {
   ): Promise<LessonGenerationResult> {
     const startTime = Date.now();
 
+    if (context.curriculumTopicId === "JOYFUL_MATH_C1_CH2_V1") {
+      return this.generateClass1VisualLesson(context, startTime);
+    }
+
     const lang = context.preferredLanguage?.toLowerCase();
     const isSpanish = lang === "spanish";
     const isHindi = lang === "hindi";
@@ -149,6 +153,149 @@ export class MockAIProvider implements AIProvider {
       inputTokens: 450,
       outputTokens: 620,
       estimatedCost: 0.002,
+    };
+  }
+
+  private generateClass1VisualLesson(
+    context: LessonGenerationContext,
+    startTime: number,
+  ): LessonGenerationResult {
+    const structuredContent = {
+      title: "What is Long? What is Round? — Class 1 Mathematics",
+      overview:
+        "An engaging Class 1 introduction to geometric shapes, distinguishing between long objects that slide and round objects that roll, with multi-perspective classroom exploration.",
+      learningObjectives: [
+        "Identify and classify everyday classroom objects as long or round.",
+        "Observe and describe whether objects roll or slide on a flat surface.",
+        "Explain how some objects appear long or round depending on the viewing angle.",
+      ],
+      prerequisites: [
+        "Familiarity with common play and classroom objects (bat, ball, pencil, bottle).",
+      ],
+      introduction:
+        "Ask children: Look around our classroom! Can you point to something that looks like a tall stick? Can you point to something that looks like the sun?",
+      teacherExplanation:
+        "Hold up a pencil and a ball. Explain that long objects (ಉದ್ದವಾದ ವಸ್ತುಗಳು) stretch out like a line, while round objects (ದುಂಡಗಿರುವ ವಸ್ತುಗಳು) curve like a circle. Demonstrate rolling the ball and sliding a ruler.",
+      examples: [
+        "A cricket bat is long and slides along its blade.",
+        "An orange is round and rolls smoothly across the floor.",
+      ],
+      classroomActivity: {
+        title: "Hands-on Roll and Slide Exploration",
+        instructions:
+          "Place objects on a tilted desk ramp in pairs. Have children observe whether each object rolls, slides, or does both.",
+        durationMinutes: 15,
+      },
+      practice: [
+        "Find two long objects in your school bag.",
+        "Draw one round thing you see at home.",
+      ],
+      quickAssessment: [
+        "Does a water bottle roll, slide, or both?",
+        "Why does a bangle look round from the front but like a line from the side?",
+      ],
+      homework:
+        "Explore three objects at home with your family and identify if they are long or round.",
+      teacherScript:
+        "Good morning little mathematicians! Today we are shape detectives exploring what is long and what is round!",
+      materials: [
+        "Cricket bat",
+        "Ball",
+        "Pencil",
+        "Orange",
+        "Ruler",
+        "Bangle",
+        "Water bottle",
+        "Pencil box",
+        "Low wooden ramp or tilted desk",
+      ],
+      differentiation: {
+        support:
+          "Allow children to physically hold and roll objects on the carpet to feel the curved vs flat surfaces.",
+        extension:
+          "Ask advanced learners to find objects in the classroom that can both roll and slide.",
+      },
+      pacingBreakdown: {
+        introductionMinutes: 5,
+        directInstructionMinutes: 10,
+        activityMinutes: 15,
+        practiceMinutes: 5,
+        assessmentMinutes: 5,
+      },
+      visualExplanation: {
+        format: "SORTING_DIAGRAM" as const,
+        concept: "What is Long? What is Round? (Shapes & Movement)",
+        shortExplanation:
+          "Objects with straight, elongated shapes are long. Objects with curved, circular surfaces are round. Long things often slide, while round things roll smoothly.",
+        kannadaExplanation:
+          "ಉದ್ದವಾದ ವಸ್ತುಗಳು ನೇರವಾಗಿದ್ದು ಜಾರುತ್ತವೆ. ದುಂಡಗಿರುವ ವಸ್ತುಗಳು ವಕ್ರವಾಗಿದ್ದು ಉರುಳುತ್ತವೆ. ಕೆಲವು ವಸ್ತುಗಳು ನೋಡುವ ಕೋನಕ್ಕೆ ತಕ್ಕಂತೆ ಉದ್ದ ಅಥವಾ ದುಂಡಾಗಿ ಕಾಣಿಸುತ್ತವೆ.",
+        teacherGuidance:
+          "Help children realize that 3D real-world objects have multiple dimensions. A water bottle viewed from the side is a long cylinder, but its cap and bottom are circles. A bangle rolls on its circular rim, but viewed on edge looks like a line. Celebrate children explaining what they observe from different perspectives.",
+        sortingActivity: {
+          title: "Long and Round Sorting Board",
+          instructions:
+            "Observe each item carefully. Sort them into Long, Round, or Multi-Perspective categories.",
+          kannadaInstructions:
+            "ಪ್ರತಿಯೊಂದು ವಸ್ತುವನ್ನು ಗಮನಿಸಿ. ಉದ್ದ, ದುಂಡು ಅಥವಾ ಎರಡೂ ಆಕಾರಗಳನ್ನು ಹೊಂದಿರುವ ವರ್ಗಗಳಿಗೆ ವಿಂಗಡಿಸಿ.",
+          items: [
+            {
+              id: "bat",
+              contextualObservation: "Elongated wooden bat used for cricket",
+              kannadaObservation: "ಆಟದಲ್ಲಿ ಬಳಸುವ ಉದ್ದವಾದ ಮರದ ಬ್ಯಾಟ್",
+            },
+            {
+              id: "ball",
+              contextualObservation: "Smooth spherical ball that rolls in all directions",
+              kannadaObservation: "ಎಲ್ಲಾ ಕಡೆ ಸುಲಭವಾಗಿ ಉರುಳುವ ಚೆಂಡು",
+            },
+            {
+              id: "pencil",
+              contextualObservation: "Slender cylindrical pencil that rolls on its side",
+              kannadaObservation: "ಬರೆಯಲು ಬಳಸುವ ಉದ್ದವಾದ ಪೆನ್ಸಿಲ್",
+            },
+            {
+              id: "orange",
+              contextualObservation: "Naturally round spherical fruit",
+              kannadaObservation: "ಉರುಳುವ ದುಂಡನೆಯ ಕಿತ್ತಳೆ ಹಣ್ಣು",
+            },
+            {
+              id: "ruler",
+              contextualObservation: "Straight flat ruler for measuring",
+              kannadaObservation: "ಜಾರುವ ನೇರವಾದ ಅಳತೆಗೋಲು",
+            },
+            {
+              id: "bangle",
+              contextualObservation: "Circular ring that rolls along its outer rim",
+              kannadaObservation: "ಉರುಳುವ ದುಂಡನೆಯ ಗಾಜಿನ ಬಳೆ",
+            },
+            {
+              id: "bottle",
+              contextualObservation: "Tall cylinder that shows a round circle from top/bottom",
+              kannadaObservation: "ಪಕ್ಕದಿಂದ ಉದ್ದ, ತಳದಿಂದ ದುಂಡಾಗಿರುವ ನೀರಿನ ಬಾಟಲ್",
+            },
+            {
+              id: "pencil_box",
+              contextualObservation: "Long rectangular box with flat sliding faces",
+              kannadaObservation: "ಉದ್ದವಾದ ಆದರೆ ಜಾರುವ ಪೆನ್ಸಿಲ್ ಬಾಕ್ಸ್",
+            },
+          ],
+        },
+      },
+    };
+
+    const rawOutput = JSON.stringify(structuredContent, null, 2);
+    const latencyMs = Math.max(15, Date.now() - startTime);
+
+    return {
+      rawOutput,
+      parsedContent: structuredContent as unknown as LessonContent,
+      provider: "MOCK",
+      model: "mock-pedagogy-v1",
+      promptVersion: "lesson/visual.v1",
+      latencyMs,
+      inputTokens: 1100,
+      outputTokens: 1400,
+      estimatedCost: 0,
     };
   }
 

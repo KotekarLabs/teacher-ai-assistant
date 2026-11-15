@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 @theme {
+  /* Fonts */
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-kannada: "Noto Sans Kannada", "Nirmala UI", "Tunga", "Kedage", sans-serif;
+
   /* Surfaces & Canvas (Soft Ivory & Warm Tones) */
   --color-canvas-ivory: #fdfcf9;
   --color-canvas-subtle: #f7f5f0;

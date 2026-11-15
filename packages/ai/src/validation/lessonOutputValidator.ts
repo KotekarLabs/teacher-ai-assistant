@@ -1,6 +1,8 @@
 import {
   LessonContentSchema,
+  AIGeneratedVisualLessonSchema,
   type LessonContent,
+  type AIGeneratedVisualLesson,
 } from "@teacher-ai/contracts";
 import type {
   EducationalQualityResult,
@@ -28,6 +30,26 @@ export class LessonOutputValidator {
     error?: string;
   } {
     const result = LessonContentSchema.safeParse(parsed);
+    if (!result.success) {
+      return {
+        success: false,
+        error: result.error.issues
+          .map((e) => `${e.path.join(".")}: ${e.message}`)
+          .join(", "),
+      };
+    }
+    return {
+      success: true,
+      data: result.data,
+    };
+  }
+
+  static validateVisualSchema(parsed: unknown): {
+    success: boolean;
+    data?: AIGeneratedVisualLesson;
+    error?: string;
+  } {
+    const result = AIGeneratedVisualLessonSchema.safeParse(parsed);
     if (!result.success) {
       return {
         success: false,

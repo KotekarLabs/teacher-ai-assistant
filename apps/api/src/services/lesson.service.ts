@@ -2,6 +2,7 @@ import type {
   GenerateLessonRequest,
   UpdateLessonRequest,
   LessonContent,
+  LessonProvenance,
 } from "@teacher-ai/contracts";
 import {
   getAIProvider,
@@ -13,6 +14,9 @@ import { LessonRepository } from "../repositories/lesson.repository";
 import { GenerationRequestRepository } from "../repositories/generation-request.repository";
 import { ContentSyncService } from "./content-sync.service";
 import { TeacherService } from "./teacher.service";
+import { CurriculumRegistry, type VerifiedCurriculumEntry } from "../registry/curriculum-registry";
+import { hydrateVisualLesson } from "./visual-hydration.utils";
+import { mergeLessonContent } from "./lesson-merge.utils";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 
@@ -46,6 +50,30 @@ export class LessonService {
 
     const profile = await TeacherService.getProfileByUserId(teacherId);
 
+    let curriculumEntry: VerifiedCurriculumEntry | null = null;
+    if (data.curriculumTopicId) {
+      curriculumEntry = CurriculumRegistry.getEntry(data.curriculumTopicId);
+      if (!curriculumEntry) {
+        const error: ServiceError = new Error(`Invalid curriculumTopicId: '${data.curriculumTopicId}'`);
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const eligibility = CurriculumRegistry.validateClassEligibility(
+        curriculumEntry,
+        { grade: targetClass.grade, curriculumBoard: targetClass.curriculumBoard },
+        profile,
+        data.subject,
+      );
+      if (!eligibility.eligible) {
+        const error: ServiceError = new Error(
+          eligibility.reason || "Class is not eligible for this curriculum topic",
+        );
+        error.statusCode = 400;
+        throw error;
+      }
+    }
+
     const context = LessonContextBuilder.buildContext(
       data,
       {
@@ -56,9 +84,13 @@ export class LessonService {
       },
       profile,
     );
+    if (curriculumEntry) {
+      context.curriculumTopicId = curriculumEntry.id;
+      context.visualFormat = curriculumEntry.pedagogicalConstraints.format;
+    }
 
     const provider = getAIProvider();
-    const promptVersion = "lesson/generate.v1";
+    const promptVersion = curriculumEntry ? "lesson/visual.v1" : "lesson/generate.v1";
 
     const providerType = process.env.AI_PROVIDER || "MOCK";
     const modelName = process.env.OPENAI_MODEL || (providerType === "OPENAI" ? "gpt-4o-mini" : "mock-pedagogy-v1");
@@ -104,7 +136,45 @@ export class LessonService {
       throw error;
     }
 
-    const schemaRes = LessonOutputValidator.validateSchema(parsed);
+    let contentToValidate = parsed as Record<string, unknown>;
+    if (curriculumEntry && contentToValidate?.visualExplanation) {
+      const visualRes = LessonOutputValidator.validateVisualSchema(
+        contentToValidate.visualExplanation,
+      );
+      if (!visualRes.success || !visualRes.data) {
+        await GenerationRequestRepository.update(genRequest.id, {
+          status: "FAILED",
+          errorCode: "SCHEMA_VALIDATION_FAILED",
+          errorMessage: visualRes.error || "Visual schema validation failed",
+          completedAt: new Date(),
+        });
+        const error: ServiceError = new Error(
+          `Visual schema validation failed: ${visualRes.error}`,
+        );
+        error.statusCode = 502;
+        throw error;
+      }
+
+      // Server attaches provenance strictly from server-owned registry
+      const provenance: LessonProvenance = {
+        verificationStatus: "VERIFIED",
+        curriculumBoard: curriculumEntry.curriculumBoard,
+        textbook: curriculumEntry.textbook.title,
+        edition: curriculumEntry.textbook.edition,
+        chapter: `Chapter ${curriculumEntry.textbook.chapterNumber}: ${curriculumEntry.textbook.chapterTitle}`,
+        printedPages: curriculumEntry.textbook.printedPages,
+        sourceEvidence: curriculumEntry.verification.evidenceReference,
+        verifiedAt: new Date().toISOString(),
+      };
+
+      const hydratedVisual = hydrateVisualLesson(visualRes.data, provenance);
+      contentToValidate = {
+        ...contentToValidate,
+        visualExplanation: hydratedVisual,
+      };
+    }
+
+    const schemaRes = LessonOutputValidator.validateSchema(contentToValidate);
     if (!schemaRes.success || !schemaRes.data) {
       await GenerationRequestRepository.update(genRequest.id, {
         status: "FAILED",
@@ -212,8 +282,10 @@ export class LessonService {
       return null;
     }
 
+    let finalContent = existing.content as LessonContent;
     if (data.content) {
-      const safetyRes = LessonOutputValidator.checkSafety(data.content);
+      finalContent = mergeLessonContent(existing.content as LessonContent, data.content);
+      const safetyRes = LessonOutputValidator.checkSafety(finalContent);
       if (!safetyRes.isSafe) {
         const error: ServiceError = new Error(`Safety violation: ${safetyRes.reason}`);
         error.statusCode = 422;
@@ -232,7 +304,7 @@ export class LessonService {
                 : data.content?.title !== undefined
                   ? data.content.title
                   : undefined,
-            content: data.content as unknown as Prisma.InputJsonValue,
+            content: finalContent as unknown as Prisma.InputJsonValue,
             status: data.status || "SAVED",
           },
           tx,

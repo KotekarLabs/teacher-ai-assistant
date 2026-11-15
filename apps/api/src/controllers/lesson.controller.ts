@@ -5,6 +5,7 @@ import {
 } from "@teacher-ai/contracts";
 import { LessonService, type ServiceError } from "../services/lesson.service";
 import { ExportService } from "../services/export.service";
+import { createSafeErrorMessage } from "../utils/redaction";
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -35,7 +36,7 @@ export class LessonController {
       const sErr = err as ServiceError;
       const status = sErr.statusCode || 500;
       res.status(status).json({
-        error: sErr.message || "Failed to generate lesson",
+        error: createSafeErrorMessage(sErr, "Failed to generate lesson"),
       });
     }
   }
@@ -101,7 +102,7 @@ export class LessonController {
       const sErr = err as ServiceError;
       const status = sErr.statusCode || 500;
       res.status(status).json({
-        error: sErr.message || "Failed to update lesson",
+        error: createSafeErrorMessage(sErr, "Failed to update lesson"),
       });
     }
   }

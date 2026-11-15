@@ -6,6 +6,7 @@ import {
   addDocumentFooters,
   streamToBuffer,
 } from "./pdf-utils";
+import { VisualPdfRegistry } from "./visual/visual-pdf.registry";
 
 export interface LessonPdfData {
   id: string;
@@ -110,6 +111,12 @@ export async function renderLessonPdf(lesson: LessonPdfData): Promise<Buffer> {
       .fillColor("#475569")
       .text(pacingItems.join("  |  "), 50, doc.y, { lineGap: 2 });
     doc.moveDown(0.8);
+  }
+
+  // Visual Pedagogical Explanation (Dedicated Board Page)
+  if (content.visualExplanation) {
+    VisualPdfRegistry.renderVisualExplanationPdf(doc, content.visualExplanation);
+    doc.addPage();
   }
 
   // Structured Phases

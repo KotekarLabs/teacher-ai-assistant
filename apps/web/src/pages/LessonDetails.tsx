@@ -3,17 +3,29 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getLessonById, archiveLesson } from "../api/lessons.api";
 import { downloadResourcePdf } from "../api/export.api";
+import type { LessonDTO } from "@teacher-ai/contracts";
 import {
   ResourceHeader,
   ResourceActions,
   ResourceMetadata,
 } from "../components/resources";
+import {
+  BilingualSortingBoard,
+  CurriculumProvenanceCard,
+} from "../components/visual";
 
-export const LessonDetails: React.FC = () => {
-  const { lessonId } = useParams<{ lessonId: string }>();
+export interface LessonDetailsViewProps {
+  lesson: LessonDTO;
+  onArchive?: () => void;
+  isArchiving?: boolean;
+}
+
+export const LessonDetailsView: React.FC<LessonDetailsViewProps> = ({
+  lesson,
+  onArchive,
+  isArchiving = false,
+}) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
@@ -29,31 +41,12 @@ export const LessonDetails: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showArchiveConfirm]);
 
-  const {
-    data: lessonData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["lesson", lessonId],
-    queryFn: () => getLessonById(lessonId!),
-    enabled: !!lessonId,
-  });
-
-  const archiveMutation = useMutation({
-    mutationFn: () => archiveLesson(lessonId!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lessons"] });
-      queryClient.invalidateQueries({ queryKey: ["content"] });
-      navigate("/dashboard");
-    },
-  });
-
   const handleExportPdf = async () => {
-    if (!lessonData?.lesson) return;
+    if (!lesson) return;
     setIsExporting(true);
     setExportError(null);
     try {
-      await downloadResourcePdf("lessons", lessonData.lesson.id);
+      await downloadResourcePdf("lessons", lesson.id);
     } catch {
       setExportError("We couldn't generate the PDF. Please try again.");
     } finally {
@@ -61,33 +54,16 @@ export const LessonDetails: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="p-12 text-center text-slate-400">
-        Loading lesson plan...
-      </div>
-    );
-  }
+  const handleArchiveConfirm = () => {
+    if (onArchive) {
+      onArchive();
+    } else {
+      setShowArchiveConfirm(false);
+    }
+  };
 
-  if (error || !lessonData?.lesson) {
-    return (
-      <div className="max-w-3xl mx-auto p-8 bg-rose-50 text-rose-700 rounded-2xl border border-rose-200" role="alert">
-        <h3 className="font-bold text-lg mb-1">Lesson Not Found</h3>
-        <p className="text-sm">
-          The requested lesson could not be found or you do not have permission to access it.
-        </p>
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="mt-4 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl cursor-pointer min-h-[44px]"
-        >
-          Return to Dashboard
-        </button>
-      </div>
-    );
-  }
-
-  const lesson = lessonData.lesson;
   const content = lesson.content;
+  const isVisualLesson = content.visualExplanation?.format === "SORTING_DIAGRAM";
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-16" data-testid="lesson-details">
@@ -136,6 +112,27 @@ export const LessonDetails: React.FC = () => {
         }
       />
 
+      {/* Curriculum Visual Lesson Indicator */}
+      {isVisualLesson && (
+        <div
+          data-testid="curriculum-visual-badge"
+          className="p-3.5 bg-emerald-50/80 border border-emerald-200/90 rounded-2xl flex flex-wrap items-center justify-between gap-2 shadow-2xs"
+        >
+          <div className="flex items-center space-x-2">
+            <span className="text-base">🌟</span>
+            <span className="text-xs font-bold text-emerald-950">
+              Curriculum-Aligned Visual Lesson (Bilingual Sorting Assistant)
+            </span>
+            <span className="text-xs font-semibold text-emerald-800 font-kannada">
+              • ದೃಶ್ಯ ಬೋಧನಾ ಸಹಾಯಕ
+            </span>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            Karnataka State Board • Class 1 Math
+          </span>
+        </div>
+      )}
+
       {/* Content Sections */}
       <div className="space-y-6">
         {/* Overview */}
@@ -182,6 +179,18 @@ export const LessonDetails: React.FC = () => {
             </ul>
           </section>
         </div>
+
+        {/* Visual Teaching Assistant & Sorting Board (if curriculum visual lesson) */}
+        {isVisualLesson && content.visualExplanation && (
+          <div className="space-y-6" data-testid="visual-lesson-section">
+            <BilingualSortingBoard
+              visualExplanation={content.visualExplanation}
+            />
+            <CurriculumProvenanceCard
+              provenance={content.visualExplanation.provenance}
+            />
+          </div>
+        )}
 
         {/* Warmup / Introduction */}
         <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs">
@@ -341,11 +350,11 @@ export const LessonDetails: React.FC = () => {
               <button
                 type="button"
                 data-testid="confirm-archive-btn"
-                disabled={archiveMutation.isPending}
-                onClick={() => archiveMutation.mutate()}
+                disabled={isArchiving}
+                onClick={handleArchiveConfirm}
                 className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl cursor-pointer min-h-[44px]"
               >
-                {archiveMutation.isPending ? "Archiving..." : "Archive"}
+                {isArchiving ? "Archiving..." : "Archive"}
               </button>
             </div>
           </div>
@@ -354,4 +363,97 @@ export const LessonDetails: React.FC = () => {
     </div>
   );
 };
+
+const LessonDetailsFetcher: React.FC = () => {
+  const { lessonId } = useParams<{ lessonId: string }>();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const {
+    data: lessonData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["lesson", lessonId],
+    queryFn: () => getLessonById(lessonId!),
+    enabled: !!lessonId,
+  });
+
+  const archiveMutation = useMutation({
+    mutationFn: () => archiveLesson(lessonId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lessons"] });
+      queryClient.invalidateQueries({ queryKey: ["content"] });
+      navigate("/dashboard");
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="p-12 text-center text-slate-400">
+        Loading lesson plan...
+      </div>
+    );
+  }
+
+  if (error || !lessonData?.lesson) {
+    return (
+      <div className="max-w-3xl mx-auto p-8 bg-rose-50 text-rose-700 rounded-2xl border border-rose-200" role="alert">
+        <h3 className="font-bold text-lg mb-1">Lesson Not Found</h3>
+        <p className="text-sm">
+          The requested lesson could not be found or you do not have permission to access it.
+        </p>
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="mt-4 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl cursor-pointer min-h-[44px]"
+        >
+          Return to Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <LessonDetailsView
+      lesson={lessonData.lesson}
+      onArchive={() => archiveMutation.mutate()}
+      isArchiving={archiveMutation.isPending}
+    />
+  );
+};
+
+export interface LessonDetailsProps {
+  initialLesson?: LessonDTO;
+  error?: Error | null;
+}
+
+export const LessonDetails: React.FC<LessonDetailsProps> = ({
+  initialLesson,
+  error: directError,
+}) => {
+  const navigate = useNavigate();
+
+  if (initialLesson || directError) {
+    if (directError || !initialLesson) {
+      return (
+        <div className="max-w-3xl mx-auto p-8 bg-rose-50 text-rose-700 rounded-2xl border border-rose-200" role="alert">
+          <h3 className="font-bold text-lg mb-1">Lesson Not Found</h3>
+          <p className="text-sm">
+            The requested lesson could not be found or you do not have permission to access it.
+          </p>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="mt-4 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-xl cursor-pointer min-h-[44px]"
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      );
+    }
+    return <LessonDetailsView lesson={initialLesson} />;
+  }
+
+  return <LessonDetailsFetcher />;
+};
+
 export default LessonDetails;

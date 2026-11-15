@@ -16,6 +16,7 @@ import type {
   HomeworkGenerationResult,
 } from "../types";
 import { LessonPromptBuilder } from "../prompts/lessonPromptBuilder";
+import { VisualLessonPromptBuilder } from "../prompts/visualLessonPromptBuilder";
 import { LessonOutputValidator } from "../validation/lessonOutputValidator";
 import { WorksheetPromptBuilder } from "../prompts/worksheetPromptBuilder";
 import { WorksheetOutputValidator } from "../validation/worksheetOutputValidator";
@@ -60,8 +61,16 @@ export class OpenAIProvider implements AIProvider {
     context: LessonGenerationContext,
   ): Promise<LessonGenerationResult> {
     const startTime = Date.now();
-    const systemPrompt = LessonPromptBuilder.buildSystemPrompt();
-    const userPrompt = LessonPromptBuilder.buildUserPrompt(context);
+    const isVisualPrototype = context.curriculumTopicId === "JOYFUL_MATH_C1_CH2_V1";
+    const systemPrompt = isVisualPrototype
+      ? VisualLessonPromptBuilder.buildSystemPrompt()
+      : LessonPromptBuilder.buildSystemPrompt();
+    const userPrompt = isVisualPrototype
+      ? VisualLessonPromptBuilder.buildUserPrompt(context)
+      : LessonPromptBuilder.buildUserPrompt(context);
+    const promptVersion = isVisualPrototype
+      ? VisualLessonPromptBuilder.PROMPT_VERSION
+      : LessonPromptBuilder.PROMPT_VERSION;
 
     let response: Response;
     try {
@@ -124,7 +133,7 @@ export class OpenAIProvider implements AIProvider {
       parsedContent,
       provider: "OPENAI",
       model: this.model,
-      promptVersion: LessonPromptBuilder.PROMPT_VERSION,
+      promptVersion,
       latencyMs,
       inputTokens,
       outputTokens,

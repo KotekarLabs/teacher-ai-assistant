@@ -3,6 +3,10 @@ import type {
   LessonContent,
   LessonPacingBreakdown,
 } from "@teacher-ai/contracts";
+import {
+  CanonicalVectorGraphic,
+  CurriculumProvenanceCard,
+} from "../visual";
 
 interface LessonEditorProps {
   content: LessonContent;
@@ -15,6 +19,58 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const isVisualLesson =
+    content.visualExplanation?.format === "SORTING_DIAGRAM";
+  const visual = content.visualExplanation;
+
+  const handleVisualFieldChange = (
+    field: "teacherGuidance" | "instructions" | "kannadaInstructions",
+    value: string,
+  ) => {
+    if (!content.visualExplanation) return;
+    if (field === "teacherGuidance") {
+      onChange({
+        ...content,
+        visualExplanation: {
+          ...content.visualExplanation,
+          teacherGuidance: value,
+        },
+      });
+    } else {
+      onChange({
+        ...content,
+        visualExplanation: {
+          ...content.visualExplanation,
+          sortingActivity: {
+            ...content.visualExplanation.sortingActivity,
+            [field]: value,
+          },
+        },
+      });
+    }
+  };
+
+  const handleItemObservationChange = (
+    itemId: string,
+    field: "contextualObservation" | "kannadaObservation",
+    value: string,
+  ) => {
+    if (!content.visualExplanation) return;
+    const updatedItems = content.visualExplanation.sortingActivity.items.map(
+      (item) => (item.id === itemId ? { ...item, [field]: value } : item),
+    );
+    onChange({
+      ...content,
+      visualExplanation: {
+        ...content.visualExplanation,
+        sortingActivity: {
+          ...content.visualExplanation.sortingActivity,
+          items: updatedItems,
+        },
+      },
+    });
+  };
+
   const handleStringChange = (field: keyof LessonContent, value: string) => {
     onChange({
       ...content,
@@ -202,6 +258,220 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({
           ))}
         </div>
       </section>
+
+      {/* Dedicated Visual Teaching & Sorting Board Section (Curriculum-Aligned Visual Lessons) */}
+      {isVisualLesson && visual && (
+        <section
+          data-testid="editor-visual-section"
+          className="bg-[#FCFBF7] p-6 sm:p-7 rounded-2xl border border-amber-200/80 shadow-xs space-y-6"
+        >
+          {/* Section Header */}
+          <div className="border-b border-amber-200/60 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xl">🎨</span>
+                <h3 className="text-lg font-bold text-slate-900">
+                  Visual Teaching Assistant & Sorting Board
+                </h3>
+              </div>
+              <p className="text-xs font-semibold text-violet-700 font-kannada mt-0.5">
+                ದೃಶ್ಯ ಬೋಧನಾ ಸಹಾಯಕ ಮತ್ತು ವಿಂಗಡಣೆ ಬೋರ್ಡ್
+              </p>
+            </div>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 self-start sm:self-auto">
+              ✓ Karnataka State Board Aligned
+            </span>
+          </div>
+
+          {/* Security & Immutability Notice */}
+          <div
+            data-testid="editor-visual-security-notice"
+            className="p-3.5 bg-amber-50/90 border border-amber-200/70 rounded-xl text-xs text-amber-900 flex items-start space-x-2.5 leading-relaxed"
+          >
+            <span className="text-base">🔒</span>
+            <div>
+              <strong className="font-bold">
+                Curriculum-Aligned Resource — Canonical Properties Protected:
+              </strong>{" "}
+              Canonical object IDs, names, shape categories, rolling/sliding characteristics, and official curriculum provenance citations are protected from modification. You may freely customize teacher guidance, instructions, and classroom observations.
+            </div>
+          </div>
+
+          {/* Teacher Guidance Input */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span>Teacher Guidance / Pedagogical Prompts</span>
+              <span className="text-[11px] font-normal text-slate-500 font-kannada">
+                ಬೋಧನಾ ಮಾರ್ಗದರ್ಶನ
+              </span>
+            </label>
+            <textarea
+              rows={3}
+              data-testid="editor-visual-guidance"
+              value={visual.teacherGuidance}
+              disabled={disabled}
+              onChange={(e) =>
+                handleVisualFieldChange("teacherGuidance", e.target.value)
+              }
+              placeholder="e.g. Prompt students to roll and slide each object on their desks before placing it on the board..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-800 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-colors leading-relaxed"
+            />
+          </div>
+
+          {/* Activity Instructions (Bilingual) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                Activity Instructions (English)
+              </label>
+              <textarea
+                rows={3}
+                data-testid="editor-visual-instructions"
+                value={visual.sortingActivity.instructions}
+                disabled={disabled}
+                onChange={(e) =>
+                  handleVisualFieldChange("instructions", e.target.value)
+                }
+                placeholder="Instructions for students during the sorting activity..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-800 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-colors leading-relaxed"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 font-kannada">
+                ಸೂಚನೆಗಳು (ಕನ್ನಡ / Kannada)
+              </label>
+              <textarea
+                rows={3}
+                data-testid="editor-visual-kannada-instructions"
+                value={visual.sortingActivity.kannadaInstructions || ""}
+                disabled={disabled}
+                onChange={(e) =>
+                  handleVisualFieldChange("kannadaInstructions", e.target.value)
+                }
+                placeholder="ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಕನ್ನಡದಲ್ಲಿ ಸೂಚನೆಗಳು..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-800 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 transition-colors leading-relaxed font-kannada"
+              />
+            </div>
+          </div>
+
+          {/* Canonical Objects Catalogue (8 Objects — Canonical Properties Locked, Observations Editable) */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">
+                  Canonical Sorting Objects (8 Curriculum Items)
+                </h4>
+                <p className="text-xs text-slate-500">
+                  Objects and physical classifications are fixed. Contextual observations can be adapted for your classroom.
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+                🔒 8 Locked Canonical Items
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {visual.sortingActivity.items.map((item) => (
+                <div
+                  key={item.id}
+                  data-testid={`editor-visual-item-${item.id}`}
+                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3"
+                >
+                  {/* Canonical Item Header with Graphic & Locked Metadata */}
+                  <div className="flex items-start space-x-3">
+                    <div className="p-1.5 bg-slate-50 rounded-lg border border-slate-100 flex-shrink-0">
+                      <CanonicalVectorGraphic
+                        id={item.id}
+                        size={40}
+                        title={item.nameEnglish}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1 flex-wrap">
+                        <span className="font-bold text-sm text-slate-900">
+                          {item.nameEnglish}
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                          {item.shapeCategory === "LONG"
+                            ? "📏 LONG"
+                            : item.shapeCategory === "ROUND"
+                            ? "⚽ ROUND"
+                            : "🔄 MULTI-PERSPECTIVE"}
+                        </span>
+                      </div>
+                      <p className="text-xs font-semibold text-violet-700 font-kannada">
+                        {item.nameKannada}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1 text-[11px] text-slate-500">
+                        <span>
+                          {item.rolls && item.slides
+                            ? "Rolls & Slides"
+                            : item.rolls
+                            ? "Rolls only"
+                            : "Slides only"}
+                        </span>
+                        <span>•</span>
+                        <span className="text-amber-800 font-medium">
+                          🔒 Canonical
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Editable Observations */}
+                  <div className="space-y-2 pt-1 border-t border-slate-100 text-xs">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                        Classroom Observation (English)
+                      </label>
+                      <input
+                        type="text"
+                        data-testid={`editor-obs-en-${item.id}`}
+                        value={item.contextualObservation || ""}
+                        disabled={disabled}
+                        onChange={(e) =>
+                          handleItemObservationChange(
+                            item.id,
+                            "contextualObservation",
+                            e.target.value,
+                          )
+                        }
+                        placeholder="e.g. Long cylindrical shape..."
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-800 focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1 font-kannada">
+                        ತರಗತಿ ವೀಕ್ಷಣೆ (ಕನ್ನಡ / Kannada)
+                      </label>
+                      <input
+                        type="text"
+                        data-testid={`editor-obs-kn-${item.id}`}
+                        value={item.kannadaObservation || ""}
+                        disabled={disabled}
+                        onChange={(e) =>
+                          handleItemObservationChange(
+                            item.id,
+                            "kannadaObservation",
+                            e.target.value,
+                          )
+                        }
+                        placeholder="ಉದಾ. ನೆಲದ ಮೇಲೆ ಜಾರುತ್ತದೆ..."
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-800 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 font-kannada"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Protected Curriculum Provenance Reference */}
+          <div className="pt-2">
+            <CurriculumProvenanceCard provenance={visual.provenance} />
+          </div>
+        </section>
+      )}
 
       {/* Prerequisites & Hook */}
       <section className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">

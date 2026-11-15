@@ -9,6 +9,7 @@ import { worksheetRouter } from "./routes/worksheet.routes";
 import { quizRouter } from "./routes/quiz.routes";
 import { homeworkRouter } from "./routes/homework.routes";
 import { contentRouter } from "./routes/content.routes";
+import { curriculumRouter } from "./routes/curriculum.routes";
 import { config } from "./utils/config";
 
 const app = express();
@@ -48,6 +49,7 @@ app.use("/api/v1/worksheets", worksheetRouter);
 app.use("/api/v1/quizzes", quizRouter);
 app.use("/api/v1/homeworks", homeworkRouter);
 app.use("/api/v1/content", contentRouter);
+app.use("/api/v1/curriculum", curriculumRouter);
 
 
 app.get("/api/v1/health", (req, res) => {

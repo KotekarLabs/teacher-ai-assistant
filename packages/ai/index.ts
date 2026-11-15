@@ -4,6 +4,7 @@ export * from "./src/context/worksheetContextBuilder";
 export * from "./src/context/quizContextBuilder";
 export * from "./src/context/homeworkContextBuilder";
 export * from "./src/prompts/lessonPromptBuilder";
+export * from "./src/prompts/visualLessonPromptBuilder";
 export * from "./src/prompts/worksheetPromptBuilder";
 export * from "./src/prompts/quizPromptBuilder";
 export * from "./src/prompts/homeworkPromptBuilder";

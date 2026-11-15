@@ -19,6 +19,8 @@ export interface LessonGenerationContext {
   preferredLanguage?: string;
   teachingRole?: string;
   experienceLevel?: string;
+  curriculumTopicId?: string;
+  visualFormat?: string;
 }
 
 export interface LessonGenerationResult {
